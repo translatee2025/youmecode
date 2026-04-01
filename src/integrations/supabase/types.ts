@@ -14,6 +14,52 @@ export type Database = {
   }
   public: {
     Tables: {
+      blocks: {
+        Row: {
+          blocked_id: string
+          blocker_id: string
+          created_at: string | null
+          id: string
+          tenant_id: string
+        }
+        Insert: {
+          blocked_id: string
+          blocker_id: string
+          created_at?: string | null
+          id?: string
+          tenant_id: string
+        }
+        Update: {
+          blocked_id?: string
+          blocker_id?: string
+          created_at?: string | null
+          id?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blocks_blocked_id_fkey"
+            columns: ["blocked_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "blocks_blocker_id_fkey"
+            columns: ["blocker_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "blocks_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       categories: {
         Row: {
           applies_to: string | null
@@ -115,6 +161,55 @@ export type Database = {
         }
         Relationships: []
       }
+      checkins: {
+        Row: {
+          created_at: string | null
+          id: string
+          note: string | null
+          tenant_id: string
+          user_id: string | null
+          venue_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          note?: string | null
+          tenant_id: string
+          user_id?: string | null
+          venue_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          note?: string | null
+          tenant_id?: string
+          user_id?: string | null
+          venue_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "checkins_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "checkins_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "checkins_venue_id_fkey"
+            columns: ["venue_id"]
+            isOneToOne: false
+            referencedRelation: "venues"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       claim_requests: {
         Row: {
           created_at: string | null
@@ -185,6 +280,67 @@ export type Database = {
             columns: ["venue_id"]
             isOneToOne: false
             referencedRelation: "venues"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      comments: {
+        Row: {
+          content: string
+          created_at: string | null
+          entity_id: string
+          entity_type: string
+          id: string
+          is_hidden: boolean | null
+          likes_count: number | null
+          parent_id: string | null
+          tenant_id: string
+          user_id: string | null
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          entity_id: string
+          entity_type: string
+          id?: string
+          is_hidden?: boolean | null
+          likes_count?: number | null
+          parent_id?: string | null
+          tenant_id: string
+          user_id?: string | null
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          entity_id?: string
+          entity_type?: string
+          id?: string
+          is_hidden?: boolean | null
+          likes_count?: number | null
+          parent_id?: string | null
+          tenant_id?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comments_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "comments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comments_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comments_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
             referencedColumns: ["id"]
           },
         ]
@@ -271,6 +427,125 @@ export type Database = {
           },
         ]
       }
+      follows: {
+        Row: {
+          created_at: string | null
+          followee_id: string
+          followee_type: string
+          follower_id: string
+          id: string
+          tenant_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          followee_id: string
+          followee_type: string
+          follower_id: string
+          id?: string
+          tenant_id: string
+        }
+        Update: {
+          created_at?: string | null
+          followee_id?: string
+          followee_type?: string
+          follower_id?: string
+          id?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "follows_follower_id_fkey"
+            columns: ["follower_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "follows_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hashtags: {
+        Row: {
+          created_at: string | null
+          followers_count: number | null
+          id: string
+          posts_count: number | null
+          tag: string
+          tenant_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          followers_count?: number | null
+          id?: string
+          posts_count?: number | null
+          tag: string
+          tenant_id: string
+        }
+        Update: {
+          created_at?: string | null
+          followers_count?: number | null
+          id?: string
+          posts_count?: number | null
+          tag?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hashtags_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      likes: {
+        Row: {
+          created_at: string | null
+          entity_id: string
+          entity_type: string
+          id: string
+          tenant_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          entity_id: string
+          entity_type: string
+          id?: string
+          tenant_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          entity_id?: string
+          entity_type?: string
+          id?: string
+          tenant_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "likes_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "likes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       module_settings: {
         Row: {
           icon: string | null
@@ -321,6 +596,52 @@ export type Database = {
           },
         ]
       }
+      mutes: {
+        Row: {
+          created_at: string | null
+          id: string
+          muted_id: string
+          muter_id: string
+          tenant_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          muted_id: string
+          muter_id: string
+          tenant_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          muted_id?: string
+          muter_id?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mutes_muted_id_fkey"
+            columns: ["muted_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mutes_muter_id_fkey"
+            columns: ["muter_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mutes_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       platform_admins: {
         Row: {
           created_at: string | null
@@ -338,6 +659,194 @@ export type Database = {
           id?: string
         }
         Relationships: []
+      }
+      poll_votes: {
+        Row: {
+          created_at: string | null
+          id: string
+          option_index: number
+          poll_id: string
+          tenant_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          option_index: number
+          poll_id: string
+          tenant_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          option_index?: number
+          poll_id?: string
+          tenant_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "poll_votes_poll_id_fkey"
+            columns: ["poll_id"]
+            isOneToOne: false
+            referencedRelation: "polls"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "poll_votes_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "poll_votes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      polls: {
+        Row: {
+          created_at: string | null
+          ends_at: string | null
+          id: string
+          options: Json
+          question: string
+          tenant_id: string
+          total_votes: number | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          ends_at?: string | null
+          id?: string
+          options?: Json
+          question: string
+          tenant_id: string
+          total_votes?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          ends_at?: string | null
+          id?: string
+          options?: Json
+          question?: string
+          tenant_id?: string
+          total_votes?: number | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "polls_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "polls_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      posts: {
+        Row: {
+          comments_count: number | null
+          content: string | null
+          created_at: string | null
+          hashtags: string[] | null
+          id: string
+          is_pinned: boolean | null
+          likes_count: number | null
+          location_city: string | null
+          location_lat: number | null
+          location_lng: number | null
+          media_urls: Json | null
+          poll_id: string | null
+          post_type: string | null
+          scheduled_at: string | null
+          tenant_id: string
+          thumbnail_url: string | null
+          user_id: string | null
+          venue_id: string | null
+          video_url: string | null
+          views_count: number | null
+        }
+        Insert: {
+          comments_count?: number | null
+          content?: string | null
+          created_at?: string | null
+          hashtags?: string[] | null
+          id?: string
+          is_pinned?: boolean | null
+          likes_count?: number | null
+          location_city?: string | null
+          location_lat?: number | null
+          location_lng?: number | null
+          media_urls?: Json | null
+          poll_id?: string | null
+          post_type?: string | null
+          scheduled_at?: string | null
+          tenant_id: string
+          thumbnail_url?: string | null
+          user_id?: string | null
+          venue_id?: string | null
+          video_url?: string | null
+          views_count?: number | null
+        }
+        Update: {
+          comments_count?: number | null
+          content?: string | null
+          created_at?: string | null
+          hashtags?: string[] | null
+          id?: string
+          is_pinned?: boolean | null
+          likes_count?: number | null
+          location_city?: string | null
+          location_lat?: number | null
+          location_lng?: number | null
+          media_urls?: Json | null
+          poll_id?: string | null
+          post_type?: string | null
+          scheduled_at?: string | null
+          tenant_id?: string
+          thumbnail_url?: string | null
+          user_id?: string | null
+          venue_id?: string | null
+          video_url?: string | null
+          views_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "posts_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "posts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "posts_venue_id_fkey"
+            columns: ["venue_id"]
+            isOneToOne: false
+            referencedRelation: "venues"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       product_types: {
         Row: {
@@ -500,6 +1009,163 @@ export type Database = {
             columns: ["venue_id"]
             isOneToOne: false
             referencedRelation: "venues"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ratings: {
+        Row: {
+          created_at: string | null
+          entity_id: string
+          entity_type: string
+          id: string
+          review_text: string | null
+          score: number
+          status: string | null
+          tenant_id: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          entity_id: string
+          entity_type: string
+          id?: string
+          review_text?: string | null
+          score: number
+          status?: string | null
+          tenant_id: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          entity_id?: string
+          entity_type?: string
+          id?: string
+          review_text?: string | null
+          score?: number
+          status?: string | null
+          tenant_id?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ratings_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ratings_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reports: {
+        Row: {
+          created_at: string | null
+          detail: string | null
+          entity_id: string
+          entity_type: string
+          id: string
+          reason: string
+          reporter_id: string | null
+          reviewed_by: string | null
+          status: string | null
+          tenant_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          detail?: string | null
+          entity_id: string
+          entity_type: string
+          id?: string
+          reason: string
+          reporter_id?: string | null
+          reviewed_by?: string | null
+          status?: string | null
+          tenant_id: string
+        }
+        Update: {
+          created_at?: string | null
+          detail?: string | null
+          entity_id?: string
+          entity_type?: string
+          id?: string
+          reason?: string
+          reporter_id?: string | null
+          reviewed_by?: string | null
+          status?: string | null
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reports_reporter_id_fkey"
+            columns: ["reporter_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reports_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reports_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      saves: {
+        Row: {
+          collection_name: string | null
+          created_at: string | null
+          entity_id: string
+          entity_type: string
+          id: string
+          tenant_id: string
+          user_id: string
+        }
+        Insert: {
+          collection_name?: string | null
+          created_at?: string | null
+          entity_id: string
+          entity_type: string
+          id?: string
+          tenant_id: string
+          user_id: string
+        }
+        Update: {
+          collection_name?: string | null
+          created_at?: string | null
+          entity_id?: string
+          entity_type?: string
+          id?: string
+          tenant_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "saves_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "saves_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
             referencedColumns: ["id"]
           },
         ]

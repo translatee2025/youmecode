@@ -77,9 +77,9 @@ const App = () => (
                     <Route path="theme" element={<AdminPlaceholder title="Theme" />} />
                     <Route path="settings" element={<AdminPlaceholder title="Site Settings" />} />
                     <Route path="ai" element={<AdminPlaceholder title="AI & Translation" />} />
-                    <Route path="categories" element={<AdminPlaceholder title="Category Manager" />} />
-                    <Route path="filters" element={<AdminPlaceholder title="Filter Management" />} />
-                    <Route path="product-types" element={<AdminPlaceholder title="Product Types" />} />
+                    <Route path="categories" element={<CategoryManager />} />
+                    <Route path="filters" element={<FilterManagement />} />
+                    <Route path="product-types" element={<ProductTypeManager />} />
                     <Route path="pages" element={<AdminPlaceholder title="Pages" />} />
                     <Route path="blog" element={<AdminPlaceholder title="Blog" />} />
                     <Route path="faq" element={<AdminPlaceholder title="FAQ" />} />

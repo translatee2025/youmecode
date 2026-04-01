@@ -169,6 +169,7 @@ const App = () => (
                   <Route path="/events/:id" element={<EventDetailPage />} />
                   <Route path="/cities" element={<CitiesPage />} />
                   <Route path="/city/:citySlug" element={<CityDetailPage />} />
+                  <Route path="/charts" element={<ChartsPage />} />
 
                   {/* Admin — Creator only (both Creator + Platform modes) */}
                   <Route

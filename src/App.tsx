@@ -213,7 +213,7 @@ const App = () => (
 
                     {/* Platform mode pages */}
                     <Route path="analytics" element={<AnalyticsPage />} />
-                    <Route path="platform-users" element={<AdminPlaceholder title="Platform Users" />} />
+                    <Route path="platform-users" element={<PlatformUsersPage />} />
                     <Route path="permissions" element={<PermissionsMatrix />} />
                     <Route path="webhooks" element={<WebhooksManager />} />
                     <Route path="audit" element={<AuditLog />} />

@@ -11,6 +11,7 @@ import { Rocket } from 'lucide-react';
 
 export default function SetupPage() {
   const tenant = useTenantStore((s) => s.tenant);
+  const setTenant = useTenantStore((s) => s.setTenant);
   const navigate = useNavigate();
   const [checking, setChecking] = useState(true);
   const [platformName, setPlatformName] = useState('');
@@ -19,12 +20,16 @@ export default function SetupPage() {
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    if (!tenant) return;
-    // Check if site_settings already exists for this tenant
+    // If tenant already exists, redirect away from setup
+    if (tenant) {
+      navigate('/auth', { replace: true });
+      return;
+    }
+    // Check DB directly (tenant store might not have loaded yet)
     supabase
-      .from('site_settings')
+      .from('tenants')
       .select('id')
-      .eq('tenant_id', tenant.id)
+      .limit(1)
       .maybeSingle()
       .then(({ data }) => {
         if (data) {
@@ -36,13 +41,22 @@ export default function SetupPage() {
   }, [tenant, navigate]);
 
   const handleSubmit = async () => {
-    if (!tenant || !platformName.trim() || !email.trim() || password.length < 6) {
+    if (!platformName.trim() || !email.trim() || password.length < 6) {
       toast({ title: 'Please fill all fields (password min 6 chars)', variant: 'destructive' });
       return;
     }
     setSubmitting(true);
     try {
-      // 1. Create auth user
+      // 1. Create tenant row
+      const { data: newTenant, error: tenantErr } = await supabase
+        .from('tenants')
+        .insert({ name: platformName.trim() })
+        .select()
+        .single();
+      if (tenantErr) throw tenantErr;
+      if (!newTenant) throw new Error('Tenant creation failed');
+
+      // 2. Create auth user
       const { data: authData, error: authErr } = await supabase.auth.signUp({
         email: email.trim(),
         password,
@@ -50,10 +64,10 @@ export default function SetupPage() {
       if (authErr) throw authErr;
       if (!authData.user) throw new Error('User creation failed');
 
-      // 2. Insert users row with creator role
+      // 3. Insert users row with creator role
       const { error: userErr } = await supabase.from('users').insert({
         id: authData.user.id,
-        tenant_id: tenant.id,
+        tenant_id: newTenant.id,
         email: email.trim(),
         username: email.split('@')[0],
         display_name: 'Admin',
@@ -61,12 +75,23 @@ export default function SetupPage() {
       });
       if (userErr) throw userErr;
 
-      // 3. Insert site_settings
+      // 4. Insert site_settings
       const { error: settingsErr } = await supabase.from('site_settings').insert({
-        tenant_id: tenant.id,
+        tenant_id: newTenant.id,
         site_name: platformName.trim(),
       });
       if (settingsErr) throw settingsErr;
+
+      // 5. Store tenant in Zustand
+      setTenant({
+        id: newTenant.id,
+        name: newTenant.name,
+        subdomain: newTenant.subdomain ?? null,
+        logo_url: newTenant.logo_url ?? null,
+        status: newTenant.status ?? null,
+        onboarding_completed: newTenant.onboarding_completed ?? false,
+        platform_type: newTenant.platform_type ?? null,
+      });
 
       toast({ title: 'Setup complete! Redirecting to onboarding...' });
       navigate('/onboarding', { replace: true });

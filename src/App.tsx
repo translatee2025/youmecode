@@ -34,6 +34,10 @@ import BlogEditor from "@/pages/admin/BlogEditor";
 import FaqManager from "@/pages/admin/FaqManager";
 import PlatformLayout from "@/pages/platform/PlatformLayout";
 import DirectoryPage from "@/pages/DirectoryPage";
+import VenueDetailPage from "@/pages/VenueDetailPage";
+import ProductDetailPage from "@/pages/ProductDetailPage";
+import UserProfilePage from "@/pages/UserProfilePage";
+import SettingsPage from "@/pages/SettingsPage";
 import NotFound from "@/pages/NotFound";
 import OnboardingWizard from "@/pages/onboarding/OnboardingWizard";
 
@@ -76,6 +80,10 @@ const App = () => (
                   <Route path="/auth" element={<AuthPage />} />
                   <Route path="/create-platform" element={<AuthPage />} />
                   <Route path="/directory" element={<DirectoryPage />} />
+                  <Route path="/venues/:slug" element={<VenueDetailPage />} />
+                  <Route path="/products/:id" element={<ProductDetailPage />} />
+                  <Route path="/users/:username" element={<UserProfilePage />} />
+                  <Route path="/settings" element={<RequireAuth><SettingsPage /></RequireAuth>} />
 
                   {/* Admin — Creator only */}
                   <Route

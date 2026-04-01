@@ -66,11 +66,11 @@ export default function UserProfilePage() {
 
   const saveProfile = async () => {
     if (!user) return;
-    await supabase.from('users' as any).update({
+    await (supabase.from('users' as any).update({
       display_name: editForm.display_name,
       bio: editForm.bio,
       location_city: editForm.location_city,
-    }).eq('id', user.id);
+    }) as any).eq('id', user.id);
     setUser({ ...user, ...editForm });
     setEditOpen(false);
     toast({ title: 'Profile updated' });

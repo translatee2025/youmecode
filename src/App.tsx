@@ -194,7 +194,7 @@ const App = () => (
                     <Route path="pages" element={<AdminPlaceholder title="Pages" />} />
                     <Route path="blog" element={<BlogEditor />} />
                     <Route path="faq" element={<FaqManager />} />
-                    <Route path="events" element={<AdminPlaceholder title="Events" />} />
+                    <Route path="events" element={<EventsAdmin />} />
                     <Route path="users" element={<UserManager />} />
                     <Route path="venues" element={<VenueManager />} />
                     <Route path="products" element={<ProductManager />} />

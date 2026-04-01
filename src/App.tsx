@@ -3,6 +3,7 @@ import { BrowserRouter, Route, Routes, useLocation, useNavigate } from "react-ro
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { HelmetProvider } from "react-helmet-async";
 
 import { useEffect } from "react";
 import { TenantProvider } from "@/providers/TenantProvider";
@@ -59,6 +60,15 @@ import ChatRoomsPage from "@/pages/ChatRoomsPage";
 import DiscussionsPage from "@/pages/DiscussionsPage";
 import GroupsPage from "@/pages/GroupsPage";
 import PollsPage from "@/pages/PollsPage";
+import BlogPage from "@/pages/BlogPage";
+import BlogPostPage from "@/pages/BlogPostPage";
+import CmsPage from "@/pages/CmsPage";
+import FaqPage from "@/pages/FaqPage";
+import EventsPage from "@/pages/EventsPage";
+import EventDetailPage from "@/pages/EventDetailPage";
+import CreateEventPage from "@/pages/CreateEventPage";
+import CitiesPage from "@/pages/CitiesPage";
+import CityDetailPage from "@/pages/CityDetailPage";
 
 const queryClient = new QueryClient();
 
@@ -104,6 +114,7 @@ function TenantGate({ children }: { children: React.ReactNode }) {
 }
 
 const App = () => (
+  <HelmetProvider>
   <TenantProvider>
     <ThemeProvider>
       <LanguageProvider>
@@ -146,6 +157,15 @@ const App = () => (
                   <Route path="/groups" element={<GroupsPage />} />
                   <Route path="/groups/:id" element={<GroupsPage />} />
                   <Route path="/polls" element={<PollsPage />} />
+                  <Route path="/blog" element={<BlogPage />} />
+                  <Route path="/blog/:slug" element={<BlogPostPage />} />
+                  <Route path="/pages/:slug" element={<CmsPage />} />
+                  <Route path="/faq" element={<FaqPage />} />
+                  <Route path="/events" element={<EventsPage />} />
+                  <Route path="/events/create" element={<RequireAuth><CreateEventPage /></RequireAuth>} />
+                  <Route path="/events/:id" element={<EventDetailPage />} />
+                  <Route path="/cities" element={<CitiesPage />} />
+                  <Route path="/city/:citySlug" element={<CityDetailPage />} />
 
                   {/* Admin — Creator only (both Creator + Platform modes) */}
                   <Route
@@ -206,6 +226,7 @@ const App = () => (
       </LanguageProvider>
     </ThemeProvider>
   </TenantProvider>
+  </HelmetProvider>
 );
 
 export default App;

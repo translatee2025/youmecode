@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { supabase } from '@/integrations/supabase/client';
 import { useTenantStore } from '@/stores/tenantStore';
 import { useAuthStore } from '@/stores/authStore';
@@ -81,6 +82,22 @@ export default function VenueDetailPage() {
 
   return (
     <div className="min-h-screen" style={{ background: 'var(--color-bg)' }}>
+      <Helmet>
+        <title>{venue.name} — {siteSettings?.site_name ?? tenant?.name ?? ''}</title>
+        <meta name="description" content={venue.short_description || venue.description?.slice(0, 160) || ''} />
+        <meta property="og:title" content={venue.name} />
+        <meta property="og:description" content={venue.short_description || venue.description?.slice(0, 160) || ''} />
+        {venue.cover_image_url && <meta property="og:image" content={venue.cover_image_url} />}
+        <meta property="og:type" content="website" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <script type="application/ld+json">{JSON.stringify({
+          '@context': 'https://schema.org', '@type': 'LocalBusiness',
+          name: venue.name,
+          address: { '@type': 'PostalAddress', streetAddress: venue.address, addressLocality: venue.location_city },
+          telephone: venue.phone, url: venue.website,
+          ...(venue.rating_count > 0 ? { aggregateRating: { '@type': 'AggregateRating', ratingValue: venue.rating_avg, reviewCount: venue.rating_count } } : {}),
+        })}</script>
+      </Helmet>
       {/* Hero */}
       <div className="relative">
         {images.length > 0 ? (

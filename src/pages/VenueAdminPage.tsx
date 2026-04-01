@@ -10,6 +10,44 @@ import FullscreenLoader from '@/components/FullscreenLoader';
 import { BarChart3, Eye, Users, Star, MessageCircle, QrCode, ArrowLeft, Megaphone } from 'lucide-react';
 import QRCode from 'qrcode';
 
+function downloadPrintableCard(venue: any, qrDataUrl: string, tenant: any) {
+  const canvas = document.createElement('canvas');
+  canvas.width = 600;
+  canvas.height = 800;
+  const ctx = canvas.getContext('2d')!;
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, 600, 800);
+
+  // Title
+  ctx.fillStyle = '#111111';
+  ctx.font = 'bold 28px system-ui, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText(tenant?.name ?? 'Platform', 300, 60);
+
+  // Venue name
+  ctx.font = 'bold 22px system-ui, sans-serif';
+  ctx.fillText(venue.name, 300, 120);
+
+  // QR code
+  const img = new Image();
+  img.onload = () => {
+    ctx.drawImage(img, 150, 180, 300, 300);
+
+    // Scan text
+    ctx.font = '16px system-ui, sans-serif';
+    ctx.fillStyle = '#666666';
+    ctx.fillText('Scan to visit', 300, 530);
+    ctx.font = '14px system-ui, sans-serif';
+    ctx.fillText(`${window.location.origin}/venues/${venue.slug}`, 300, 560);
+
+    const link = document.createElement('a');
+    link.download = `${venue.slug}-card.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  };
+  img.src = qrDataUrl;
+}
+
 export default function VenueAdminPage() {
   const { venueId } = useParams<{ venueId: string }>();
   const tenant = useTenantStore((s) => s.tenant);
@@ -105,7 +143,7 @@ export default function VenueAdminPage() {
         )}
 
         {/* Actions */}
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
           <Button variant="outline" asChild>
             <Link to={`/ads/purchase?venueId=${venueId}`}><Megaphone className="h-4 w-4 mr-2" /> Buy Ad Slot</Link>
           </Button>
@@ -113,6 +151,11 @@ export default function VenueAdminPage() {
             <a href={qrUrl} download={`${venue.slug}-qr.png`}>
               <Button variant="outline" className="w-full"><QrCode className="h-4 w-4 mr-2" /> Download QR</Button>
             </a>
+          )}
+          {qrUrl && (
+            <Button variant="outline" onClick={() => downloadPrintableCard(venue, qrUrl, tenant)}>
+              <QrCode className="h-4 w-4 mr-2" /> Printable Card
+            </Button>
           )}
         </div>
 

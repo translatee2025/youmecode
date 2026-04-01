@@ -39,16 +39,16 @@ export default function VenueDetailPage() {
     if (!tenant || !slug) return;
     const load = async () => {
       const [venueRes, settingsRes] = await Promise.all([
-        supabase.from('venues' as any).select('*').eq('tenant_id', tenant.id).eq('slug', slug).maybeSingle(),
+        supabase.from('venues' as any).select('*').eq('tenant_id', tenant.id).eq('slug', slug).maybeSingle() as any,
         supabase.from('site_settings').select('*').eq('tenant_id', tenant.id).maybeSingle(),
       ]);
-      const v = venueRes.data;
+      const v = venueRes.data as any;
       if (!v) { setLoading(false); return; }
       setVenue(v);
       setSiteSettings(settingsRes.data);
 
       // Increment view count
-      supabase.from('venues' as any).update({ views_count: (v.views_count ?? 0) + 1 }).eq('id', v.id).then();
+      (supabase.from('venues' as any) as any).update({ views_count: (v.views_count ?? 0) + 1 }).eq('id', v.id).then();
 
       // Load related data in parallel
       const [prodRes, evtRes, dealRes] = await Promise.all([

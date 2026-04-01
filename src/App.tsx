@@ -208,7 +208,7 @@ const App = () => (
                     <Route path="translations" element={<TranslationsManager />} />
 
                     {/* Platform mode pages */}
-                    <Route path="analytics" element={<AdminPlaceholder title="Analytics" />} />
+                    <Route path="analytics" element={<AnalyticsPage />} />
                     <Route path="platform-users" element={<AdminPlaceholder title="Platform Users" />} />
                     <Route path="permissions" element={<PermissionsMatrix />} />
                     <Route path="webhooks" element={<WebhooksManager />} />

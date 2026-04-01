@@ -33,8 +33,8 @@ export default function SettingsPage() {
     if (!profile || !tenant) return;
     setEmail(profile.email ?? '');
     // Load notification prefs from user record
-    supabase.from('users' as any).select('notification_prefs').eq('id', profile.id).maybeSingle()
-      .then(({ data }) => { if (data?.notification_prefs) setNotifPrefs(data.notification_prefs); });
+    (supabase.from('users' as any).select('notification_prefs').eq('id', profile.id).maybeSingle() as any)
+      .then(({ data }: any) => { if (data?.notification_prefs) setNotifPrefs(data.notification_prefs); });
 
     // Load blocked and muted
     Promise.all([

@@ -118,8 +118,7 @@ const App = () => (
                     <Route path="settings" element={<AdminPlaceholder title="Platform Settings" />} />
                   </Route>
 
-                  {/* Onboarding placeholder */}
-                  <Route path="/onboarding" element={<AdminPlaceholder title="Onboarding Wizard" />} />
+                  <Route path="/onboarding" element={<OnboardingWizard />} />
 
                   <Route path="*" element={<NotFound />} />
                 </Routes>

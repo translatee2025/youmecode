@@ -105,7 +105,7 @@ export default function VenueAdminPage() {
         )}
 
         {/* Actions */}
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
           <Button variant="outline" asChild>
             <Link to={`/ads/purchase?venueId=${venueId}`}><Megaphone className="h-4 w-4 mr-2" /> Buy Ad Slot</Link>
           </Button>
@@ -113,6 +113,11 @@ export default function VenueAdminPage() {
             <a href={qrUrl} download={`${venue.slug}-qr.png`}>
               <Button variant="outline" className="w-full"><QrCode className="h-4 w-4 mr-2" /> Download QR</Button>
             </a>
+          )}
+          {qrUrl && (
+            <Button variant="outline" onClick={() => downloadPrintableCard(venue, qrUrl, tenant)}>
+              <QrCode className="h-4 w-4 mr-2" /> Printable Card
+            </Button>
           )}
         </div>
 

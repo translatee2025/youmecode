@@ -84,7 +84,7 @@ export default function ClaimVenuePage() {
       <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--color-bg)' }}>
         <Card className="glass max-w-md w-full mx-4">
           <CardContent className="pt-6 text-center space-y-4">
-            <CheckCircle2 className="h-16 w-16 text-emerald-400 mx-auto" />
+            <CheckCircle2 className="h-16 w-16 text-primary mx-auto" />
             <h2 className="text-xl font-bold text-foreground">Claim Submitted!</h2>
             <p className="text-sm text-muted-foreground">Your claim for <strong>{venue.name}</strong> is being reviewed. You'll be notified when a decision is made.</p>
             <div className="flex gap-2 justify-center">

@@ -39,7 +39,8 @@ export default function UserProfilePage() {
   useEffect(() => {
     if (!tenant || !username) return;
     const load = async () => {
-      const { data: u } = await supabase.from('users' as any).select('*').eq('tenant_id', tenant.id).eq('username', username).maybeSingle();
+      const { data: uRaw } = await (supabase.from('users' as any).select('*').eq('tenant_id', tenant.id).eq('username', username).maybeSingle() as any);
+      const u = uRaw as any;
       if (!u) { setLoading(false); return; }
       setUser(u);
       setEditForm({ display_name: u.display_name ?? '', bio: u.bio ?? '', location_city: u.location_city ?? '' });
@@ -48,7 +49,7 @@ export default function UserProfilePage() {
         supabase.from('posts').select('id', { count: 'exact', head: true }).eq('tenant_id', tenant.id).eq('user_id', u.id),
         supabase.from('follows').select('id', { count: 'exact', head: true }).eq('tenant_id', tenant.id).eq('followee_type', 'user').eq('followee_id', u.id),
         supabase.from('follows').select('id', { count: 'exact', head: true }).eq('tenant_id', tenant.id).eq('follower_id', u.id),
-        supabase.from('venues' as any).select('id', { count: 'exact', head: true }).eq('tenant_id', tenant.id).eq('owner_id', u.id),
+        (supabase.from('venues' as any).select('id', { count: 'exact', head: true }).eq('tenant_id', tenant.id).eq('owner_id', u.id) as any),
         supabase.from('badges').select('*').eq('tenant_id', tenant.id).eq('is_active', true),
       ]);
       setStats({

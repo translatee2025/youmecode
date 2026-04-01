@@ -80,6 +80,10 @@ const App = () => (
                   <Route path="/auth" element={<AuthPage />} />
                   <Route path="/create-platform" element={<AuthPage />} />
                   <Route path="/directory" element={<DirectoryPage />} />
+                  <Route path="/venues/:slug" element={<VenueDetailPage />} />
+                  <Route path="/products/:id" element={<ProductDetailPage />} />
+                  <Route path="/users/:username" element={<UserProfilePage />} />
+                  <Route path="/settings" element={<RequireAuth><SettingsPage /></RequireAuth>} />
 
                   {/* Admin — Creator only */}
                   <Route

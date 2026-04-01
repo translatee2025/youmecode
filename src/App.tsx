@@ -81,6 +81,26 @@ function HomePage() {
   );
 }
 
+function TenantGate({ children }: { children: React.ReactNode }) {
+  const tenant = useTenantStore((s) => s.tenant);
+  const error = useTenantStore((s) => s.error);
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // No tenant and no DB error → fresh deployment, go to /setup
+    if (!tenant && error === 'no_tenant' && location.pathname !== '/setup') {
+      navigate('/setup', { replace: true });
+    }
+    // Tenant exists but onboarding not done → redirect to /onboarding
+    if (tenant && tenant.onboarding_completed === false && location.pathname !== '/onboarding' && location.pathname !== '/setup') {
+      navigate('/onboarding', { replace: true });
+    }
+  }, [tenant, error, location.pathname, navigate]);
+
+  return <>{children}</>;
+}
+
 const App = () => (
   <TenantProvider>
     <ThemeProvider>
@@ -91,6 +111,7 @@ const App = () => (
               <Toaster />
               <Sonner />
               <BrowserRouter>
+                <TenantGate>
                 <Routes>
                   {/* Public */}
                   <Route path="/" element={<HomePage />} />

@@ -33,6 +33,7 @@ import AuditLog from "@/pages/admin/AuditLog";
 import BlogEditor from "@/pages/admin/BlogEditor";
 import FaqManager from "@/pages/admin/FaqManager";
 import PlatformLayout from "@/pages/platform/PlatformLayout";
+import DirectoryPage from "@/pages/DirectoryPage";
 import NotFound from "@/pages/NotFound";
 import OnboardingWizard from "@/pages/onboarding/OnboardingWizard";
 

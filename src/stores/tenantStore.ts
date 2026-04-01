@@ -4,7 +4,6 @@ export interface Tenant {
   id: string;
   name: string;
   subdomain: string | null;
-  custom_domain: string | null;
   logo_url: string | null;
   status: string | null;
   onboarding_completed: boolean | null;

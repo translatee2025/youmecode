@@ -107,7 +107,7 @@ function AdminSidebar() {
       <SidebarContent>
         <ScrollArea className="h-full">
           {adminNav.map((section) => (
-            <SidebarGroup key={section.title} defaultOpen>
+            <SidebarGroup key={section.title}>
               <SidebarGroupLabel
                 className="text-xs uppercase tracking-wider px-4"
                 style={{ color: 'var(--color-text-muted, #888)' }}

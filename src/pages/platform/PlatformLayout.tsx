@@ -36,7 +36,7 @@ function PlatformSidebar() {
     <Sidebar collapsible="icon" className="border-r-0" style={{ background: 'var(--color-nav, rgba(10,10,10,0.85))' }}>
       <SidebarContent>
         <ScrollArea className="h-full">
-          <SidebarGroup defaultOpen>
+          <SidebarGroup>
             <SidebarGroupLabel
               className="text-xs uppercase tracking-wider px-4"
               style={{ color: 'var(--color-text-muted, #888)' }}

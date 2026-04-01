@@ -2,12 +2,13 @@ import { Share2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
 interface Props {
-  url: string;
+  url?: string;
   title: string;
   className?: string;
 }
 
 export default function ShareButton({ url, title, className }: Props) {
+  const effectiveUrl = url ?? (typeof window !== 'undefined' ? window.location.href : '');
   const share = async () => {
     if (navigator.share) {
       try {

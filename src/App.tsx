@@ -17,6 +17,7 @@ import AdminLayout from "@/pages/admin/AdminLayout";
 import AdminPlaceholder from "@/pages/admin/AdminPlaceholder";
 import PlatformLayout from "@/pages/platform/PlatformLayout";
 import NotFound from "@/pages/NotFound";
+import OnboardingWizard from "@/pages/onboarding/OnboardingWizard";
 
 const queryClient = new QueryClient();
 
@@ -117,8 +118,7 @@ const App = () => (
                     <Route path="settings" element={<AdminPlaceholder title="Platform Settings" />} />
                   </Route>
 
-                  {/* Onboarding placeholder */}
-                  <Route path="/onboarding" element={<AdminPlaceholder title="Onboarding Wizard" />} />
+                  <Route path="/onboarding" element={<OnboardingWizard />} />
 
                   <Route path="*" element={<NotFound />} />
                 </Routes>

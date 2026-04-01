@@ -52,7 +52,7 @@ export default function TranslationsManager() {
     enabled: !!tenant?.id,
     queryFn: async () => {
       const defLang = (siteSettings?.default_language as string) || 'en';
-      const { data } = await supabase.from('translations').select('*').eq('tenant_id', tenant!.id).eq('language', defLang);
+      const { data } = await supabase.from('translations').select('*').eq('tenant_id', tenant!.id).eq('language_code', defLang);
       return data || [];
     },
   });

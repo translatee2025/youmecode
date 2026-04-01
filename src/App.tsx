@@ -115,6 +115,14 @@ const App = () => (
                   <Route path="/notifications" element={<RequireAuth><NotificationsPage /></RequireAuth>} />
                   <Route path="/collections" element={<RequireAuth><CollectionsPage /></RequireAuth>} />
                   <Route path="/venue-admin/:venueId" element={<RequireAuth><VenueAdminPage /></RequireAuth>} />
+                  <Route path="/messages" element={<RequireAuth><MessagesPage /></RequireAuth>} />
+                  <Route path="/chat" element={<ChatRoomsPage />} />
+                  <Route path="/discussions" element={<DiscussionsPage />} />
+                  <Route path="/discussions/:boardSlug" element={<DiscussionsPage />} />
+                  <Route path="/discussions/:boardSlug/:threadId" element={<DiscussionsPage />} />
+                  <Route path="/groups" element={<GroupsPage />} />
+                  <Route path="/groups/:id" element={<GroupsPage />} />
+                  <Route path="/polls" element={<PollsPage />} />
 
                   {/* Admin — Creator only (both Creator + Platform modes) */}
                   <Route

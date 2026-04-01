@@ -40,6 +40,11 @@ import UserProfilePage from "@/pages/UserProfilePage";
 import SettingsPage from "@/pages/SettingsPage";
 import NotFound from "@/pages/NotFound";
 import OnboardingWizard from "@/pages/onboarding/OnboardingWizard";
+import CreateVenuePage from "@/pages/CreateVenuePage";
+import ClaimVenuePage from "@/pages/ClaimVenuePage";
+import ClaimStatusPage from "@/pages/ClaimStatusPage";
+import CommerceActivationPage from "@/pages/CommerceActivationPage";
+import AddProductPage from "@/pages/AddProductPage";
 
 const queryClient = new QueryClient();
 

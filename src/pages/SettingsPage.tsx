@@ -61,7 +61,7 @@ export default function SettingsPage() {
 
   const saveNotifPrefs = async () => {
     if (!profile) return;
-    await supabase.from('users' as any).update({ notification_prefs: notifPrefs }).eq('id', profile.id);
+    await (supabase.from('users' as any).update({ notification_prefs: notifPrefs }) as any).eq('id', profile.id);
     toast({ title: 'Notification preferences saved' });
   };
 

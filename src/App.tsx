@@ -114,6 +114,7 @@ function TenantGate({ children }: { children: React.ReactNode }) {
 }
 
 const App = () => (
+  <HelmetProvider>
   <TenantProvider>
     <ThemeProvider>
       <LanguageProvider>

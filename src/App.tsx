@@ -226,6 +226,7 @@ const App = () => (
       </LanguageProvider>
     </ThemeProvider>
   </TenantProvider>
+  </HelmetProvider>
 );
 
 export default App;

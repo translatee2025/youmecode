@@ -18,10 +18,13 @@ export default function AuthPage() {
   const isCreatePlatform = location.pathname === '/create-platform';
 
   // Redirect if already logged in
-  if (session) {
-    navigate('/', { replace: true });
-    return null;
-  }
+  useEffect(() => {
+    if (session) {
+      navigate('/', { replace: true });
+    }
+  }, [session, navigate]);
+
+  if (session) return null;
 
   return (
     <div

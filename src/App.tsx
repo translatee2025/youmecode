@@ -40,6 +40,11 @@ import UserProfilePage from "@/pages/UserProfilePage";
 import SettingsPage from "@/pages/SettingsPage";
 import NotFound from "@/pages/NotFound";
 import OnboardingWizard from "@/pages/onboarding/OnboardingWizard";
+import CreateVenuePage from "@/pages/CreateVenuePage";
+import ClaimVenuePage from "@/pages/ClaimVenuePage";
+import ClaimStatusPage from "@/pages/ClaimStatusPage";
+import CommerceActivationPage from "@/pages/CommerceActivationPage";
+import AddProductPage from "@/pages/AddProductPage";
 
 const queryClient = new QueryClient();
 
@@ -84,6 +89,11 @@ const App = () => (
                   <Route path="/products/:id" element={<ProductDetailPage />} />
                   <Route path="/users/:username" element={<UserProfilePage />} />
                   <Route path="/settings" element={<RequireAuth><SettingsPage /></RequireAuth>} />
+                  <Route path="/create-venue" element={<RequireAuth><CreateVenuePage /></RequireAuth>} />
+                  <Route path="/claim/:venueId" element={<RequireAuth><ClaimVenuePage /></RequireAuth>} />
+                  <Route path="/claim/:venueId/status" element={<RequireAuth><ClaimStatusPage /></RequireAuth>} />
+                  <Route path="/subscribe/:venueId" element={<RequireAuth><CommerceActivationPage /></RequireAuth>} />
+                  <Route path="/add-product" element={<RequireAuth><AddProductPage /></RequireAuth>} />
 
                   {/* Admin — Creator only */}
                   <Route

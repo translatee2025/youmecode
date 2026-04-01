@@ -211,8 +211,8 @@ function ThreadView({ boardSlug, threadId }: { boardSlug: string; threadId: stri
       .order('created_at', { ascending: true })
       .then(({ data }) => setReplies(data || []));
 
-    // Increment views
-    supabase.rpc('increment_discussion_views' as any, { discussion_id: threadId }).then(() => {});
+    // Increment views (best-effort, function may not exist)
+    supabase.rpc('increment_discussion_views' as any, { discussion_id: threadId } as any).catch(() => {});
   }, [tenant, threadId]);
 
   const submitReply = async () => {

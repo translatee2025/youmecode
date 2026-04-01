@@ -72,6 +72,10 @@ import CityDetailPage from "@/pages/CityDetailPage";
 import ChartsPage from "@/pages/ChartsPage";
 import AnalyticsPage from "@/pages/admin/AnalyticsPage";
 import EventsAdmin from "@/pages/admin/EventsAdmin";
+import HealthPage from "@/pages/admin/HealthPage";
+import PlatformUsersPage from "@/pages/admin/PlatformUsersPage";
+import PlatformSettingsPage from "@/pages/admin/PlatformSettingsPage";
+import CookieConsent from "@/components/CookieConsent";
 
 const queryClient = new QueryClient();
 

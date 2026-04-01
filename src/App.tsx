@@ -1,10 +1,12 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
+import { useEffect } from "react";
 import { TenantProvider } from "@/providers/TenantProvider";
+import { useTenantStore } from "@/stores/tenantStore";
 import { ThemeProvider } from "@/providers/ThemeProvider";
 import { LanguageProvider } from "@/providers/LanguageProvider";
 import { AuthProvider } from "@/providers/AuthProvider";
@@ -81,6 +83,26 @@ function HomePage() {
   );
 }
 
+function TenantGate({ children }: { children: React.ReactNode }) {
+  const tenant = useTenantStore((s) => s.tenant);
+  const error = useTenantStore((s) => s.error);
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // No tenant and no DB error → fresh deployment, go to /setup
+    if (!tenant && error === 'no_tenant' && location.pathname !== '/setup') {
+      navigate('/setup', { replace: true });
+    }
+    // Tenant exists but onboarding not done → redirect to /onboarding
+    if (tenant && tenant.onboarding_completed === false && location.pathname !== '/onboarding' && location.pathname !== '/setup') {
+      navigate('/onboarding', { replace: true });
+    }
+  }, [tenant, error, location.pathname, navigate]);
+
+  return <>{children}</>;
+}
+
 const App = () => (
   <TenantProvider>
     <ThemeProvider>
@@ -91,6 +113,7 @@ const App = () => (
               <Toaster />
               <Sonner />
               <BrowserRouter>
+                <TenantGate>
                 <Routes>
                   {/* Public */}
                   <Route path="/" element={<HomePage />} />
@@ -175,6 +198,7 @@ const App = () => (
 
                   <Route path="*" element={<NotFound />} />
                 </Routes>
+                </TenantGate>
               </BrowserRouter>
             </TooltipProvider>
           </AuthProvider>

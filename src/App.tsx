@@ -69,6 +69,9 @@ import EventDetailPage from "@/pages/EventDetailPage";
 import CreateEventPage from "@/pages/CreateEventPage";
 import CitiesPage from "@/pages/CitiesPage";
 import CityDetailPage from "@/pages/CityDetailPage";
+import ChartsPage from "@/pages/ChartsPage";
+import AnalyticsPage from "@/pages/admin/AnalyticsPage";
+import EventsAdmin from "@/pages/admin/EventsAdmin";
 
 const queryClient = new QueryClient();
 

@@ -76,7 +76,7 @@ export default function TranslationsManager() {
         if (existing) {
           await supabase.from('translations').update({ value }).eq('id', existing.id);
         } else {
-          await supabase.from('translations').insert({ tenant_id: tenant!.id, language: selectedLang, string_key: key, value });
+          await supabase.from('translations').insert({ tenant_id: tenant!.id, language_code: selectedLang, string_key: key, value });
         }
       }
     },

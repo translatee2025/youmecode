@@ -10,9 +10,9 @@ import { LanguageProvider } from "@/providers/LanguageProvider";
 import { AuthProvider } from "@/providers/AuthProvider";
 import { RequireAuth } from "@/components/guards/RequireAuth";
 import { RequireCreator } from "@/components/guards/RequireCreator";
-import { RequirePlatformAdmin } from "@/components/guards/RequirePlatformAdmin";
 
 import AuthPage from "@/pages/AuthPage";
+import SetupPage from "@/pages/SetupPage";
 import AdminLayout from "@/pages/admin/AdminLayout";
 import AdminPlaceholder from "@/pages/admin/AdminPlaceholder";
 import CategoryManager from "@/pages/admin/CategoryManager";
@@ -32,7 +32,6 @@ import WebhooksManager from "@/pages/admin/WebhooksManager";
 import AuditLog from "@/pages/admin/AuditLog";
 import BlogEditor from "@/pages/admin/BlogEditor";
 import FaqManager from "@/pages/admin/FaqManager";
-import PlatformLayout from "@/pages/platform/PlatformLayout";
 import DirectoryPage from "@/pages/DirectoryPage";
 import VenueDetailPage from "@/pages/VenueDetailPage";
 import ProductDetailPage from "@/pages/ProductDetailPage";
@@ -91,6 +90,7 @@ const App = () => (
                   {/* Public */}
                   <Route path="/" element={<HomePage />} />
                   <Route path="/auth" element={<AuthPage />} />
+                  <Route path="/setup" element={<SetupPage />} />
                   <Route path="/create-platform" element={<AuthPage />} />
                   <Route path="/directory" element={<DirectoryPage />} />
                   <Route path="/venues/:slug" element={<VenueDetailPage />} />
@@ -111,7 +111,7 @@ const App = () => (
                   <Route path="/collections" element={<RequireAuth><CollectionsPage /></RequireAuth>} />
                   <Route path="/venue-admin/:venueId" element={<RequireAuth><VenueAdminPage /></RequireAuth>} />
 
-                  {/* Admin — Creator only */}
+                  {/* Admin — Creator only (both Creator + Platform modes) */}
                   <Route
                     path="/admin"
                     element={
@@ -122,6 +122,7 @@ const App = () => (
                       </RequireAuth>
                     }
                   >
+                    {/* Creator mode pages */}
                     <Route index element={<AdminPlaceholder title="Dashboard" />} />
                     <Route path="modules" element={<AdminPlaceholder title="Modules" />} />
                     <Route path="theme" element={<AdminPlaceholder title="Theme" />} />
@@ -145,31 +146,16 @@ const App = () => (
                     <Route path="ads" element={<AdSlotsManager />} />
                     <Route path="import" element={<CsvImport />} />
                     <Route path="translations" element={<TranslationsManager />} />
+
+                    {/* Platform mode pages */}
                     <Route path="analytics" element={<AdminPlaceholder title="Analytics" />} />
+                    <Route path="platform-users" element={<AdminPlaceholder title="Platform Users" />} />
                     <Route path="permissions" element={<PermissionsMatrix />} />
                     <Route path="webhooks" element={<WebhooksManager />} />
                     <Route path="audit" element={<AuditLog />} />
                     <Route path="health" element={<AdminPlaceholder title="Health" />} />
-                    <Route path="health" element={<AdminPlaceholder title="Health" />} />
-                  </Route>
-
-                  {/* Platform Admin */}
-                  <Route
-                    path="/platform"
-                    element={
-                      <RequireAuth>
-                        <RequirePlatformAdmin>
-                          <PlatformLayout />
-                        </RequirePlatformAdmin>
-                      </RequireAuth>
-                    }
-                  >
-                    <Route index element={<AdminPlaceholder title="Platform Dashboard" />} />
-                    <Route path="tenants" element={<AdminPlaceholder title="Tenants" />} />
-                    <Route path="users" element={<AdminPlaceholder title="Platform Users" />} />
-                    <Route path="analytics" element={<AdminPlaceholder title="Platform Analytics" />} />
                     <Route path="security" element={<AdminPlaceholder title="Security" />} />
-                    <Route path="settings" element={<AdminPlaceholder title="Platform Settings" />} />
+                    <Route path="platform-settings" element={<AdminPlaceholder title="Platform Settings" />} />
                   </Route>
 
                   <Route path="/onboarding" element={<OnboardingWizard />} />

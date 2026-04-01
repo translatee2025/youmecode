@@ -95,8 +95,8 @@ const App = () => (
                     <Route path="filters" element={<FilterManagement />} />
                     <Route path="product-types" element={<ProductTypeManager />} />
                     <Route path="pages" element={<AdminPlaceholder title="Pages" />} />
-                    <Route path="blog" element={<AdminPlaceholder title="Blog" />} />
-                    <Route path="faq" element={<AdminPlaceholder title="FAQ" />} />
+                    <Route path="blog" element={<BlogEditor />} />
+                    <Route path="faq" element={<FaqManager />} />
                     <Route path="events" element={<AdminPlaceholder title="Events" />} />
                     <Route path="users" element={<UserManager />} />
                     <Route path="venues" element={<VenueManager />} />
@@ -105,14 +105,15 @@ const App = () => (
                     <Route path="moderation" element={<ModerationQueue />} />
                     <Route path="discussions" element={<AdminPlaceholder title="Discussion Boards" />} />
                     <Route path="groups" element={<AdminPlaceholder title="Groups" />} />
-                    <Route path="subscriptions" element={<AdminPlaceholder title="Subscription Plans" />} />
-                    <Route path="ads" element={<AdminPlaceholder title="Ad Slots" />} />
+                    <Route path="subscriptions" element={<SubscriptionPlans />} />
+                    <Route path="ads" element={<AdSlotsManager />} />
                     <Route path="import" element={<CsvImport />} />
-                    <Route path="translations" element={<AdminPlaceholder title="Translations" />} />
+                    <Route path="translations" element={<TranslationsManager />} />
                     <Route path="analytics" element={<AdminPlaceholder title="Analytics" />} />
                     <Route path="permissions" element={<PermissionsMatrix />} />
-                    <Route path="webhooks" element={<AdminPlaceholder title="Webhooks" />} />
-                    <Route path="audit" element={<AdminPlaceholder title="Audit Log" />} />
+                    <Route path="webhooks" element={<WebhooksManager />} />
+                    <Route path="audit" element={<AuditLog />} />
+                    <Route path="health" element={<AdminPlaceholder title="Health" />} />
                     <Route path="health" element={<AdminPlaceholder title="Health" />} />
                   </Route>
 

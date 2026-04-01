@@ -3,6 +3,7 @@ import { BrowserRouter, Route, Routes, useLocation, useNavigate } from "react-ro
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { HelmetProvider } from "react-helmet-async";
 
 import { useEffect } from "react";
 import { TenantProvider } from "@/providers/TenantProvider";
@@ -59,6 +60,15 @@ import ChatRoomsPage from "@/pages/ChatRoomsPage";
 import DiscussionsPage from "@/pages/DiscussionsPage";
 import GroupsPage from "@/pages/GroupsPage";
 import PollsPage from "@/pages/PollsPage";
+import BlogPage from "@/pages/BlogPage";
+import BlogPostPage from "@/pages/BlogPostPage";
+import CmsPage from "@/pages/CmsPage";
+import FaqPage from "@/pages/FaqPage";
+import EventsPage from "@/pages/EventsPage";
+import EventDetailPage from "@/pages/EventDetailPage";
+import CreateEventPage from "@/pages/CreateEventPage";
+import CitiesPage from "@/pages/CitiesPage";
+import CityDetailPage from "@/pages/CityDetailPage";
 
 const queryClient = new QueryClient();
 

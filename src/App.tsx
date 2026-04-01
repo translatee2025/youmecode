@@ -45,6 +45,14 @@ import ClaimVenuePage from "@/pages/ClaimVenuePage";
 import ClaimStatusPage from "@/pages/ClaimStatusPage";
 import CommerceActivationPage from "@/pages/CommerceActivationPage";
 import AddProductPage from "@/pages/AddProductPage";
+import FeedPage from "@/pages/FeedPage";
+import ReelsPage from "@/pages/ReelsPage";
+import ExplorePage from "@/pages/ExplorePage";
+import HashtagPage from "@/pages/HashtagPage";
+import LeaderboardsPage from "@/pages/LeaderboardsPage";
+import NotificationsPage from "@/pages/NotificationsPage";
+import CollectionsPage from "@/pages/CollectionsPage";
+import VenueAdminPage from "@/pages/VenueAdminPage";
 
 const queryClient = new QueryClient();
 
@@ -94,6 +102,14 @@ const App = () => (
                   <Route path="/claim/:venueId/status" element={<RequireAuth><ClaimStatusPage /></RequireAuth>} />
                   <Route path="/subscribe/:venueId" element={<RequireAuth><CommerceActivationPage /></RequireAuth>} />
                   <Route path="/add-product" element={<RequireAuth><AddProductPage /></RequireAuth>} />
+                  <Route path="/feed" element={<FeedPage />} />
+                  <Route path="/reels" element={<ReelsPage />} />
+                  <Route path="/explore" element={<ExplorePage />} />
+                  <Route path="/hashtag/:tag" element={<HashtagPage />} />
+                  <Route path="/leaderboards" element={<LeaderboardsPage />} />
+                  <Route path="/notifications" element={<RequireAuth><NotificationsPage /></RequireAuth>} />
+                  <Route path="/collections" element={<RequireAuth><CollectionsPage /></RequireAuth>} />
+                  <Route path="/venue-admin/:venueId" element={<RequireAuth><VenueAdminPage /></RequireAuth>} />
 
                   {/* Admin — Creator only */}
                   <Route

@@ -42,7 +42,7 @@ export default function TranslationsManager() {
     queryKey: [tenant?.id, 'translations', selectedLang],
     enabled: !!tenant?.id && !!selectedLang,
     queryFn: async () => {
-      const { data } = await supabase.from('translations').select('*').eq('tenant_id', tenant!.id).eq('language', selectedLang);
+      const { data } = await supabase.from('translations').select('*').eq('tenant_id', tenant!.id).eq('language_code', selectedLang);
       return data || [];
     },
   });

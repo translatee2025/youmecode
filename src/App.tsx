@@ -102,6 +102,14 @@ const App = () => (
                   <Route path="/claim/:venueId/status" element={<RequireAuth><ClaimStatusPage /></RequireAuth>} />
                   <Route path="/subscribe/:venueId" element={<RequireAuth><CommerceActivationPage /></RequireAuth>} />
                   <Route path="/add-product" element={<RequireAuth><AddProductPage /></RequireAuth>} />
+                  <Route path="/feed" element={<FeedPage />} />
+                  <Route path="/reels" element={<ReelsPage />} />
+                  <Route path="/explore" element={<ExplorePage />} />
+                  <Route path="/hashtag/:tag" element={<HashtagPage />} />
+                  <Route path="/leaderboards" element={<LeaderboardsPage />} />
+                  <Route path="/notifications" element={<RequireAuth><NotificationsPage /></RequireAuth>} />
+                  <Route path="/collections" element={<RequireAuth><CollectionsPage /></RequireAuth>} />
+                  <Route path="/venue-admin/:venueId" element={<RequireAuth><VenueAdminPage /></RequireAuth>} />
 
                   {/* Admin — Creator only */}
                   <Route

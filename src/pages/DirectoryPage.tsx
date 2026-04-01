@@ -101,9 +101,9 @@ export default function DirectoryPage() {
       setLoading(true);
 
       if (tab === 'venues') {
-        let q = supabase
+        let q: any = supabase
           .from('venues' as any)
-          .select('*, categories!venues_category_id_fkey(name, icon), subcategories!venues_subcategory_id_fkey(name)')
+          .select('*')
           .eq('tenant_id', tenant.id)
           .range(pageNum * PAGE_SIZE, (pageNum + 1) * PAGE_SIZE - 1);
 
@@ -116,15 +116,14 @@ export default function DirectoryPage() {
         Object.entries(filterValues).forEach(([key, val]) => {
           if (val === undefined || val === null || val === '' || (Array.isArray(val) && val.length === 0)) return;
           if (typeof val === 'object' && !Array.isArray(val)) {
-            // Range
-            if (val.min) q = q.gte(`filter_values->>${key}` as any, val.min);
-            if (val.max) q = q.lte(`filter_values->>${key}` as any, val.max);
+            if (val.min) q = q.gte(`filter_values->>${key}`, val.min);
+            if (val.max) q = q.lte(`filter_values->>${key}`, val.max);
           } else if (Array.isArray(val)) {
             q = q.contains('filter_values', { [key]: val });
           } else if (typeof val === 'boolean') {
-            q = q.eq(`filter_values->>${key}` as any, String(val));
+            q = q.eq(`filter_values->>${key}`, String(val));
           } else {
-            q = q.eq(`filter_values->>${key}` as any, val);
+            q = q.eq(`filter_values->>${key}`, val);
           }
         });
 

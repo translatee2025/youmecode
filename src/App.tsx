@@ -157,6 +157,15 @@ const App = () => (
                   <Route path="/groups" element={<GroupsPage />} />
                   <Route path="/groups/:id" element={<GroupsPage />} />
                   <Route path="/polls" element={<PollsPage />} />
+                  <Route path="/blog" element={<BlogPage />} />
+                  <Route path="/blog/:slug" element={<BlogPostPage />} />
+                  <Route path="/pages/:slug" element={<CmsPage />} />
+                  <Route path="/faq" element={<FaqPage />} />
+                  <Route path="/events" element={<EventsPage />} />
+                  <Route path="/events/create" element={<RequireAuth><CreateEventPage /></RequireAuth>} />
+                  <Route path="/events/:id" element={<EventDetailPage />} />
+                  <Route path="/cities" element={<CitiesPage />} />
+                  <Route path="/city/:citySlug" element={<CityDetailPage />} />
 
                   {/* Admin — Creator only (both Creator + Platform modes) */}
                   <Route

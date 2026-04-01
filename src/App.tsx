@@ -52,6 +52,11 @@ import LeaderboardsPage from "@/pages/LeaderboardsPage";
 import NotificationsPage from "@/pages/NotificationsPage";
 import CollectionsPage from "@/pages/CollectionsPage";
 import VenueAdminPage from "@/pages/VenueAdminPage";
+import MessagesPage from "@/pages/MessagesPage";
+import ChatRoomsPage from "@/pages/ChatRoomsPage";
+import DiscussionsPage from "@/pages/DiscussionsPage";
+import GroupsPage from "@/pages/GroupsPage";
+import PollsPage from "@/pages/PollsPage";
 
 const queryClient = new QueryClient();
 
@@ -110,6 +115,14 @@ const App = () => (
                   <Route path="/notifications" element={<RequireAuth><NotificationsPage /></RequireAuth>} />
                   <Route path="/collections" element={<RequireAuth><CollectionsPage /></RequireAuth>} />
                   <Route path="/venue-admin/:venueId" element={<RequireAuth><VenueAdminPage /></RequireAuth>} />
+                  <Route path="/messages" element={<RequireAuth><MessagesPage /></RequireAuth>} />
+                  <Route path="/chat" element={<ChatRoomsPage />} />
+                  <Route path="/discussions" element={<DiscussionsPage />} />
+                  <Route path="/discussions/:boardSlug" element={<DiscussionsPage />} />
+                  <Route path="/discussions/:boardSlug/:threadId" element={<DiscussionsPage />} />
+                  <Route path="/groups" element={<GroupsPage />} />
+                  <Route path="/groups/:id" element={<GroupsPage />} />
+                  <Route path="/polls" element={<PollsPage />} />
 
                   {/* Admin — Creator only (both Creator + Platform modes) */}
                   <Route

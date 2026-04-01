@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import FullscreenLoader from '@/components/FullscreenLoader';
 import { BarChart3, Eye, Users, Star, MessageCircle, QrCode, ArrowLeft, Megaphone } from 'lucide-react';
 import QRCode from 'qrcode';
+import { toast } from '@/hooks/use-toast';
 
 function downloadPrintableCard(venue: any, qrDataUrl: string, tenant: any) {
   const canvas = document.createElement('canvas');

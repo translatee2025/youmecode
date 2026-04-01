@@ -217,9 +217,9 @@ const App = () => (
                     <Route path="permissions" element={<PermissionsMatrix />} />
                     <Route path="webhooks" element={<WebhooksManager />} />
                     <Route path="audit" element={<AuditLog />} />
-                    <Route path="health" element={<AdminPlaceholder title="Health" />} />
+                    <Route path="health" element={<HealthPage />} />
                     <Route path="security" element={<AdminPlaceholder title="Security" />} />
-                    <Route path="platform-settings" element={<AdminPlaceholder title="Platform Settings" />} />
+                    <Route path="platform-settings" element={<PlatformSettingsPage />} />
                   </Route>
 
                   <Route path="/onboarding" element={<OnboardingWizard />} />

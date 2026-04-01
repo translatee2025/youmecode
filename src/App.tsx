@@ -72,6 +72,10 @@ import CityDetailPage from "@/pages/CityDetailPage";
 import ChartsPage from "@/pages/ChartsPage";
 import AnalyticsPage from "@/pages/admin/AnalyticsPage";
 import EventsAdmin from "@/pages/admin/EventsAdmin";
+import HealthPage from "@/pages/admin/HealthPage";
+import PlatformUsersPage from "@/pages/admin/PlatformUsersPage";
+import PlatformSettingsPage from "@/pages/admin/PlatformSettingsPage";
+import CookieConsent from "@/components/CookieConsent";
 
 const queryClient = new QueryClient();
 
@@ -127,6 +131,7 @@ const App = () => (
               <Toaster />
               <Sonner />
               <BrowserRouter>
+                <CookieConsent />
                 <TenantGate>
                 <Routes>
                   {/* Public */}
@@ -209,13 +214,13 @@ const App = () => (
 
                     {/* Platform mode pages */}
                     <Route path="analytics" element={<AnalyticsPage />} />
-                    <Route path="platform-users" element={<AdminPlaceholder title="Platform Users" />} />
+                    <Route path="platform-users" element={<PlatformUsersPage />} />
                     <Route path="permissions" element={<PermissionsMatrix />} />
                     <Route path="webhooks" element={<WebhooksManager />} />
                     <Route path="audit" element={<AuditLog />} />
-                    <Route path="health" element={<AdminPlaceholder title="Health" />} />
+                    <Route path="health" element={<HealthPage />} />
                     <Route path="security" element={<AdminPlaceholder title="Security" />} />
-                    <Route path="platform-settings" element={<AdminPlaceholder title="Platform Settings" />} />
+                    <Route path="platform-settings" element={<PlatformSettingsPage />} />
                   </Route>
 
                   <Route path="/onboarding" element={<OnboardingWizard />} />

@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import FullscreenLoader from '@/components/FullscreenLoader';
 import { BarChart3, Eye, Users, Star, MessageCircle, QrCode, ArrowLeft, Megaphone } from 'lucide-react';
 import QRCode from 'qrcode';
+import { toast } from '@/hooks/use-toast';
 
 function downloadPrintableCard(venue: any, qrDataUrl: string, tenant: any) {
   const canvas = document.createElement('canvas');
@@ -158,6 +159,22 @@ export default function VenueAdminPage() {
             </Button>
           )}
         </div>
+
+        {/* Widget Embed Code */}
+        <Card className="glass">
+          <CardHeader><CardTitle className="text-base">Embeddable Widget</CardTitle></CardHeader>
+          <CardContent className="space-y-2">
+            <p className="text-xs text-muted-foreground">Copy this code to embed your venue card on any website:</p>
+            <pre className="text-xs bg-secondary/30 p-3 rounded overflow-x-auto text-foreground">
+{`<script src="${window.location.origin}/widget.js"></script>
+<div data-nexus-venue="${venue.slug}"></div>`}
+            </pre>
+            <Button size="sm" variant="outline" onClick={() => {
+              navigator.clipboard.writeText(`<script src="${window.location.origin}/widget.js"></script>\n<div data-nexus-venue="${venue.slug}"></div>`);
+              toast({ title: 'Embed code copied!' });
+            }}>Copy Code</Button>
+          </CardContent>
+        </Card>
 
         {/* QR Preview */}
         {qrUrl && (

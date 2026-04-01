@@ -75,6 +75,7 @@ const App = () => (
                   <Route path="/" element={<HomePage />} />
                   <Route path="/auth" element={<AuthPage />} />
                   <Route path="/create-platform" element={<AuthPage />} />
+                  <Route path="/directory" element={<DirectoryPage />} />
 
                   {/* Admin — Creator only */}
                   <Route

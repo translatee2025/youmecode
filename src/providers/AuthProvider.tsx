@@ -8,7 +8,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const { setSession, setProfile, setLoading, reset } = useAuthStore();
 
   useEffect(() => {
-    if (!tenant) return;
+    if (!tenant) {
+      setLoading(false);
+      return;
+    }
 
     // Listen for auth changes FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(

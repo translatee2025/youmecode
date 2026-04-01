@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { lovable } from '@/integrations/lovable/index';
@@ -18,10 +18,13 @@ export default function AuthPage() {
   const isCreatePlatform = location.pathname === '/create-platform';
 
   // Redirect if already logged in
-  if (session) {
-    navigate('/', { replace: true });
-    return null;
-  }
+  useEffect(() => {
+    if (session) {
+      navigate('/', { replace: true });
+    }
+  }, [session, navigate]);
+
+  if (session) return null;
 
   return (
     <div

@@ -131,6 +131,7 @@ const App = () => (
               <Toaster />
               <Sonner />
               <BrowserRouter>
+                <CookieConsent />
                 <TenantGate>
                 <Routes>
                   {/* Public */}

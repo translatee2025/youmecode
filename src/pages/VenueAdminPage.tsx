@@ -159,6 +159,22 @@ export default function VenueAdminPage() {
           )}
         </div>
 
+        {/* Widget Embed Code */}
+        <Card className="glass">
+          <CardHeader><CardTitle className="text-base">Embeddable Widget</CardTitle></CardHeader>
+          <CardContent className="space-y-2">
+            <p className="text-xs text-muted-foreground">Copy this code to embed your venue card on any website:</p>
+            <pre className="text-xs bg-secondary/30 p-3 rounded overflow-x-auto text-foreground">
+{`<script src="${window.location.origin}/widget.js"></script>
+<div data-nexus-venue="${venue.slug}"></div>`}
+            </pre>
+            <Button size="sm" variant="outline" onClick={() => {
+              navigator.clipboard.writeText(`<script src="${window.location.origin}/widget.js"></script>\n<div data-nexus-venue="${venue.slug}"></div>`);
+              toast({ title: 'Embed code copied!' });
+            }}>Copy Code</Button>
+          </CardContent>
+        </Card>
+
         {/* QR Preview */}
         {qrUrl && (
           <Card className="glass">

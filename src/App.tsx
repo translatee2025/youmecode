@@ -69,6 +69,9 @@ import EventDetailPage from "@/pages/EventDetailPage";
 import CreateEventPage from "@/pages/CreateEventPage";
 import CitiesPage from "@/pages/CitiesPage";
 import CityDetailPage from "@/pages/CityDetailPage";
+import ChartsPage from "@/pages/ChartsPage";
+import AnalyticsPage from "@/pages/admin/AnalyticsPage";
+import EventsAdmin from "@/pages/admin/EventsAdmin";
 
 const queryClient = new QueryClient();
 
@@ -166,6 +169,7 @@ const App = () => (
                   <Route path="/events/:id" element={<EventDetailPage />} />
                   <Route path="/cities" element={<CitiesPage />} />
                   <Route path="/city/:citySlug" element={<CityDetailPage />} />
+                  <Route path="/charts" element={<ChartsPage />} />
 
                   {/* Admin — Creator only (both Creator + Platform modes) */}
                   <Route
@@ -190,7 +194,7 @@ const App = () => (
                     <Route path="pages" element={<AdminPlaceholder title="Pages" />} />
                     <Route path="blog" element={<BlogEditor />} />
                     <Route path="faq" element={<FaqManager />} />
-                    <Route path="events" element={<AdminPlaceholder title="Events" />} />
+                    <Route path="events" element={<EventsAdmin />} />
                     <Route path="users" element={<UserManager />} />
                     <Route path="venues" element={<VenueManager />} />
                     <Route path="products" element={<ProductManager />} />
@@ -204,7 +208,7 @@ const App = () => (
                     <Route path="translations" element={<TranslationsManager />} />
 
                     {/* Platform mode pages */}
-                    <Route path="analytics" element={<AdminPlaceholder title="Analytics" />} />
+                    <Route path="analytics" element={<AnalyticsPage />} />
                     <Route path="platform-users" element={<AdminPlaceholder title="Platform Users" />} />
                     <Route path="permissions" element={<PermissionsMatrix />} />
                     <Route path="webhooks" element={<WebhooksManager />} />

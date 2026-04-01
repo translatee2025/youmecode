@@ -52,6 +52,11 @@ import LeaderboardsPage from "@/pages/LeaderboardsPage";
 import NotificationsPage from "@/pages/NotificationsPage";
 import CollectionsPage from "@/pages/CollectionsPage";
 import VenueAdminPage from "@/pages/VenueAdminPage";
+import MessagesPage from "@/pages/MessagesPage";
+import ChatRoomsPage from "@/pages/ChatRoomsPage";
+import DiscussionsPage from "@/pages/DiscussionsPage";
+import GroupsPage from "@/pages/GroupsPage";
+import PollsPage from "@/pages/PollsPage";
 
 const queryClient = new QueryClient();
 

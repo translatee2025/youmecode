@@ -12,10 +12,10 @@ export default function ShareButton({ url, title, className }: Props) {
   const share = async () => {
     if (navigator.share) {
       try {
-        await navigator.share({ title, url });
+        await navigator.share({ title, url: effectiveUrl });
       } catch {}
     } else {
-      await navigator.clipboard.writeText(url);
+      await navigator.clipboard.writeText(effectiveUrl);
       toast({ title: 'Link copied to clipboard!' });
     }
   };

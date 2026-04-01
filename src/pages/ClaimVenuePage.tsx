@@ -127,7 +127,7 @@ export default function ClaimVenuePage() {
               <label className="text-sm font-medium text-foreground">Your Business Email</label>
               <Input type="email" value={emailInput} onChange={(e) => setEmailInput(e.target.value)} placeholder="you@business.com" />
               {inputDomain && (
-                <p className={cn('text-xs mt-1', domainMatch ? 'text-emerald-400' : 'text-amber-400')}>
+                <p className={cn('text-xs mt-1', domainMatch ? 'text-primary' : 'text-destructive')}>
                   {domainMatch ? '✓ Domain matches venue website' : '⚠ Domain does not match — you can still submit'}
                 </p>
               )}

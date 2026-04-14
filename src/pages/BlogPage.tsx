@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { useTenantStore } from '@/stores/tenantStore';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -17,7 +16,6 @@ function readingTime(text: string | null) {
 }
 
 export default function BlogPage() {
-  const tenant = useTenantStore((s) => s.tenant);
   const [posts, setPosts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -25,14 +23,12 @@ export default function BlogPage() {
   const [siteName, setSiteName] = useState('');
 
   useEffect(() => {
-    if (!tenant) return;
-    supabase.from('site_settings').select('site_name').eq('tenant_id', tenant.id).maybeSingle().then(({ data }) => {
+    supabase.from('site_settings').select('site_name').maybeSingle().then(({ data }) => {
       setSiteName((data as any)?.site_name ?? tenant.name);
     });
     supabase
       .from('blog_posts')
       .select('*')
-      .eq('tenant_id', tenant.id)
       .eq('is_published', true)
       .order('published_at', { ascending: false })
       .then(({ data }) => {

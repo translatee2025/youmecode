@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Bookmark } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { useTenantStore } from '@/stores/tenantStore';
 import { useAuthStore } from '@/stores/authStore';
 import { cn } from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';
@@ -19,7 +18,6 @@ interface Props {
 }
 
 export default function SaveButton({ entityType, entityId, className }: Props) {
-  const tenant = useTenantStore((s) => s.tenant);
   const profile = useAuthStore((s) => s.profile);
   const [saved, setSaved] = useState(false);
   const [collections, setCollections] = useState<string[]>(['Saved']);
@@ -29,7 +27,6 @@ export default function SaveButton({ entityType, entityId, className }: Props) {
     supabase
       .from('saves')
       .select('id, collection_name')
-      .eq('tenant_id', tenant.id)
       .eq('entity_type', entityType)
       .eq('entity_id', entityId)
       .eq('user_id', profile.id)
@@ -47,7 +44,6 @@ export default function SaveButton({ entityType, entityId, className }: Props) {
     }
     if (saved) {
       await supabase.from('saves').delete()
-        .eq('tenant_id', tenant.id)
         .eq('entity_type', entityType)
         .eq('entity_id', entityId)
         .eq('user_id', profile.id);
@@ -55,7 +51,6 @@ export default function SaveButton({ entityType, entityId, className }: Props) {
       toast({ title: 'Removed from saved' });
     } else {
       await supabase.from('saves').insert({
-        tenant_id: tenant.id,
         entity_type: entityType,
         entity_id: entityId,
         user_id: profile.id,

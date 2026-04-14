@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useTenantStore } from '@/stores/tenantStore';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer';
 import { Button } from '@/components/ui/button';
@@ -55,7 +54,6 @@ export default function DynamicFilterDrawer({
   sortBy,
   onSortByChange,
 }: Props) {
-  const tenant = useTenantStore((s) => s.tenant);
   const [fields, setFields] = useState<FilterField[]>([]);
   const [local, setLocal] = useState<FilterValues>({});
   const [showMore, setShowMore] = useState(false);
@@ -74,7 +72,6 @@ export default function DynamicFilterDrawer({
       let q = supabase
         .from('filter_fields')
         .select('id, label, field_key, field_type, options, placeholder, show_in_quick_filters, is_required')
-        .eq('tenant_id', tenant.id)
         .eq('category_id', categoryId)
         .eq('is_active', true)
         .order('sort_order');

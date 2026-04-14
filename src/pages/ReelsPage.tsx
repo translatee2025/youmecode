@@ -1,7 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { useTenantStore } from '@/stores/tenantStore';
 import { useAuthStore } from '@/stores/authStore';
 import LikeButton from '@/components/common/LikeButton';
 import SaveButton from '@/components/common/SaveButton';
@@ -17,7 +16,6 @@ import { toast } from '@/hooks/use-toast';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export default function ReelsPage() {
-  const tenant = useTenantStore((s) => s.tenant);
   const profile = useAuthStore((s) => s.profile);
   const [reels, setReels] = useState<any[]>([]);
   const [currentIdx, setCurrentIdx] = useState(0);
@@ -31,8 +29,7 @@ export default function ReelsPage() {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!tenant) return;
-    supabase.from('posts').select('*').eq('tenant_id', tenant.id).eq('post_type', 'reel').order('created_at', { ascending: false }).limit(50)
+    supabase.from('posts').select('*').eq('post_type', 'reel').order('created_at', { ascending: false }).limit(50)
       .then(({ data }) => setReels(data ?? []));
   }, [tenant, tab]);
 
@@ -64,7 +61,7 @@ export default function ReelsPage() {
 
       const hashtags = (caption.match(/#[\w]+/g) ?? []).map((h) => h.slice(1).toLowerCase());
       await supabase.from('posts').insert({
-        tenant_id: tenant.id, user_id: profile.id, post_type: 'reel',
+ user_id: profile.id, post_type: 'reel',
         video_url: pub.publicUrl, content: caption, hashtags,
       });
       toast({ title: 'Reel posted!' });

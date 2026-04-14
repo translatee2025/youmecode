@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useTenantStore } from '@/stores/tenantStore';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
@@ -13,7 +12,6 @@ import { toast } from 'sonner';
 import { Plus, Save, Trash2, ExternalLink, GripVertical } from 'lucide-react';
 
 export default function FaqManager() {
-  const tenant = useTenantStore((s) => s.tenant);
   const qc = useQueryClient();
   const [editing, setEditing] = useState<any>(null);
 
@@ -21,7 +19,7 @@ export default function FaqManager() {
     queryKey: [tenant?.id, 'admin-faqs'],
     enabled: !!tenant?.id,
     queryFn: async () => {
-      const { data, error } = await supabase.from('faqs').select('*').eq('tenant_id', tenant!.id).order('sort_order');
+      const { data, error } = await supabase.from('faqs').select('*').order('sort_order');
       if (error) throw error;
       return data || [];
     },
@@ -30,7 +28,6 @@ export default function FaqManager() {
   const saveFaq = useMutation({
     mutationFn: async (faq: any) => {
       const payload = {
-        tenant_id: tenant!.id,
         question: faq.question,
         answer: faq.answer,
         category: faq.category || null,

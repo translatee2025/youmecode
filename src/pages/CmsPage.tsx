@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { useTenantStore } from '@/stores/tenantStore';
 import FullscreenLoader from '@/components/FullscreenLoader';
 import NotFound from '@/pages/NotFound';
 import { Helmet } from 'react-helmet-async';
@@ -80,7 +79,6 @@ function ContentBlock({ block }: { block: any }) {
 }
 
 function StatsBlock({ tenantId }: { tenantId?: string }) {
-  const tenant = useTenantStore((s) => s.tenant);
   const [stats, setStats] = useState({ venues: 0, users: 0, products: 0 });
   useEffect(() => {
     const tid = tenantId || tenant?.id;
@@ -105,17 +103,16 @@ function StatsBlock({ tenantId }: { tenantId?: string }) {
 
 export default function CmsPage() {
   const { slug } = useParams<{ slug: string }>();
-  const tenant = useTenantStore((s) => s.tenant);
   const [page, setPage] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [siteName, setSiteName] = useState('');
 
   useEffect(() => {
     if (!tenant || !slug) return;
-    supabase.from('site_settings').select('site_name').eq('tenant_id', tenant.id).maybeSingle().then(({ data }) => {
+    supabase.from('site_settings').select('site_name').maybeSingle().then(({ data }) => {
       setSiteName((data as any)?.site_name ?? tenant.name);
     });
-    supabase.from('pages').select('*').eq('tenant_id', tenant.id).eq('slug', slug).eq('is_published', true).maybeSingle().then(({ data }) => {
+    supabase.from('pages').select('*').eq('slug', slug).eq('is_published', true).maybeSingle().then(({ data }) => {
       setPage(data);
       setLoading(false);
     });
@@ -141,7 +138,8 @@ export default function CmsPage() {
       <div className="max-w-4xl mx-auto px-4 py-8 space-y-8">
         <h1 className="text-3xl font-bold text-foreground">{page.title}</h1>
         {(page.content_blocks ?? []).map((block: any, i: number) => (
-          <ContentBlock key={i} block={{ ...block, tenant_id: tenant?.id }} />
+          <ContentBlock key={i} block={{ ...block,
+}} />
         ))}
       </div>
     </div>

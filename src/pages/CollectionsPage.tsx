@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { useTenantStore } from '@/stores/tenantStore';
 import { useAuthStore } from '@/stores/authStore';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -11,7 +10,6 @@ import { toast } from '@/hooks/use-toast';
 import { Bookmark, Plus, Trash2 } from 'lucide-react';
 
 export default function CollectionsPage() {
-  const tenant = useTenantStore((s) => s.tenant);
   const profile = useAuthStore((s) => s.profile);
   const [collections, setCollections] = useState<{ name: string; count: number }[]>([]);
   const [selectedCollection, setSelectedCollection] = useState<string | null>(null);
@@ -21,7 +19,7 @@ export default function CollectionsPage() {
 
   const loadCollections = async () => {
     if (!tenant || !profile) return;
-    const { data } = await supabase.from('saves').select('collection_name').eq('tenant_id', tenant.id).eq('user_id', profile.id);
+    const { data } = await supabase.from('saves').select('collection_name').eq('user_id', profile.id);
     const counts: Record<string, number> = {};
     (data ?? []).forEach((s) => { const n = s.collection_name ?? 'Saved'; counts[n] = (counts[n] ?? 0) + 1; });
     setCollections(Object.entries(counts).map(([name, count]) => ({ name, count })));
@@ -31,7 +29,7 @@ export default function CollectionsPage() {
 
   useEffect(() => {
     if (!tenant || !profile || !selectedCollection) return;
-    supabase.from('saves').select('*').eq('tenant_id', tenant.id).eq('user_id', profile.id).eq('collection_name', selectedCollection).order('created_at', { ascending: false })
+    supabase.from('saves').select('*').eq('user_id', profile.id).eq('collection_name', selectedCollection).order('created_at', { ascending: false })
       .then(({ data }) => setItems(data ?? []));
   }, [tenant, profile, selectedCollection]);
 

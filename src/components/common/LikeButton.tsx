@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Heart } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { useTenantStore } from '@/stores/tenantStore';
 import { useAuthStore } from '@/stores/authStore';
 import { cn } from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';
@@ -14,7 +13,6 @@ interface Props {
 }
 
 export default function LikeButton({ entityType, entityId, initialCount = 0, className }: Props) {
-  const tenant = useTenantStore((s) => s.tenant);
   const profile = useAuthStore((s) => s.profile);
   const [liked, setLiked] = useState(false);
   const [count, setCount] = useState(initialCount);
@@ -24,7 +22,6 @@ export default function LikeButton({ entityType, entityId, initialCount = 0, cla
     supabase
       .from('likes')
       .select('id')
-      .eq('tenant_id', tenant.id)
       .eq('entity_type', entityType)
       .eq('entity_id', entityId)
       .eq('user_id', profile.id)
@@ -45,13 +42,11 @@ export default function LikeButton({ entityType, entityId, initialCount = 0, cla
       await supabase
         .from('likes')
         .delete()
-        .eq('tenant_id', tenant.id)
         .eq('entity_type', entityType)
         .eq('entity_id', entityId)
         .eq('user_id', profile.id);
     } else {
       await supabase.from('likes').insert({
-        tenant_id: tenant.id,
         entity_type: entityType,
         entity_id: entityId,
         user_id: profile.id,

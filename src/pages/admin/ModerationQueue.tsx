@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useTenantStore } from '@/stores/tenantStore';
 import { useAuthStore } from '@/stores/authStore';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -13,7 +12,6 @@ import { Eye, EyeOff, Ban, Trash2, AlertTriangle } from 'lucide-react';
 import { format } from 'date-fns';
 
 export default function ModerationQueue() {
-  const tenant = useTenantStore((s) => s.tenant);
   const profile = useAuthStore((s) => s.profile);
   const qc = useQueryClient();
   const [tab, setTab] = useState('pending');
@@ -26,7 +24,6 @@ export default function ModerationQueue() {
       let q = supabase
         .from('reports')
         .select('*, users:reporter_id(username, avatar_url)')
-        .eq('tenant_id', tenant!.id)
         .order('created_at', { ascending: false });
 
       if (tab === 'pending') q = q.eq('status', 'pending');
@@ -55,7 +52,7 @@ export default function ModerationQueue() {
       }
 
       await supabase.from('audit_log').insert({
-        tenant_id: tenant!.id, actor_id: profile?.id, action: `moderation_${action}`,
+ actor_id: profile?.id, action: `moderation_${action}`,
         entity_type: 'report', entity_id: reportId,
       });
     },

@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useTenantStore } from '@/stores/tenantStore';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
@@ -38,7 +37,6 @@ const defaultMatrix = (): Matrix => {
 };
 
 export default function PermissionsMatrix() {
-  const tenant = useTenantStore((s) => s.tenant);
   const qc = useQueryClient();
   const [matrix, setMatrix] = useState<Matrix>(defaultMatrix());
 
@@ -46,7 +44,7 @@ export default function PermissionsMatrix() {
     queryKey: [tenant?.id, 'site-settings-perms'],
     enabled: !!tenant?.id,
     queryFn: async () => {
-      const { data } = await supabase.from('site_settings').select('permissions_matrix').eq('tenant_id', tenant!.id).single();
+      const { data } = await supabase.from('site_settings').select('permissions_matrix').single();
       return data;
     },
   });
@@ -59,7 +57,7 @@ export default function PermissionsMatrix() {
 
   const save = useMutation({
     mutationFn: async () => {
-      const { error } = await supabase.from('site_settings').update({ permissions_matrix: matrix as any }).eq('tenant_id', tenant!.id);
+      const { error } = await supabase.from('site_settings').update({ permissions_matrix: matrix as any });
       if (error) throw error;
     },
     onSuccess: () => {

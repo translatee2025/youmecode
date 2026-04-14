@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useTenantStore } from '@/stores/tenantStore';
 import { useAuthStore } from '@/stores/authStore';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -19,7 +18,6 @@ interface Props {
 }
 
 export default function RatingDisplay({ entityType, entityId, showForm = false, compact = false }: Props) {
-  const tenant = useTenantStore((s) => s.tenant);
   const profile = useAuthStore((s) => s.profile);
   const [ratings, setRatings] = useState<any[]>([]);
   const [avg, setAvg] = useState(0);
@@ -30,11 +28,9 @@ export default function RatingDisplay({ entityType, entityId, showForm = false, 
   const [showReviewForm, setShowReviewForm] = useState(false);
 
   const load = async () => {
-    if (!tenant) return;
     const { data } = await supabase
       .from('ratings')
       .select('*')
-      .eq('tenant_id', tenant.id)
       .eq('entity_type', entityType)
       .eq('entity_id', entityId)
       .eq('status', 'active')
@@ -59,7 +55,6 @@ export default function RatingDisplay({ entityType, entityId, showForm = false, 
     }
     setSubmitting(true);
     await supabase.from('ratings').insert({
-      tenant_id: tenant.id,
       entity_type: entityType,
       entity_id: entityId,
       user_id: profile.id,

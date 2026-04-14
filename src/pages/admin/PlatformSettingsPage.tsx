@@ -1,13 +1,11 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useTenantStore } from '@/stores/tenantStore';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from '@/hooks/use-toast';
 
 export default function PlatformSettingsPage() {
-  const tenant = useTenantStore((s) => s.tenant);
   const [name, setName] = useState('');
   const [saving, setSaving] = useState(false);
 
@@ -16,7 +14,6 @@ export default function PlatformSettingsPage() {
   }, [tenant]);
 
   const save = async () => {
-    if (!tenant) return;
     setSaving(true);
     await supabase.from('tenants').update({ name }).eq('id', tenant.id);
     toast({ title: 'Platform settings saved' });

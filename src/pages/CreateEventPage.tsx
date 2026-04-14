@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { useTenantStore } from '@/stores/tenantStore';
 import { useAuthStore } from '@/stores/authStore';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -12,7 +11,6 @@ import { toast } from '@/hooks/use-toast';
 import { Helmet } from 'react-helmet-async';
 
 export default function CreateEventPage() {
-  const tenant = useTenantStore((s) => s.tenant);
   const profile = useAuthStore((s) => s.profile);
   const navigate = useNavigate();
   const [form, setForm] = useState({
@@ -25,7 +23,6 @@ export default function CreateEventPage() {
     if (!tenant || !profile || !form.title.trim()) return;
     setSubmitting(true);
     const { error } = await supabase.from('events').insert({
-      tenant_id: tenant.id,
       created_by: profile.id,
       title: form.title.trim(),
       description: form.description.trim() || null,

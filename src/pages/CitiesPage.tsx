@@ -1,26 +1,22 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { useTenantStore } from '@/stores/tenantStore';
 import FullscreenLoader from '@/components/FullscreenLoader';
 import { Helmet } from 'react-helmet-async';
 import { MapPin } from 'lucide-react';
 
 export default function CitiesPage() {
-  const tenant = useTenantStore((s) => s.tenant);
   const [cities, setCities] = useState<{ city: string; count: number }[]>([]);
   const [loading, setLoading] = useState(true);
   const [siteName, setSiteName] = useState('');
 
   useEffect(() => {
-    if (!tenant) return;
-    supabase.from('site_settings').select('site_name').eq('tenant_id', tenant.id).maybeSingle().then(({ data }) => {
+    supabase.from('site_settings').select('site_name').maybeSingle().then(({ data }) => {
       setSiteName((data as any)?.site_name ?? tenant.name);
     });
     supabase
       .from('venues')
       .select('location_city')
-      .eq('tenant_id', tenant.id)
       .neq('status', 'opted_out')
       .not('location_city', 'is', null)
       .then(({ data }) => {

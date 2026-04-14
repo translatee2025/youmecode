@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { useTenantStore } from '@/stores/tenantStore';
 import { useAuthStore } from '@/stores/authStore';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -19,7 +18,6 @@ import { toast } from '@/hooks/use-toast';
 export default function DiscussionsPage() {
   const { boardSlug, threadId } = useParams();
   const navigate = useNavigate();
-  const tenant = useTenantStore((s) => s.tenant);
   const { profile } = useAuthStore();
 
   if (threadId && boardSlug) return <ThreadView boardSlug={boardSlug} threadId={threadId} />;
@@ -28,15 +26,12 @@ export default function DiscussionsPage() {
 }
 
 function BoardList() {
-  const tenant = useTenantStore((s) => s.tenant);
   const [boards, setBoards] = useState<any[]>([]);
 
   useEffect(() => {
-    if (!tenant) return;
     supabase
       .from('discussion_boards')
       .select('*')
-      .eq('tenant_id', tenant.id)
       .eq('is_active', true)
       .order('sort_order')
       .then(({ data }) => setBoards(data || []));
@@ -70,7 +65,6 @@ function BoardList() {
 }
 
 function BoardView({ boardSlug }: { boardSlug: string }) {
-  const tenant = useTenantStore((s) => s.tenant);
   const { profile } = useAuthStore();
   const navigate = useNavigate();
   const [board, setBoard] = useState<any>(null);
@@ -82,15 +76,13 @@ function BoardView({ boardSlug }: { boardSlug: string }) {
   const [content, setContent] = useState('');
 
   useEffect(() => {
-    if (!tenant) return;
-    supabase.from('discussion_boards').select('*').eq('id', boardSlug).eq('tenant_id', tenant.id).maybeSingle()
+    supabase.from('discussion_boards').select('*').eq('id', boardSlug).maybeSingle()
       .then(({ data }) => setBoard(data));
 
     const orderCol = sort === 'replies' ? 'replies_count' : sort === 'views' ? 'views_count' : 'created_at';
     supabase
       .from('discussions')
       .select('*, user:users!discussions_user_id_fkey(username, display_name, avatar_url)')
-      .eq('tenant_id', tenant.id)
       .eq('board_id', boardSlug)
       .order('is_pinned', { ascending: false })
       .order(orderCol, { ascending: false })
@@ -100,7 +92,6 @@ function BoardView({ boardSlug }: { boardSlug: string }) {
   const createThread = async () => {
     if (!title.trim() || !tenant || !profile) return;
     const { data, error } = await supabase.from('discussions').insert({
-      tenant_id: tenant.id,
       board_id: boardSlug,
       user_id: profile.id,
       title: title.trim(),
@@ -186,7 +177,6 @@ function BoardView({ boardSlug }: { boardSlug: string }) {
 }
 
 function ThreadView({ boardSlug, threadId }: { boardSlug: string; threadId: string }) {
-  const tenant = useTenantStore((s) => s.tenant);
   const { profile } = useAuthStore();
   const navigate = useNavigate();
   const [thread, setThread] = useState<any>(null);
@@ -194,12 +184,10 @@ function ThreadView({ boardSlug, threadId }: { boardSlug: string; threadId: stri
   const [replyContent, setReplyContent] = useState('');
 
   useEffect(() => {
-    if (!tenant) return;
     supabase
       .from('discussions')
       .select('*, user:users!discussions_user_id_fkey(username, display_name, avatar_url)')
       .eq('id', threadId)
-      .eq('tenant_id', tenant.id)
       .maybeSingle()
       .then(({ data }) => setThread(data));
 
@@ -207,7 +195,6 @@ function ThreadView({ boardSlug, threadId }: { boardSlug: string; threadId: stri
       .from('discussion_replies')
       .select('*, user:users!discussion_replies_user_id_fkey(username, display_name, avatar_url)')
       .eq('discussion_id', threadId)
-      .eq('tenant_id', tenant.id)
       .order('created_at', { ascending: true })
       .then(({ data }) => setReplies(data || []));
 
@@ -218,7 +205,6 @@ function ThreadView({ boardSlug, threadId }: { boardSlug: string; threadId: stri
   const submitReply = async () => {
     if (!replyContent.trim() || !tenant || !profile) return;
     const { data, error } = await supabase.from('discussion_replies').insert({
-      tenant_id: tenant.id,
       discussion_id: threadId,
       user_id: profile.id,
       content: replyContent.trim(),

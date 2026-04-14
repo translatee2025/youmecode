@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { useTenantStore } from '@/stores/tenantStore';
 import { useAuthStore } from '@/stores/authStore';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -11,7 +10,6 @@ import FollowButton from '@/components/common/FollowButton';
 import { Search, TrendingUp, MapPin, Users, Building2 } from 'lucide-react';
 
 export default function ExplorePage() {
-  const tenant = useTenantStore((s) => s.tenant);
   const profile = useAuthStore((s) => s.profile);
   const [search, setSearch] = useState('');
   const [hashtags, setHashtags] = useState<any[]>([]);
@@ -20,15 +18,14 @@ export default function ExplorePage() {
   const [searchResults, setSearchResults] = useState<{ venues: any[]; users: any[]; hashtags: any[] }>({ venues: [], users: [], hashtags: [] });
 
   useEffect(() => {
-    if (!tenant) return;
     // Trending hashtags
-    supabase.from('hashtags').select('*').eq('tenant_id', tenant.id).order('posts_count', { ascending: false }).limit(20)
+    supabase.from('hashtags').select('*').order('posts_count', { ascending: false }).limit(20)
       .then(({ data }) => setHashtags(data ?? []));
     // Trending venues
-    (supabase.from('venues' as any).select('*').eq('tenant_id', tenant.id).order('likes_count', { ascending: false }).limit(6) as any)
+    (supabase.from('venues' as any).select('*').order('likes_count', { ascending: false }).limit(6) as any)
       .then(({ data }: any) => setTrendingVenues(data ?? []));
     // Suggested users
-    (supabase.from('users' as any).select('*').eq('tenant_id', tenant.id).order('follower_count', { ascending: false }).limit(6) as any)
+    (supabase.from('users' as any).select('*').order('follower_count', { ascending: false }).limit(6) as any)
       .then(({ data }: any) => setSuggestedUsers(data ?? []));
   }, [tenant]);
 
@@ -36,9 +33,9 @@ export default function ExplorePage() {
     if (!tenant || !search.trim()) { setSearchResults({ venues: [], users: [], hashtags: [] }); return; }
     const q = search.trim();
     Promise.all([
-      (supabase.from('venues' as any).select('id, name, slug, city').eq('tenant_id', tenant.id).ilike('name', `%${q}%`).limit(5) as any),
-      (supabase.from('users' as any).select('id, username, display_name, avatar_url').eq('tenant_id', tenant.id).ilike('username', `%${q}%`).limit(5) as any),
-      supabase.from('hashtags').select('*').eq('tenant_id', tenant.id).ilike('tag', `%${q}%`).limit(5),
+      (supabase.from('venues' as any).select('id, name, slug, city').ilike('name', `%${q}%`).limit(5) as any),
+      (supabase.from('users' as any).select('id, username, display_name, avatar_url').ilike('username', `%${q}%`).limit(5) as any),
+      supabase.from('hashtags').select('*').ilike('tag', `%${q}%`).limit(5),
     ]).then(([v, u, h]: any) => {
       setSearchResults({ venues: v.data ?? [], users: u.data ?? [], hashtags: h.data ?? [] });
     });

@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useTenantStore } from '@/stores/tenantStore';
 import { useAuthStore } from '@/stores/authStore';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -27,7 +26,6 @@ interface Props {
 }
 
 export default function CommentSection({ entityType, entityId }: Props) {
-  const tenant = useTenantStore((s) => s.tenant);
   const profile = useAuthStore((s) => s.profile);
   const [comments, setComments] = useState<Comment[]>([]);
   const [text, setText] = useState('');
@@ -36,11 +34,9 @@ export default function CommentSection({ entityType, entityId }: Props) {
   const [loading, setLoading] = useState(false);
 
   const load = async () => {
-    if (!tenant) return;
     const { data } = await supabase
       .from('comments')
       .select('*')
-      .eq('tenant_id', tenant.id)
       .eq('entity_type', entityType)
       .eq('entity_id', entityId)
       .eq('is_hidden', false)
@@ -65,7 +61,6 @@ export default function CommentSection({ entityType, entityId }: Props) {
     if (!content.trim()) return;
     setLoading(true);
     await supabase.from('comments').insert({
-      tenant_id: tenant.id,
       entity_type: entityType,
       entity_id: entityId,
       user_id: profile.id,

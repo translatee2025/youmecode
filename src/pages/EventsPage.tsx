@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { useTenantStore } from '@/stores/tenantStore';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -14,7 +13,6 @@ import { format, isSameDay, startOfMonth, endOfMonth } from 'date-fns';
 import { useAuthStore } from '@/stores/authStore';
 
 export default function EventsPage() {
-  const tenant = useTenantStore((s) => s.tenant);
   const profile = useAuthStore((s) => s.profile);
   const [events, setEvents] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -24,14 +22,12 @@ export default function EventsPage() {
   const [siteName, setSiteName] = useState('');
 
   useEffect(() => {
-    if (!tenant) return;
-    supabase.from('site_settings').select('site_name').eq('tenant_id', tenant.id).maybeSingle().then(({ data }) => {
+    supabase.from('site_settings').select('site_name').maybeSingle().then(({ data }) => {
       setSiteName((data as any)?.site_name ?? tenant.name);
     });
     supabase
       .from('events')
       .select('*')
-      .eq('tenant_id', tenant.id)
       .order('start_at', { ascending: true })
       .then(({ data }) => {
         setEvents(data ?? []);

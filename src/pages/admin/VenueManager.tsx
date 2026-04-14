@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useTenantStore } from '@/stores/tenantStore';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -23,7 +22,6 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 export default function VenueManager() {
-  const tenant = useTenantStore((s) => s.tenant);
   const qc = useQueryClient();
   const navigate = useNavigate();
   const [search, setSearch] = useState('');
@@ -34,7 +32,7 @@ export default function VenueManager() {
     queryKey: [tenant?.id, 'categories-list'],
     enabled: !!tenant?.id,
     queryFn: async () => {
-      const { data } = await supabase.from('categories').select('id, name').eq('tenant_id', tenant!.id);
+      const { data } = await supabase.from('categories').select('id, name');
       return data || [];
     },
   });
@@ -46,7 +44,6 @@ export default function VenueManager() {
       let q = supabase
         .from('venues')
         .select('*, categories(name)')
-        .eq('tenant_id', tenant!.id)
         .order('created_at', { ascending: false });
 
       if (search) q = q.ilike('name', `%${search}%`);
@@ -61,7 +58,7 @@ export default function VenueManager() {
 
   const updateVenue = useMutation({
     mutationFn: async ({ id, updates }: { id: string; updates: Record<string, any> }) => {
-      const { error } = await supabase.from('venues').update(updates).eq('id', id).eq('tenant_id', tenant!.id);
+      const { error } = await supabase.from('venues').update(updates).eq('id', id);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -73,7 +70,7 @@ export default function VenueManager() {
 
   const deleteVenue = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from('venues').delete().eq('id', id).eq('tenant_id', tenant!.id);
+      const { error } = await supabase.from('venues').delete().eq('id', id);
       if (error) throw error;
     },
     onSuccess: () => {

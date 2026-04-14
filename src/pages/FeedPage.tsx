@@ -1,6 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useTenantStore } from '@/stores/tenantStore';
 import { useAuthStore } from '@/stores/authStore';
 import { useLocationStore } from '@/stores/locationStore';
 import { haversine } from '@/lib/haversine';
@@ -10,7 +9,6 @@ import ReportModal from '@/components/social/ReportModal';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export default function FeedPage() {
-  const tenant = useTenantStore((s) => s.tenant);
   const profile = useAuthStore((s) => s.profile);
   const { lat, lng, isActive } = useLocationStore();
   const [tab, setTab] = useState('following');
@@ -23,8 +21,8 @@ export default function FeedPage() {
   useEffect(() => {
     if (!tenant || !profile) return;
     Promise.all([
-      supabase.from('blocks').select('blocked_id').eq('tenant_id', tenant.id).eq('blocker_id', profile.id),
-      supabase.from('mutes').select('muted_id').eq('tenant_id', tenant.id).eq('muter_id', profile.id),
+      supabase.from('blocks').select('blocked_id').eq('blocker_id', profile.id),
+      supabase.from('mutes').select('muted_id').eq('muter_id', profile.id),
     ]).then(([b, m]) => {
       setBlockedIds((b.data ?? []).map((r: any) => r.blocked_id));
       setMutedIds((m.data ?? []).map((r: any) => r.muted_id));
@@ -32,19 +30,18 @@ export default function FeedPage() {
   }, [tenant, profile]);
 
   const loadPosts = useCallback(async () => {
-    if (!tenant) return;
     setLoading(true);
-    let query = supabase.from('posts').select('*').eq('tenant_id', tenant.id).eq('post_type', 'wall').order('created_at', { ascending: false }).limit(50);
+    let query = supabase.from('posts').select('*').eq('post_type', 'wall').order('created_at', { ascending: false }).limit(50);
 
     if (tab === 'following' && profile) {
-      const { data: follows } = await supabase.from('follows').select('followee_id').eq('tenant_id', tenant.id).eq('follower_id', profile.id).eq('followee_type', 'user');
+      const { data: follows } = await supabase.from('follows').select('followee_id').eq('follower_id', profile.id).eq('followee_type', 'user');
       const followIds = (follows ?? []).map((f: any) => f.followee_id);
       if (followIds.length > 0) {
         query = query.in('user_id', followIds);
       }
     } else if (tab === 'trending') {
       const since = new Date(Date.now() - 86400000).toISOString();
-      query = supabase.from('posts').select('*').eq('tenant_id', tenant.id).eq('post_type', 'wall').gte('created_at', since).order('likes_count', { ascending: false }).limit(50);
+      query = supabase.from('posts').select('*').eq('post_type', 'wall').gte('created_at', since).order('likes_count', { ascending: false }).limit(50);
     }
 
     const { data } = await query;

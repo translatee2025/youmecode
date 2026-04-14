@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { supabase } from '@/integrations/supabase/client';
-import { useTenantStore } from '@/stores/tenantStore';
 import { useAuthStore } from '@/stores/authStore';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
@@ -25,7 +24,6 @@ import { cn } from '@/lib/utils';
 
 export default function VenueDetailPage() {
   const { slug } = useParams<{ slug: string }>();
-  const tenant = useTenantStore((s) => s.tenant);
   const profile = useAuthStore((s) => s.profile);
   const [venue, setVenue] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -40,8 +38,8 @@ export default function VenueDetailPage() {
     if (!tenant || !slug) return;
     const load = async () => {
       const [venueRes, settingsRes] = await Promise.all([
-        supabase.from('venues' as any).select('*').eq('tenant_id', tenant.id).eq('slug', slug).maybeSingle() as any,
-        supabase.from('site_settings').select('*').eq('tenant_id', tenant.id).maybeSingle(),
+        supabase.from('venues' as any).select('*').eq('slug', slug).maybeSingle() as any,
+        supabase.from('site_settings').select('*').maybeSingle(),
       ]);
       const v = venueRes.data as any;
       if (!v) { setLoading(false); return; }
@@ -53,9 +51,9 @@ export default function VenueDetailPage() {
 
       // Load related data in parallel
       const [prodRes, evtRes, dealRes] = await Promise.all([
-        supabase.from('products').select('*').eq('tenant_id', tenant.id).eq('venue_id', v.id).eq('status', 'active').order('sort_order'),
-        supabase.from('events').select('*').eq('tenant_id', tenant.id).eq('venue_id', v.id).order('start_at'),
-        supabase.from('deals').select('*').eq('tenant_id', tenant.id).eq('venue_id', v.id).eq('is_active', true),
+        supabase.from('products').select('*').eq('venue_id', v.id).eq('status', 'active').order('sort_order'),
+        supabase.from('events').select('*').eq('venue_id', v.id).order('start_at'),
+        supabase.from('deals').select('*').eq('venue_id', v.id).eq('is_active', true),
       ]);
       setProducts(prodRes.data ?? []);
       setEvents(evtRes.data ?? []);

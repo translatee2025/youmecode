@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useTenantStore } from '@/stores/tenantStore';
 import { useAuthStore } from '@/stores/authStore';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Input } from '@/components/ui/input';
@@ -31,7 +30,6 @@ interface Message {
 }
 
 export default function MessagesPage() {
-  const tenant = useTenantStore((s) => s.tenant);
   const { profile, session } = useAuthStore();
   const isMobile = useIsMobile();
   const [conversations, setConversations] = useState<Conversation[]>([]);
@@ -54,7 +52,6 @@ export default function MessagesPage() {
       const { data } = await supabase
         .from('conversations')
         .select('*')
-        .eq('tenant_id', tenant.id)
         .contains('participants', [profile.id])
         .order('last_message_at', { ascending: false });
       if (!data) return;
@@ -64,7 +61,6 @@ export default function MessagesPage() {
       const { data: users } = await supabase
         .from('users')
         .select('id, username, display_name, avatar_url')
-        .eq('tenant_id', tenant.id)
         .in('id', otherIds as string[]);
 
       const userMap = new Map((users || []).map((u) => [u.id, u]));
@@ -81,7 +77,6 @@ export default function MessagesPage() {
     supabase
       .from('blocks')
       .select('blocked_id, blocker_id')
-      .eq('tenant_id', tenant.id)
       .or(`blocker_id.eq.${profile.id},blocked_id.eq.${profile.id}`)
       .then(({ data }) => {
         if (data) {
@@ -160,7 +155,6 @@ export default function MessagesPage() {
     setInput('');
 
     await supabase.from('messages').insert({
-      tenant_id: tenant.id,
       conversation_id: activeConvo.id,
       sender_id: profile.id,
       content,
@@ -206,7 +200,8 @@ export default function MessagesPage() {
     }
     const { data, error } = await supabase
       .from('conversations')
-      .insert({ tenant_id: tenant.id, participants: [profile.id, userId] })
+      .insert({
+ participants: [profile.id, userId] })
       .select()
       .single();
     if (data) {
@@ -223,7 +218,6 @@ export default function MessagesPage() {
     const { data } = await supabase
       .from('users')
       .select('id,username,display_name,avatar_url')
-      .eq('tenant_id', tenant.id)
       .neq('id', profile?.id || '')
       .or(`username.ilike.%${q}%,display_name.ilike.%${q}%`)
       .limit(10);

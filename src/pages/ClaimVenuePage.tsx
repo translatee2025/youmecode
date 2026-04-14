@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { useTenantStore } from '@/stores/tenantStore';
 import { useAuthStore } from '@/stores/authStore';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,7 +14,6 @@ import { cn } from '@/lib/utils';
 
 export default function ClaimVenuePage() {
   const { venueId } = useParams<{ venueId: string }>();
-  const tenant = useTenantStore((s) => s.tenant);
   const profile = useAuthStore((s) => s.profile);
   const [venue, setVenue] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -28,7 +26,7 @@ export default function ClaimVenuePage() {
 
   useEffect(() => {
     if (!tenant || !venueId) return;
-    (supabase.from('venues' as any).select('*').eq('id', venueId).eq('tenant_id', tenant.id).maybeSingle() as any)
+    (supabase.from('venues' as any).select('*').eq('id', venueId).maybeSingle() as any)
       .then(({ data }: any) => { setVenue(data); setLoading(false); });
   }, [tenant, venueId]);
 
@@ -44,7 +42,6 @@ export default function ClaimVenuePage() {
     if (!profile || !tenant) return;
     setSubmitting(true);
     await supabase.from('claim_requests').insert({
-      tenant_id: tenant.id,
       venue_id: venue.id,
       user_id: profile.id,
       method: 'email_domain',
@@ -66,7 +63,6 @@ export default function ClaimVenuePage() {
     const { data: pub } = supabase.storage.from('media').getPublicUrl(path);
 
     await supabase.from('claim_requests').insert({
-      tenant_id: tenant.id,
       venue_id: venue.id,
       user_id: profile.id,
       method: 'document',

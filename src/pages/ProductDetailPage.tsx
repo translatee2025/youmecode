@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { useTenantStore } from '@/stores/tenantStore';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import LikeButton from '@/components/common/LikeButton';
@@ -14,7 +13,6 @@ import { ExternalLink, MessageCircle, ChevronLeft, ChevronRight, X } from 'lucid
 
 export default function ProductDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const tenant = useTenantStore((s) => s.tenant);
   const [product, setProduct] = useState<any>(null);
   const [venue, setVenue] = useState<any>(null);
   const [related, setRelated] = useState<any[]>([]);
@@ -26,8 +24,8 @@ export default function ProductDetailPage() {
     if (!tenant || !id) return;
     const load = async () => {
       const [prodRes, settingsRes] = await Promise.all([
-        supabase.from('products').select('*').eq('id', id).eq('tenant_id', tenant.id).maybeSingle(),
-        supabase.from('site_settings').select('*').eq('tenant_id', tenant.id).maybeSingle(),
+        supabase.from('products').select('*').eq('id', id).maybeSingle(),
+        supabase.from('site_settings').select('*').maybeSingle(),
       ]);
       const p = prodRes.data;
       if (!p) { setLoading(false); return; }
@@ -38,8 +36,7 @@ export default function ProductDetailPage() {
         const { data: v } = await supabase.from('venues' as any).select('id, name, slug, owner_id').eq('id', p.venue_id).maybeSingle();
         setVenue(v);
 
-        const { data: rel } = await supabase.from('products').select('*')
-          .eq('tenant_id', tenant.id).eq('venue_id', p.venue_id)
+        const { data: rel } = await supabase.from('products').select('*').eq('venue_id', p.venue_id)
           .neq('id', p.id).eq('status', 'active').limit(6);
         setRelated(rel ?? []);
       }

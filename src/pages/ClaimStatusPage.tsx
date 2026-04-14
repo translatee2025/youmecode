@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { useTenantStore } from '@/stores/tenantStore';
 import { useAuthStore } from '@/stores/authStore';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -17,7 +16,6 @@ const steps = [
 
 export default function ClaimStatusPage() {
   const { venueId } = useParams<{ venueId: string }>();
-  const tenant = useTenantStore((s) => s.tenant);
   const profile = useAuthStore((s) => s.profile);
   const [claim, setClaim] = useState<any>(null);
   const [venue, setVenue] = useState<any>(null);
@@ -26,7 +24,7 @@ export default function ClaimStatusPage() {
   useEffect(() => {
     if (!tenant || !profile || !venueId) return;
     Promise.all([
-      supabase.from('claim_requests').select('*').eq('tenant_id', tenant.id).eq('venue_id', venueId).eq('user_id', profile.id).order('created_at', { ascending: false }).limit(1).maybeSingle(),
+      supabase.from('claim_requests').select('*').eq('venue_id', venueId).eq('user_id', profile.id).order('created_at', { ascending: false }).limit(1).maybeSingle(),
       (supabase.from('venues' as any).select('name, slug').eq('id', venueId).maybeSingle() as any),
     ]).then(([claimRes, venueRes]: any) => {
       setClaim(claimRes.data);

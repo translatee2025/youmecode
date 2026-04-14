@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useTenantStore } from '@/stores/tenantStore';
 import { useAuthStore } from '@/stores/authStore';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -18,7 +17,6 @@ interface Props {
 }
 
 export default function ReportModal({ open, onClose, entityType, entityId }: Props) {
-  const tenant = useTenantStore((s) => s.tenant);
   const profile = useAuthStore((s) => s.profile);
   const [reason, setReason] = useState('');
   const [detail, setDetail] = useState('');
@@ -28,7 +26,6 @@ export default function ReportModal({ open, onClose, entityType, entityId }: Pro
     if (!tenant || !profile || !reason) return;
     setSubmitting(true);
     await supabase.from('reports').insert({
-      tenant_id: tenant.id,
       reporter_id: profile.id,
       entity_type: entityType,
       entity_id: entityId,

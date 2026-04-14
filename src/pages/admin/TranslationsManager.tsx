@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useTenantStore } from '@/stores/tenantStore';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -16,7 +15,6 @@ import { LANGUAGES } from '@/lib/languages';
 const RTL_LANGS = ['ar', 'he', 'fa', 'ur'];
 
 export default function TranslationsManager() {
-  const tenant = useTenantStore((s) => s.tenant);
   const qc = useQueryClient();
   const [selectedLang, setSelectedLang] = useState('');
   const [filter, setFilter] = useState<'all' | 'missing' | 'translated'>('all');
@@ -26,7 +24,7 @@ export default function TranslationsManager() {
     queryKey: [tenant?.id, 'site-settings-langs'],
     enabled: !!tenant?.id,
     queryFn: async () => {
-      const { data } = await supabase.from('site_settings').select('active_languages, default_language, rtl_languages').eq('tenant_id', tenant!.id).single();
+      const { data } = await supabase.from('site_settings').select('active_languages, default_language, rtl_languages').single();
       return data;
     },
   });
@@ -42,7 +40,7 @@ export default function TranslationsManager() {
     queryKey: [tenant?.id, 'translations', selectedLang],
     enabled: !!tenant?.id && !!selectedLang,
     queryFn: async () => {
-      const { data } = await supabase.from('translations').select('*').eq('tenant_id', tenant!.id).eq('language_code', selectedLang);
+      const { data } = await supabase.from('translations').select('*').eq('language_code', selectedLang);
       return data || [];
     },
   });
@@ -52,14 +50,14 @@ export default function TranslationsManager() {
     enabled: !!tenant?.id,
     queryFn: async () => {
       const defLang = (siteSettings?.default_language as string) || 'en';
-      const { data } = await supabase.from('translations').select('*').eq('tenant_id', tenant!.id).eq('language_code', defLang);
+      const { data } = await supabase.from('translations').select('*').eq('language_code', defLang);
       return data || [];
     },
   });
 
   const saveLangs = useMutation({
     mutationFn: async () => {
-      const { error } = await supabase.from('site_settings').update({ active_languages: enabledLangs as any }).eq('tenant_id', tenant!.id);
+      const { error } = await supabase.from('site_settings').update({ active_languages: enabledLangs as any });
       if (error) throw error;
     },
     onSuccess: () => {
@@ -76,7 +74,8 @@ export default function TranslationsManager() {
         if (existing) {
           await supabase.from('translations').update({ value }).eq('id', existing.id);
         } else {
-          await supabase.from('translations').insert({ tenant_id: tenant!.id, language_code: selectedLang, string_key: key, value });
+          await supabase.from('translations').insert({
+ language_code: selectedLang, string_key: key, value });
         }
       }
     },

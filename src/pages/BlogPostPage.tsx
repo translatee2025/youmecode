@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { useTenantStore } from '@/stores/tenantStore';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import ShareButton from '@/components/common/ShareButton';
@@ -19,7 +18,6 @@ function readingTime(text: string | null) {
 
 export default function BlogPostPage() {
   const { slug } = useParams<{ slug: string }>();
-  const tenant = useTenantStore((s) => s.tenant);
   const [post, setPost] = useState<any>(null);
   const [author, setAuthor] = useState<any>(null);
   const [related, setRelated] = useState<any[]>([]);
@@ -28,13 +26,12 @@ export default function BlogPostPage() {
 
   useEffect(() => {
     if (!tenant || !slug) return;
-    supabase.from('site_settings').select('site_name').eq('tenant_id', tenant.id).maybeSingle().then(({ data }) => {
+    supabase.from('site_settings').select('site_name').maybeSingle().then(({ data }) => {
       setSiteName((data as any)?.site_name ?? tenant.name);
     });
     supabase
       .from('blog_posts')
       .select('*')
-      .eq('tenant_id', tenant.id)
       .eq('slug', slug)
       .eq('is_published', true)
       .maybeSingle()
@@ -48,7 +45,6 @@ export default function BlogPostPage() {
           const { data: rel } = await supabase
             .from('blog_posts')
             .select('id, slug, title, cover_image_url, published_at')
-            .eq('tenant_id', tenant.id)
             .eq('is_published', true)
             .neq('id', data.id)
             .overlaps('tags', data.tags)

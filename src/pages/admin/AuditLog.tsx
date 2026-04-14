@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useTenantStore } from '@/stores/tenantStore';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -16,7 +15,6 @@ const ACTIONS = [
 ];
 
 export default function AuditLog() {
-  const tenant = useTenantStore((s) => s.tenant);
   const [search, setSearch] = useState('');
   const [actionFilter, setActionFilter] = useState('all');
 
@@ -27,7 +25,6 @@ export default function AuditLog() {
       let q = supabase
         .from('audit_log')
         .select('*, users:actor_id(username, display_name)')
-        .eq('tenant_id', tenant!.id)
         .order('created_at', { ascending: false })
         .limit(500);
 

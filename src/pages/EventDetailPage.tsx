@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { useTenantStore } from '@/stores/tenantStore';
 import { useAuthStore } from '@/stores/authStore';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -15,7 +14,6 @@ import { format } from 'date-fns';
 
 export default function EventDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const tenant = useTenantStore((s) => s.tenant);
   const profile = useAuthStore((s) => s.profile);
   const [event, setEvent] = useState<any>(null);
   const [venue, setVenue] = useState<any>(null);
@@ -24,10 +22,10 @@ export default function EventDetailPage() {
 
   useEffect(() => {
     if (!tenant || !id) return;
-    supabase.from('site_settings').select('site_name').eq('tenant_id', tenant.id).maybeSingle().then(({ data }) => {
+    supabase.from('site_settings').select('site_name').maybeSingle().then(({ data }) => {
       setSiteName((data as any)?.site_name ?? tenant.name);
     });
-    supabase.from('events').select('*').eq('tenant_id', tenant.id).eq('id', id).maybeSingle().then(async ({ data }) => {
+    supabase.from('events').select('*').eq('id', id).maybeSingle().then(async ({ data }) => {
       setEvent(data);
       if (data?.venue_id) {
         const { data: v } = await supabase.from('venues').select('name, slug').eq('id', data.venue_id).maybeSingle();

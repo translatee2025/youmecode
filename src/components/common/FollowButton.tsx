@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useTenantStore } from '@/stores/tenantStore';
 import { useAuthStore } from '@/stores/authStore';
 import { Button } from '@/components/ui/button';
 import { UserPlus, UserCheck } from 'lucide-react';
@@ -13,7 +12,6 @@ interface Props {
 }
 
 export default function FollowButton({ followeeType, followeeId, className }: Props) {
-  const tenant = useTenantStore((s) => s.tenant);
   const profile = useAuthStore((s) => s.profile);
   const [following, setFollowing] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -23,7 +21,6 @@ export default function FollowButton({ followeeType, followeeId, className }: Pr
     supabase
       .from('follows')
       .select('id')
-      .eq('tenant_id', tenant.id)
       .eq('followee_type', followeeType)
       .eq('followee_id', followeeId)
       .eq('follower_id', profile.id)
@@ -43,13 +40,11 @@ export default function FollowButton({ followeeType, followeeId, className }: Pr
       await supabase
         .from('follows')
         .delete()
-        .eq('tenant_id', tenant.id)
         .eq('followee_type', followeeType)
         .eq('followee_id', followeeId)
         .eq('follower_id', profile.id);
     } else {
       await supabase.from('follows').insert({
-        tenant_id: tenant.id,
         followee_type: followeeType,
         followee_id: followeeId,
         follower_id: profile.id,

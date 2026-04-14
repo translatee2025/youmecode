@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useTenantStore } from '@/stores/tenantStore';
 import { useAuthStore } from '@/stores/authStore';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,18 +9,16 @@ import { formatDistanceToNow } from 'date-fns';
 import { toast } from '@/hooks/use-toast';
 
 export default function PollsPage() {
-  const tenant = useTenantStore((s) => s.tenant);
   const { profile } = useAuthStore();
   const [polls, setPolls] = useState<any[]>([]);
   const [votes, setVotes] = useState<Record<string, number>>({});
 
   useEffect(() => {
-    if (!tenant) return;
-    supabase.from('polls').select('*').eq('tenant_id', tenant.id).order('created_at', { ascending: false })
+    supabase.from('polls').select('*').order('created_at', { ascending: false })
       .then(({ data }) => setPolls(data || []));
 
     if (profile) {
-      supabase.from('poll_votes').select('poll_id, option_index').eq('tenant_id', tenant.id).eq('user_id', profile.id)
+      supabase.from('poll_votes').select('poll_id, option_index').eq('user_id', profile.id)
         .then(({ data }) => {
           const map: Record<string, number> = {};
           (data || []).forEach((v) => { map[v.poll_id] = v.option_index; });
@@ -32,7 +29,8 @@ export default function PollsPage() {
 
   const vote = async (pollId: string, optionIndex: number) => {
     if (!tenant || !profile || votes[pollId] !== undefined) return;
-    await supabase.from('poll_votes').insert({ tenant_id: tenant.id, poll_id: pollId, user_id: profile.id, option_index: optionIndex });
+    await supabase.from('poll_votes').insert({
+ poll_id: pollId, user_id: profile.id, option_index: optionIndex });
     setVotes((prev) => ({ ...prev, [pollId]: optionIndex }));
     toast({ title: 'Vote recorded!' });
   };

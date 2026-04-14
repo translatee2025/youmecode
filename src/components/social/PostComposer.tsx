@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useTenantStore } from '@/stores/tenantStore';
 import { useAuthStore } from '@/stores/authStore';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -17,7 +16,6 @@ interface Props {
 }
 
 export default function PostComposer({ onPost }: Props) {
-  const tenant = useTenantStore((s) => s.tenant);
   const profile = useAuthStore((s) => s.profile);
   const [expanded, setExpanded] = useState(false);
   const [content, setContent] = useState('');
@@ -66,7 +64,6 @@ export default function PostComposer({ onPost }: Props) {
       let pollId: string | null = null;
       if (showPoll && pollQuestion.trim()) {
         const { data: poll } = await supabase.from('polls').insert({
-          tenant_id: tenant.id,
           user_id: profile.id,
           question: pollQuestion,
           options: pollOptions.filter(Boolean).map((o) => ({ text: o, votes: 0 })),
@@ -77,7 +74,6 @@ export default function PostComposer({ onPost }: Props) {
       const hashtags = extractHashtags(content);
 
       await supabase.from('posts').insert({
-        tenant_id: tenant.id,
         user_id: profile.id,
         content: content.trim(),
         media_urls: mediaUrls,
@@ -89,16 +85,17 @@ export default function PostComposer({ onPost }: Props) {
 
       // Update hashtag counts
       for (const tag of hashtags) {
-        const { data: existing } = await supabase.from('hashtags').select('id, posts_count').eq('tenant_id', tenant.id).eq('tag', tag).maybeSingle();
+        const { data: existing } = await supabase.from('hashtags').select('id, posts_count').eq('tag', tag).maybeSingle();
         if (existing) {
           await supabase.from('hashtags').update({ posts_count: (existing.posts_count ?? 0) + 1 }).eq('id', existing.id);
         } else {
-          await supabase.from('hashtags').insert({ tenant_id: tenant.id, tag, posts_count: 1 });
+          await supabase.from('hashtags').insert({
+ tag, posts_count: 1 });
         }
       }
 
       // Badge checks
-      const { count } = await supabase.from('posts').select('id', { count: 'exact', head: true }).eq('tenant_id', tenant.id).eq('user_id', profile.id);
+      const { count } = await supabase.from('posts').select('id', { count: 'exact', head: true }).eq('user_id', profile.id);
       await checkBadges(tenant.id, profile.id, 'first_post', 1);
       await checkBadges(tenant.id, profile.id, 'posts', count ?? 1);
 

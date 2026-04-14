@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useTenantStore } from '@/stores/tenantStore';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -20,7 +19,6 @@ interface ProductType {
 function slugify(t: string) { return t.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''); }
 
 export default function ProductTypeManager() {
-  const tenant = useTenantStore((s) => s.tenant);
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedCatId, setSelectedCatId] = useState('');
   const [types, setTypes] = useState<ProductType[]>([]);
@@ -30,14 +28,13 @@ export default function ProductTypeManager() {
   const [saving, setSaving] = useState(false);
 
   const loadCats = useCallback(async () => {
-    if (!tenant) return;
-    const { data } = await supabase.from('categories').select('id, name, icon').eq('tenant_id', tenant.id).order('sort_order');
+    const { data } = await supabase.from('categories').select('id, name, icon').order('sort_order');
     if (data) { setCategories(data); if (data.length > 0 && !selectedCatId) setSelectedCatId(data[0].id); }
   }, [tenant, selectedCatId]);
 
   const loadTypes = useCallback(async () => {
     if (!tenant || !selectedCatId) return;
-    const { data } = await supabase.from('product_types').select('*').eq('tenant_id', tenant.id).eq('category_id', selectedCatId).order('sort_order');
+    const { data } = await supabase.from('product_types').select('*').eq('category_id', selectedCatId).order('sort_order');
     if (data) setTypes(data);
   }, [tenant, selectedCatId]);
 
@@ -60,7 +57,7 @@ export default function ProductTypeManager() {
     if (!tenant || !selectedCatId) return;
     setSaving(true);
     const payload = {
-      tenant_id: tenant.id, category_id: selectedCatId,
+ category_id: selectedCatId,
       name: form.name, slug: form.slug || slugify(form.name),
       description: form.description || null, icon: form.icon || null,
       sort_order: editing ? editing.sort_order : types.length,

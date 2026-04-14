@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useTenantStore } from '@/stores/tenantStore';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -20,7 +19,6 @@ const SLOT_TYPES = [
 ];
 
 export default function AdSlotsManager() {
-  const tenant = useTenantStore((s) => s.tenant);
   const qc = useQueryClient();
   const [tab, setTab] = useState('pricing');
   const [slotPricing, setSlotPricing] = useState<Record<string, any>>({});
@@ -29,7 +27,7 @@ export default function AdSlotsManager() {
     queryKey: [tenant?.id, 'ad-slots'],
     enabled: !!tenant?.id,
     queryFn: async () => {
-      const { data } = await supabase.from('ad_slots').select('*').eq('tenant_id', tenant!.id);
+      const { data } = await supabase.from('ad_slots').select('*');
       // Init local state
       const map: Record<string, any> = {};
       (data || []).forEach((s: any) => { map[s.slot_type] = s; });
@@ -42,7 +40,7 @@ export default function AdSlotsManager() {
     queryKey: [tenant?.id, 'admin-ads', tab],
     enabled: !!tenant?.id,
     queryFn: async () => {
-      const { data } = await supabase.from('ads').select('*, venues(name)').eq('tenant_id', tenant!.id).order('created_at', { ascending: false });
+      const { data } = await supabase.from('ads').select('*, venues(name)').order('created_at', { ascending: false });
       return data || [];
     },
   });
@@ -60,7 +58,6 @@ export default function AdSlotsManager() {
           }).eq('id', existing.id);
         } else {
           await supabase.from('ad_slots').insert({
-            tenant_id: tenant!.id,
             slot_type: st.key,
             is_enabled: existing?.is_enabled ?? true,
             price_weekly: existing?.price_weekly || 0,

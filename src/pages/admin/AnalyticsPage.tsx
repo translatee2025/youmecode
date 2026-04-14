@@ -1,6 +1,5 @@
 import { useEffect, useState, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useTenantStore } from '@/stores/tenantStore';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -31,7 +30,6 @@ function downloadCsv(filename: string, headers: string[], rows: string[][]) {
 }
 
 export default function AnalyticsPage() {
-  const tenant = useTenantStore((s) => s.tenant);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState('overview');
   const [commerceEnabled, setCommerceEnabled] = useState(false);
@@ -50,16 +48,15 @@ export default function AnalyticsPage() {
   const [exportTo, setExportTo] = useState('');
 
   useEffect(() => {
-    if (!tenant) return;
     Promise.all([
-      supabase.from('site_settings').select('commerce_enabled').eq('tenant_id', tenant.id).maybeSingle(),
-      supabase.from('users').select('*').eq('tenant_id', tenant.id),
-      supabase.from('venues').select('*').eq('tenant_id', tenant.id),
-      supabase.from('posts').select('id, created_at').eq('tenant_id', tenant.id),
-      supabase.from('subscriptions').select('*').eq('tenant_id', tenant.id),
-      supabase.from('ads').select('*').eq('tenant_id', tenant.id),
-      supabase.from('categories').select('id, name').eq('tenant_id', tenant.id),
-      supabase.from('ratings').select('*').eq('tenant_id', tenant.id),
+      supabase.from('site_settings').select('commerce_enabled').maybeSingle(),
+      supabase.from('users').select('*'),
+      supabase.from('venues').select('*'),
+      supabase.from('posts').select('id, created_at'),
+      supabase.from('subscriptions').select('*'),
+      supabase.from('ads').select('*'),
+      supabase.from('categories').select('id, name'),
+      supabase.from('ratings').select('*'),
     ]).then(([ssRes, uRes, vRes, pRes, sRes, aRes, cRes, rRes]) => {
       setCommerceEnabled((ssRes.data as any)?.commerce_enabled === true);
       setUsers(uRes.data ?? []);

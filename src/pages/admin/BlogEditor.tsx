@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useTenantStore } from '@/stores/tenantStore';
 import { useAuthStore } from '@/stores/authStore';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -20,7 +19,6 @@ function slugify(s: string) {
 }
 
 export default function BlogEditor() {
-  const tenant = useTenantStore((s) => s.tenant);
   const profile = useAuthStore((s) => s.profile);
   const qc = useQueryClient();
   const [statusFilter, setStatusFilter] = useState('all');
@@ -31,7 +29,7 @@ export default function BlogEditor() {
     queryKey: [tenant?.id, 'blog-posts', statusFilter],
     enabled: !!tenant?.id,
     queryFn: async () => {
-      let q = supabase.from('blog_posts').select('*').eq('tenant_id', tenant!.id).order('created_at', { ascending: false });
+      let q = supabase.from('blog_posts').select('*').order('created_at', { ascending: false });
       if (statusFilter === 'published') q = q.eq('is_published', true);
       if (statusFilter === 'draft') q = q.eq('is_published', false).is('scheduled_at', null);
       if (statusFilter === 'scheduled') q = q.not('scheduled_at', 'is', null).eq('is_published', false);
@@ -44,7 +42,6 @@ export default function BlogEditor() {
   const savePost = useMutation({
     mutationFn: async ({ publish, schedule }: { publish?: boolean; schedule?: string } = {}) => {
       const payload: any = {
-        tenant_id: tenant!.id,
         title: editing.title,
         slug: editing.slug || slugify(editing.title),
         content: editing.content,

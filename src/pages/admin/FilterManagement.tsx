@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useTenantStore } from '@/stores/tenantStore';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -57,7 +56,6 @@ function slugify(text: string) {
 }
 
 export default function FilterManagement() {
-  const tenant = useTenantStore((s) => s.tenant);
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedCatId, setSelectedCatId] = useState<string>('');
   const [fields, setFields] = useState<FilterField[]>([]);
@@ -72,8 +70,7 @@ export default function FilterManagement() {
   const [translating, setTranslating] = useState(false);
 
   const loadCategories = useCallback(async () => {
-    if (!tenant) return;
-    const { data } = await supabase.from('categories').select('id, name, icon').eq('tenant_id', tenant.id).order('sort_order');
+    const { data } = await supabase.from('categories').select('id, name, icon').order('sort_order');
     if (data) {
       setCategories(data);
       if (data.length > 0 && !selectedCatId) setSelectedCatId(data[0].id);
@@ -84,7 +81,6 @@ export default function FilterManagement() {
     if (!tenant || !selectedCatId) return;
     const { data } = await supabase.from('filter_fields')
       .select('*')
-      .eq('tenant_id', tenant.id)
       .eq('category_id', selectedCatId)
       .order('sort_order');
     if (data) setFields(data);
@@ -120,7 +116,6 @@ export default function FilterManagement() {
       ? form.options.split(',').map((o) => o.trim()).filter(Boolean)
       : [];
     const payload = {
-      tenant_id: tenant.id,
       category_id: selectedCatId,
       label: form.label,
       field_key: form.field_key || slugify(form.label),

@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useTenantStore } from '@/stores/tenantStore';
 import { useLocationStore } from '@/stores/locationStore';
 import { haversine } from '@/lib/haversine';
 import DynamicFilterDrawer, { type FilterValues } from '@/components/directory/DynamicFilterDrawer';
@@ -18,7 +17,6 @@ const PAGE_SIZE = 20;
 const RADIUS_OPTIONS = [1, 5, 10, 25, 50];
 
 export default function DirectoryPage() {
-  const tenant = useTenantStore((s) => s.tenant);
   const { lat, lng, isActive: nearMeActive, radius, activate, deactivate, setRadius } = useLocationStore();
 
   const [tab, setTab] = useState<'venues' | 'users'>('venues');
@@ -47,12 +45,11 @@ export default function DirectoryPage() {
 
   // Load categories + site settings + ads once
   useEffect(() => {
-    if (!tenant) return;
     const load = async () => {
       const [catRes, settingsRes, adsRes] = await Promise.all([
-        supabase.from('categories').select('id, name, icon, slug').eq('tenant_id', tenant.id).eq('is_active', true).order('sort_order'),
-        supabase.from('site_settings').select('*').eq('tenant_id', tenant.id).maybeSingle(),
-        supabase.from('ads').select('*').eq('tenant_id', tenant.id).eq('slot_type', 'directory_top').eq('status', 'active'),
+        supabase.from('categories').select('id, name, icon, slug').eq('is_active', true).order('sort_order'),
+        supabase.from('site_settings').select('*').maybeSingle(),
+        supabase.from('ads').select('*').eq('slot_type', 'directory_top').eq('status', 'active'),
       ]);
       setCategories(catRes.data ?? []);
       setSiteSettings(settingsRes.data);
@@ -71,7 +68,6 @@ export default function DirectoryPage() {
     supabase
       .from('subcategories')
       .select('id, name, slug')
-      .eq('tenant_id', tenant.id)
       .eq('category_id', selectedCategory)
       .eq('is_active', true)
       .order('sort_order')
@@ -87,7 +83,6 @@ export default function DirectoryPage() {
     supabase
       .from('filter_fields')
       .select('field_key, label')
-      .eq('tenant_id', tenant.id)
       .eq('category_id', selectedCategory)
       .eq('show_in_card', true)
       .eq('is_active', true)
@@ -97,14 +92,12 @@ export default function DirectoryPage() {
   // Fetch data
   const fetchData = useCallback(
     async (pageNum: number, append: boolean) => {
-      if (!tenant) return;
       setLoading(true);
 
       if (tab === 'venues') {
         let q: any = supabase
           .from('venues' as any)
           .select('*')
-          .eq('tenant_id', tenant.id)
           .range(pageNum * PAGE_SIZE, (pageNum + 1) * PAGE_SIZE - 1);
 
         if (search) q = q.ilike('name', `%${search}%`);
@@ -148,7 +141,6 @@ export default function DirectoryPage() {
         let q = supabase
           .from('users' as any)
           .select('*')
-          .eq('tenant_id', tenant.id)
           .range(pageNum * PAGE_SIZE, (pageNum + 1) * PAGE_SIZE - 1);
 
         if (search) q = q.or(`username.ilike.%${search}%,display_name.ilike.%${search}%`);

@@ -1,13 +1,11 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useTenantStore } from '@/stores/tenantStore';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Activity, Database, HardDrive, AlertTriangle } from 'lucide-react';
 
 export default function HealthPage() {
-  const tenant = useTenantStore((s) => s.tenant);
   const [dbStatus, setDbStatus] = useState<'checking' | 'connected' | 'error'>('checking');
   const [latency, setLatency] = useState(0);
   const [errors, setErrors] = useState<any[]>([]);
@@ -24,7 +22,6 @@ export default function HealthPage() {
     if (tenant) {
       supabase.from('audit_log')
         .select('*')
-        .eq('tenant_id', tenant.id)
         .ilike('action', '%error%')
         .order('created_at', { ascending: false })
         .limit(20)

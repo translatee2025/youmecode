@@ -5,7 +5,7 @@ import { DEFAULT_TENANT_ID, config } from '@/config';
 import PublicNav from '@/components/PublicNav';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { MapPin, Star, Calendar, ArrowRight, Users, Building2, CalendarDays } from 'lucide-react';
+import { MapPin, Star, Calendar, ArrowRight, ArrowUpRight, Users, Building2, CalendarDays } from 'lucide-react';
 
 interface Venue {
   id: string; name: string; slug: string; description: string | null;
@@ -58,49 +58,94 @@ export default function Index() {
       <PublicNav />
 
       {/* Hero */}
-      <section className="relative overflow-hidden border-b border-border">
-        <div className="mx-auto max-w-6xl px-4 py-20 text-center md:py-28">
-          <h1 className="text-4xl font-bold tracking-tight md:text-6xl">{config.platformName}</h1>
-          <p className="mx-auto mt-4 max-w-xl text-lg text-muted-foreground">{config.platformTagline}</p>
-          <div className="mt-8 flex items-center justify-center gap-4">
-            <Button size="lg" asChild><Link to="/directory">Browse Directory</Link></Button>
-            <Button size="lg" variant="outline" asChild><Link to="/auth">Sign Up</Link></Button>
+      <section className="relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-transparent" />
+        <div className="relative mx-auto max-w-5xl px-4 py-24 text-center md:py-32">
+          <h1 className="text-5xl font-bold tracking-tight md:text-7xl">{config.platformName}</h1>
+          <p className="mx-auto mt-6 max-w-lg text-lg text-muted-foreground leading-relaxed">{config.platformTagline}</p>
+          <div className="mt-10 flex items-center justify-center gap-4">
+            <Button size="lg" className="h-12 px-8 text-base rounded-full" asChild>
+              <Link to="/directory">Browse Directory</Link>
+            </Button>
+            <Button size="lg" variant="outline" className="h-12 px-8 text-base rounded-full" asChild>
+              <Link to="/auth">Sign Up Free</Link>
+            </Button>
           </div>
         </div>
       </section>
 
       {/* Stats */}
       {(stats.venues > 0 || stats.events > 0) && (
-        <section className="border-b border-border bg-muted/30">
-          <div className="mx-auto flex max-w-4xl items-center justify-center gap-12 px-4 py-8 text-center">
-            <div><div className="flex items-center justify-center gap-2 text-3xl font-bold"><Building2 className="h-6 w-6 text-primary" />{stats.venues}</div><p className="mt-1 text-sm text-muted-foreground">{config.venueLabel}</p></div>
-            <div><div className="flex items-center justify-center gap-2 text-3xl font-bold"><CalendarDays className="h-6 w-6 text-primary" />{stats.events}</div><p className="mt-1 text-sm text-muted-foreground">Events</p></div>
-            <div><div className="flex items-center justify-center gap-2 text-3xl font-bold"><Users className="h-6 w-6 text-primary" />{stats.members || '–'}</div><p className="mt-1 text-sm text-muted-foreground">{config.memberLabel}</p></div>
+        <section className="border-y border-border">
+          <div className="mx-auto flex max-w-4xl items-center justify-center divide-x divide-border">
+            <div className="flex-1 py-10 text-center">
+              <Building2 className="h-7 w-7 mx-auto mb-2 text-muted-foreground" />
+              <div className="text-3xl font-bold">{stats.venues}</div>
+              <p className="mt-1 text-sm text-muted-foreground">{config.venueLabel}</p>
+            </div>
+            <div className="flex-1 py-10 text-center">
+              <CalendarDays className="h-7 w-7 mx-auto mb-2 text-muted-foreground" />
+              <div className="text-3xl font-bold">{stats.events}</div>
+              <p className="mt-1 text-sm text-muted-foreground">Events</p>
+            </div>
+            <div className="flex-1 py-10 text-center">
+              <Users className="h-7 w-7 mx-auto mb-2 text-muted-foreground" />
+              <div className="text-3xl font-bold">{stats.members || '–'}</div>
+              <p className="mt-1 text-sm text-muted-foreground">{config.memberLabel}</p>
+            </div>
           </div>
         </section>
       )}
 
       {/* Featured Venues */}
       {venues.length > 0 && (
-        <section className="mx-auto max-w-6xl px-4 py-16">
-          <div className="mb-8 flex items-center justify-between">
-            <h2 className="text-2xl font-bold">Featured {config.venueLabel}</h2>
-            <Button variant="ghost" size="sm" asChild><Link to="/directory" className="gap-1">View All <ArrowRight className="h-4 w-4" /></Link></Button>
+        <section className="mx-auto max-w-6xl px-4 py-20">
+          <div className="mb-10 flex items-end justify-between">
+            <div>
+              <h2 className="text-3xl font-bold">Featured {config.venueLabel}</h2>
+              <p className="mt-2 text-muted-foreground">Discover top-rated places in the community</p>
+            </div>
+            <Button variant="ghost" size="sm" asChild>
+              <Link to="/directory" className="gap-1.5 text-muted-foreground hover:text-foreground">
+                View All <ArrowRight className="h-4 w-4" />
+              </Link>
+            </Button>
           </div>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {venues.map((v) => (
-              <Link key={v.id} to={`/venues/${v.slug}`}>
-                <Card className="overflow-hidden transition-shadow hover:shadow-lg h-full">
-                  <div className="aspect-[4/3] overflow-hidden bg-muted">
-                    {v.cover_image_url ? <img src={v.cover_image_url} alt={v.name} className="h-full w-full object-cover" /> : <div className="flex h-full items-center justify-center text-muted-foreground"><Building2 className="h-10 w-10" /></div>}
+              <Link key={v.id} to={`/venues/${v.slug}`} className="group">
+                <div className="overflow-hidden rounded-2xl border border-border bg-card transition-all duration-300 hover:border-foreground/20 hover:shadow-xl hover:shadow-black/20">
+                  <div className="relative aspect-[4/3] overflow-hidden bg-muted">
+                    {v.cover_image_url ? (
+                      <img src={v.cover_image_url} alt={v.name} className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" />
+                    ) : (
+                      <div className="flex h-full items-center justify-center text-4xl font-bold text-muted-foreground bg-secondary">
+                        {v.name?.charAt(0)}
+                      </div>
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+                    <div className="absolute bottom-3 left-3 right-3">
+                      <h3 className="font-semibold text-white text-base drop-shadow-md">{v.name}</h3>
+                      {v.location_city && (
+                        <p className="flex items-center gap-1.5 text-white/80 text-sm mt-0.5">
+                          <MapPin className="h-4 w-4" />{v.location_city}
+                        </p>
+                      )}
+                    </div>
                   </div>
-                  <CardContent className="p-4">
-                    <h3 className="font-semibold leading-tight">{v.name}</h3>
-                    {v.location_city && <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground"><MapPin className="h-3 w-3" />{v.location_city}</p>}
-                    {(v.rating_avg ?? 0) > 0 && <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground"><Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />{v.rating_avg} ({v.rating_count})</p>}
-                    {v.description && <p className="mt-2 line-clamp-2 text-xs text-muted-foreground">{v.description}</p>}
-                  </CardContent>
-                </Card>
+                  <div className="p-4 flex items-center justify-between">
+                    {(v.rating_avg ?? 0) > 0 ? (
+                      <div className="flex items-center gap-1.5">
+                        <Star className="h-5 w-5 fill-amber-400 text-amber-400" />
+                        <span className="font-semibold text-sm">{v.rating_avg}</span>
+                        <span className="text-muted-foreground text-sm">({v.rating_count})</span>
+                      </div>
+                    ) : (
+                      <span className="text-sm text-muted-foreground">No reviews</span>
+                    )}
+                    <ArrowUpRight className="h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors" />
+                  </div>
+                </div>
               </Link>
             ))}
           </div>
@@ -109,19 +154,22 @@ export default function Index() {
 
       {/* Categories */}
       {categories.length > 0 && (
-        <section className="border-t border-border bg-muted/20">
-          <div className="mx-auto max-w-6xl px-4 py-16">
-            <h2 className="mb-8 text-2xl font-bold">Browse by Category</h2>
-            <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-5">
+        <section className="border-y border-border bg-card/50">
+          <div className="mx-auto max-w-6xl px-4 py-20">
+            <h2 className="mb-10 text-3xl font-bold text-center">Browse by Category</h2>
+            <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 lg:grid-cols-5">
               {categories.map((c) => (
-                <Link key={c.id} to={`/directory?category=${c.slug}`}>
-                  <Card className="p-5 text-center transition-shadow hover:shadow-md">
-                    <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full" style={{ backgroundColor: (c.color || '#3b82f6') + '20' }}>
-                      <span className="text-xl" style={{ color: c.color || '#3b82f6' }}>●</span>
+                <Link key={c.id} to={`/directory?category=${c.slug}`} className="group">
+                  <div className="rounded-2xl border border-border bg-card p-6 text-center transition-all duration-300 hover:border-foreground/20 hover:shadow-lg">
+                    <div
+                      className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl"
+                      style={{ backgroundColor: (c.color || '#666') + '18' }}
+                    >
+                      <span className="text-2xl" style={{ color: c.color || '#888' }}>●</span>
                     </div>
-                    <h3 className="font-medium text-sm">{c.name}</h3>
-                    {c.description && <p className="mt-1 text-xs text-muted-foreground line-clamp-1">{c.description}</p>}
-                  </Card>
+                    <h3 className="font-semibold text-sm">{c.name}</h3>
+                    {c.description && <p className="mt-1.5 text-xs text-muted-foreground line-clamp-1">{c.description}</p>}
+                  </div>
                 </Link>
               ))}
             </div>
@@ -131,27 +179,45 @@ export default function Index() {
 
       {/* Upcoming Events */}
       {events.length > 0 && (
-        <section className="mx-auto max-w-6xl px-4 py-16">
-          <div className="mb-8 flex items-center justify-between">
-            <h2 className="text-2xl font-bold">Upcoming Events</h2>
-            <Button variant="ghost" size="sm" asChild><Link to="/events" className="gap-1">View All <ArrowRight className="h-4 w-4" /></Link></Button>
+        <section className="mx-auto max-w-6xl px-4 py-20">
+          <div className="mb-10 flex items-end justify-between">
+            <div>
+              <h2 className="text-3xl font-bold">Upcoming Events</h2>
+              <p className="mt-2 text-muted-foreground">Don't miss what's happening next</p>
+            </div>
+            <Button variant="ghost" size="sm" asChild>
+              <Link to="/events" className="gap-1.5 text-muted-foreground hover:text-foreground">View All <ArrowRight className="h-4 w-4" /></Link>
+            </Button>
           </div>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {events.map((e) => (
-              <Link key={e.id} to={`/events/${e.id}`}>
-                <Card className="overflow-hidden transition-shadow hover:shadow-lg h-full">
-                  <div className="aspect-[16/9] overflow-hidden bg-muted">
-                    {e.cover_image_url ? <img src={e.cover_image_url} alt={e.title} className="h-full w-full object-cover" /> : <div className="flex h-full items-center justify-center text-muted-foreground"><Calendar className="h-10 w-10" /></div>}
+              <Link key={e.id} to={`/events/${e.id}`} className="group">
+                <div className="overflow-hidden rounded-2xl border border-border bg-card transition-all duration-300 hover:border-foreground/20 hover:shadow-xl hover:shadow-black/20">
+                  <div className="relative aspect-[16/9] overflow-hidden bg-muted">
+                    {e.cover_image_url ? (
+                      <img src={e.cover_image_url} alt={e.title} className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" />
+                    ) : (
+                      <div className="flex h-full items-center justify-center bg-secondary"><Calendar className="h-12 w-12 text-muted-foreground" /></div>
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+                    {e.is_free && (
+                      <span className="absolute top-3 left-3 rounded-full bg-emerald-500/90 px-3 py-1 text-xs font-medium text-white backdrop-blur-sm">Free</span>
+                    )}
                   </div>
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-2">
-                      {e.is_free && <span className="rounded bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">Free</span>}
-                      {e.start_at && <span className="text-xs text-muted-foreground">{new Date(e.start_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</span>}
-                    </div>
-                    <h3 className="mt-2 font-semibold">{e.title}</h3>
-                    {e.address && <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground"><MapPin className="h-3 w-3" />{e.address}</p>}
-                  </CardContent>
-                </Card>
+                  <div className="p-5">
+                    {e.start_at && (
+                      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">
+                        {new Date(e.start_at).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' })}
+                      </p>
+                    )}
+                    <h3 className="font-semibold text-base">{e.title}</h3>
+                    {e.address && (
+                      <p className="flex items-center gap-1.5 text-sm text-muted-foreground mt-2">
+                        <MapPin className="h-4 w-4 shrink-0" /><span className="truncate">{e.address}</span>
+                      </p>
+                    )}
+                  </div>
+                </div>
               </Link>
             ))}
           </div>
@@ -160,25 +226,38 @@ export default function Index() {
 
       {/* Latest Blog Posts */}
       {posts.length > 0 && (
-        <section className="border-t border-border bg-muted/20">
-          <div className="mx-auto max-w-6xl px-4 py-16">
-            <div className="mb-8 flex items-center justify-between">
-              <h2 className="text-2xl font-bold">Latest Posts</h2>
-              <Button variant="ghost" size="sm" asChild><Link to="/blog" className="gap-1">View All <ArrowRight className="h-4 w-4" /></Link></Button>
+        <section className="border-t border-border bg-card/50">
+          <div className="mx-auto max-w-6xl px-4 py-20">
+            <div className="mb-10 flex items-end justify-between">
+              <div>
+                <h2 className="text-3xl font-bold">Latest Posts</h2>
+                <p className="mt-2 text-muted-foreground">News and stories from the community</p>
+              </div>
+              <Button variant="ghost" size="sm" asChild>
+                <Link to="/blog" className="gap-1.5 text-muted-foreground hover:text-foreground">View All <ArrowRight className="h-4 w-4" /></Link>
+              </Button>
             </div>
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {posts.map((p) => (
-                <Link key={p.id} to={`/blog/${p.slug}`}>
-                  <Card className="overflow-hidden transition-shadow hover:shadow-lg h-full">
+                <Link key={p.id} to={`/blog/${p.slug}`} className="group">
+                  <div className="overflow-hidden rounded-2xl border border-border bg-card transition-all duration-300 hover:border-foreground/20 hover:shadow-xl hover:shadow-black/20">
                     <div className="aspect-[16/9] overflow-hidden bg-muted">
-                      {p.cover_image_url ? <img src={p.cover_image_url} alt={p.title} className="h-full w-full object-cover" /> : <div className="flex h-full items-center justify-center text-muted-foreground">📝</div>}
+                      {p.cover_image_url ? (
+                        <img src={p.cover_image_url} alt={p.title} className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" />
+                      ) : (
+                        <div className="flex h-full items-center justify-center text-3xl bg-secondary">📝</div>
+                      )}
                     </div>
-                    <CardContent className="p-4">
-                      {p.published_at && <p className="text-xs text-muted-foreground">{new Date(p.published_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</p>}
-                      <h3 className="mt-1 font-semibold">{p.title}</h3>
-                      {p.excerpt && <p className="mt-2 line-clamp-2 text-xs text-muted-foreground">{p.excerpt}</p>}
-                    </CardContent>
-                  </Card>
+                    <div className="p-5">
+                      {p.published_at && (
+                        <p className="text-xs text-muted-foreground mb-2">
+                          {new Date(p.published_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                        </p>
+                      )}
+                      <h3 className="font-semibold text-base">{p.title}</h3>
+                      {p.excerpt && <p className="mt-2 line-clamp-2 text-sm text-muted-foreground leading-relaxed">{p.excerpt}</p>}
+                    </div>
+                  </div>
                 </Link>
               ))}
             </div>
@@ -187,8 +266,8 @@ export default function Index() {
       )}
 
       {/* Footer */}
-      <footer className="border-t border-border bg-background py-8 text-center text-sm text-muted-foreground">
-        <p>© {new Date().getFullYear()} {config.platformName}. All rights reserved.</p>
+      <footer className="border-t border-border py-12 text-center">
+        <p className="text-sm text-muted-foreground">© {new Date().getFullYear()} {config.platformName}. All rights reserved.</p>
       </footer>
     </div>
   );

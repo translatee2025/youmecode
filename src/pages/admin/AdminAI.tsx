@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { DEFAULT_TENANT_ID } from '@/config';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -34,7 +35,7 @@ export default function AdminAI() {
   const [translating, setTranslating] = useState(false);
 
   useEffect(() => {
-    supabase.from('site_settings').select('id, translation_provider, translation_api_key, translation_model, local_llm_endpoint, user_api_keys_enabled').eq('tenant_id', tenant.id).maybeSingle().then(({ data }) => {
+    supabase.from('site_settings').select('id, translation_provider, translation_api_key, translation_model, local_llm_endpoint, user_api_keys_enabled').eq('tenant_id', DEFAULT_TENANT_ID).maybeSingle().then(({ data }) => {
       if (data) {
         setSettingsId(data.id);
         setProvider((data.translation_provider as Provider) || 'none');
@@ -79,7 +80,7 @@ export default function AdminAI() {
     if (settingsId) {
       await supabase.from('site_settings').update(payload).eq('id', settingsId);
     } else {
-      const { data } = await supabase.from('site_settings').insert({ tenant_id: tenant.id, ...payload }).select('id').single();
+      const { data } = await supabase.from('site_settings').insert({ tenant_id: DEFAULT_TENANT_ID, ...payload }).select('id').single();
       if (data) setSettingsId(data.id);
     }
     setSaving(false);

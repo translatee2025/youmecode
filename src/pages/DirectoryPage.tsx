@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import PublicNav from '@/components/PublicNav';
 import { supabase } from '@/integrations/supabase/client';
 import { useLocationStore } from '@/stores/locationStore';
 import { haversine } from '@/lib/haversine';
@@ -231,6 +232,7 @@ export default function DirectoryPage() {
 
   return (
     <div className="min-h-screen" style={{ background: 'var(--color-bg)' }}>
+      <PublicNav />
       {/* Top Action Bar */}
       <div className="sticky top-0 z-30 border-b border-border backdrop-blur-xl" style={{ background: 'var(--color-nav)' }}>
         <div className="max-w-7xl mx-auto px-4 py-3 space-y-3">

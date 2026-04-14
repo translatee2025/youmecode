@@ -25,7 +25,6 @@ export default function HealthPage() {
         .order('created_at', { ascending: false })
         .limit(20)
         .then(({ data }) => setErrors(data ?? []));
-    }
   }, []);
 
   const statusColor = dbStatus === 'connected' ? 'text-green-500' : dbStatus === 'error' ? 'text-destructive' : 'text-yellow-500';

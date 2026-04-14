@@ -21,9 +21,12 @@ export default function AdminSecurity() {
       supabase.from('site_settings').select('*').eq('tenant_id', DEFAULT_TENANT_ID).maybeSingle(),
     ]).then(([usersRes, settRes]) => {
       setTotalUsers(usersRes.count ?? 0);
-      if (settRes.data) {
-        setRequireEmail((settRes.data as any).require_email_verification ?? true);
-        setAllowGoogle((settRes.data as any).allow_google_login ?? false);
+      if (settRes.data?.custom_css) {
+        try {
+          const sec = JSON.parse(settRes.data.custom_css);
+          setRequireEmail(sec.require_email_verification ?? true);
+          setAllowGoogle(sec.allow_google_login ?? false);
+        } catch {}
       }
       setLoading(false);
     });

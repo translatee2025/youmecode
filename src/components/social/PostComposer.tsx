@@ -97,8 +97,8 @@ export default function PostComposer({ onPost }: Props) {
 
       // Badge checks
       const { count } = await supabase.from('posts').select('id', { count: 'exact', head: true }).eq('user_id', profile.id);
-      await checkBadges('', profile.id, 'first_post', 1);
-      await checkBadges('', profile.id, 'posts', count ?? 1);
+      await checkBadges(profile.id, 'first_post', 1);
+      await checkBadges(profile.id, 'posts', count ?? 1);
 
       setContent(''); setMediaFiles([]); setMediaPreviews([]); setShowPoll(false);
       setPollQuestion(''); setPollOptions(['', '']); setLocation(''); setExpanded(false);

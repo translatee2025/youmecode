@@ -13,14 +13,13 @@ export default function HealthPage() {
   useEffect(() => {
     // Check DB connection
     const start = Date.now();
-    supabase.from('tenants').select('id').limit(1).then(({ error }) => {
+    supabase.from('users').select('id').limit(1).then(({ error }) => {
       setLatency(Date.now() - start);
       setDbStatus(error ? 'error' : 'connected');
     });
 
     // Recent errors from audit log
-    if (tenant) {
-      supabase.from('audit_log')
+    supabase.from('audit_log')
         .select('*')
         .ilike('action', '%error%')
         .order('created_at', { ascending: false })

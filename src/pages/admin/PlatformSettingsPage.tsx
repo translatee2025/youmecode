@@ -10,12 +10,12 @@ export default function PlatformSettingsPage() {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    if (tenant) setName('My Community');
+    setName('My Community');
   }, []);
 
   const save = async () => {
     setSaving(true);
-    await supabase.from('tenants').update({ name }).eq('id', '');
+    await supabase.from('site_settings').update({ site_name: name }).limit(1);
     toast({ title: 'Platform settings saved' });
     setSaving(false);
   };

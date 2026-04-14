@@ -10,7 +10,7 @@ import { BarChart3, Eye, Users, Star, MessageCircle, QrCode, ArrowLeft, Megaphon
 import QRCode from 'qrcode';
 import { toast } from '@/hooks/use-toast';
 
-function downloadPrintableCard(venue: any, qrDataUrl: string, tenant: any) {
+function downloadPrintableCard(venue: any, qrDataUrl: string) {
   const canvas = document.createElement('canvas');
   canvas.width = 600;
   canvas.height = 800;
@@ -152,7 +152,7 @@ export default function VenueAdminPage() {
             </a>
           )}
           {qrUrl && (
-            <Button variant="outline" onClick={() => downloadPrintableCard(venue, qrUrl, tenant)}>
+            <Button variant="outline" onClick={() => downloadPrintableCard(venue, qrUrl)}>
               <QrCode className="h-4 w-4 mr-2" /> Printable Card
             </Button>
           )}

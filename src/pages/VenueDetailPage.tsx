@@ -81,7 +81,7 @@ export default function VenueDetailPage() {
   return (
     <div className="min-h-screen" style={{ background: 'var(--color-bg)' }}>
       <Helmet>
-        <title>{venue.name} — {siteSettings?.site_name ?? 'My Community' ?? ''}</title>
+        <title>{venue.name} — {siteSettings?.site_name ?? 'My Community'}</title>
         <meta name="description" content={venue.short_description || venue.description?.slice(0, 160) || ''} />
         <meta property="og:title" content={venue.name} />
         <meta property="og:description" content={venue.short_description || venue.description?.slice(0, 160) || ''} />

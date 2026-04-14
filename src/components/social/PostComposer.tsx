@@ -172,12 +172,21 @@ export default function PostComposer({ onPost }: Props) {
               </div>
             )}
 
+            <MediaUploader
+              mode={mediaUploadMode}
+              onMediaReady={(result) => {
+                if (result.type === 'link') {
+                  setVideoUrl(result.url || null);
+                  setThumbnailUrl(result.thumbnailUrl || null);
+                } else if (result.file) {
+                  setMediaFiles(prev => [...prev, result.file!]);
+                  setMediaPreviews(prev => [...prev, URL.createObjectURL(result.file!)]);
+                }
+              }}
+            />
+
             <div className="flex items-center justify-between">
               <div className="flex gap-1">
-                <label className="p-2 hover:bg-muted rounded-lg cursor-pointer text-muted-foreground hover:text-foreground transition-colors">
-                  <Image className="h-4 w-4" />
-                  <input type="file" accept="image/*,video/*" multiple onChange={handleMedia} className="hidden" />
-                </label>
                 <button onClick={() => { const loc = prompt('Enter location'); if (loc) setLocation(loc); }} className="p-2 hover:bg-muted rounded-lg text-muted-foreground hover:text-foreground transition-colors">
                   <MapPin className="h-4 w-4" />
                 </button>

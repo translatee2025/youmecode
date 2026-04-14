@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useTenantStore } from '@/stores/tenantStore';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Users, Building2, FileText, ShieldCheck, CheckCircle2, Circle } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
@@ -25,7 +24,6 @@ interface ChecklistItem {
 }
 
 export default function AdminDashboard() {
-  const tenant = useTenantStore((s) => s.tenant);
   const [stats, setStats] = useState<Stats>({ users: 0, venues: 0, posts: 0, claimedVenues: 0 });
   const [audit, setAudit] = useState<AuditEntry[]>([]);
   const [checklist, setChecklist] = useState<ChecklistItem[]>([]);

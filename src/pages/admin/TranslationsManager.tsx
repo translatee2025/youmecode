@@ -22,8 +22,7 @@ export default function TranslationsManager() {
   const [editedTranslations, setEditedTranslations] = useState<Record<string, string>>({});
 
   const { data: siteSettings } = useQuery({
-    queryKey: ['', 'site-settings-langs'],
-    enabled: !!'',
+    queryKey: ['site-settings-langs'],
     queryFn: async () => {
       const { data } = await supabase.from('site_settings').select('active_languages, default_language, rtl_languages').single();
       return data;
@@ -38,7 +37,7 @@ export default function TranslationsManager() {
   }, [siteSettings]);
 
   const { data: translations = [] } = useQuery({
-    queryKey: ['', 'translations', selectedLang],
+    queryKey: ['translations', selectedLang],
     enabled: !!'' && !!selectedLang,
     queryFn: async () => {
       const { data } = await supabase.from('translations').select('*').eq('language_code', selectedLang);
@@ -47,8 +46,7 @@ export default function TranslationsManager() {
   });
 
   const { data: defaultTranslations = [] } = useQuery({
-    queryKey: ['', 'translations-default'],
-    enabled: !!'',
+    queryKey: ['translations-default'],
     queryFn: async () => {
       const defLang = (siteSettings?.default_language as string) || 'en';
       const { data } = await supabase.from('translations').select('*').eq('language_code', defLang);
@@ -62,7 +60,7 @@ export default function TranslationsManager() {
       if (error) throw error;
     },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['', 'site-settings-langs'] });
+      qc.invalidateQueries({ queryKey: ['site-settings-langs'] });
       toast.success('Languages saved');
     },
     onError: (e: any) => toast.error(e.message),
@@ -81,7 +79,7 @@ export default function TranslationsManager() {
       }
     },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['', 'translations'] });
+      qc.invalidateQueries({ queryKey: ['translations'] });
       setEditedTranslations({});
       toast.success('Translations saved');
     },

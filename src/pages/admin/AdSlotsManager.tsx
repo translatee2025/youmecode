@@ -25,8 +25,7 @@ export default function AdSlotsManager() {
   const [slotPricing, setSlotPricing] = useState<Record<string, any>>({});
 
   const { data: adSlots = [] } = useQuery({
-    queryKey: ['', 'ad-slots'],
-    enabled: !!'',
+    queryKey: ['ad-slots'],
     queryFn: async () => {
       const { data } = await supabase.from('ad_slots').select('*');
       // Init local state
@@ -38,8 +37,7 @@ export default function AdSlotsManager() {
   });
 
   const { data: ads = [] } = useQuery({
-    queryKey: ['', 'admin-ads', tab],
-    enabled: !!'',
+    queryKey: ['admin-ads', tab],
     queryFn: async () => {
       const { data } = await supabase.from('ads').select('*, venues(name)').order('created_at', { ascending: false });
       return data || [];
@@ -69,7 +67,7 @@ export default function AdSlotsManager() {
       }
     },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['', 'ad-slots'] });
+      qc.invalidateQueries({ queryKey: ['ad-slots'] });
       toast.success('Pricing saved');
     },
     onError: (e: any) => toast.error(e.message),
@@ -81,7 +79,7 @@ export default function AdSlotsManager() {
       if (error) throw error;
     },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['', 'admin-ads'] });
+      qc.invalidateQueries({ queryKey: ['admin-ads'] });
       toast.success('Ad updated');
     },
     onError: (e: any) => toast.error(e.message),

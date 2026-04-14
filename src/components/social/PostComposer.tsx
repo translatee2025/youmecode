@@ -24,7 +24,7 @@ export default function PostComposer({ onPost }: Props) {
   const [location, setLocation] = useState('');
   const [showPoll, setShowPoll] = useState(false);
   const [pollQuestion, setPollQuestion] = useState('');
-  const [pollOptions, setPollOptions] = useState(['', '']);
+  const [pollOptions, setPollOptions] = useState(['']);
   const [mediaFiles, setMediaFiles] = useState<File[]>([]);
   const [mediaPreviews, setMediaPreviews] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
@@ -101,7 +101,7 @@ export default function PostComposer({ onPost }: Props) {
       await checkBadges(profile.id, 'posts', count ?? 1);
 
       setContent(''); setMediaFiles([]); setMediaPreviews([]); setShowPoll(false);
-      setPollQuestion(''); setPollOptions(['', '']); setLocation(''); setExpanded(false);
+      setPollQuestion(''); setPollOptions(['']); setLocation(''); setExpanded(false);
       toast({ title: 'Posted!' });
       onPost?.();
     } catch (err: any) {

@@ -16,8 +16,7 @@ export default function FaqManager() {
   const [editing, setEditing] = useState<any>(null);
 
   const { data: faqs = [], isLoading } = useQuery({
-    queryKey: ['', 'admin-faqs'],
-    enabled: !!'',
+    queryKey: ['admin-faqs'],
     queryFn: async () => {
       const { data, error } = await supabase.from('faqs').select('*').order('sort_order');
       if (error) throw error;
@@ -43,7 +42,7 @@ export default function FaqManager() {
       }
     },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['', 'admin-faqs'] });
+      qc.invalidateQueries({ queryKey: ['admin-faqs'] });
       setEditing(null);
       toast.success('FAQ saved');
     },
@@ -56,7 +55,7 @@ export default function FaqManager() {
       if (error) throw error;
     },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['', 'admin-faqs'] });
+      qc.invalidateQueries({ queryKey: ['admin-faqs'] });
       toast.success('FAQ deleted');
     },
   });
@@ -66,7 +65,7 @@ export default function FaqManager() {
       const { error } = await supabase.from('faqs').update({ is_active: active }).eq('id', id);
       if (error) throw error;
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['', 'admin-faqs'] }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['admin-faqs'] }),
   });
 
   const newFaq = () => setEditing({ question: '', answer: '', category: '', is_active: true, sort_order: faqs.length });

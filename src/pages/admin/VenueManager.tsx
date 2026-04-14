@@ -29,8 +29,7 @@ export default function VenueManager() {
   const [categoryFilter, setCategoryFilter] = useState('all');
 
   const { data: categories = [] } = useQuery({
-    queryKey: ['', 'categories-list'],
-    enabled: !!'',
+    queryKey: ['categories-list'],
     queryFn: async () => {
       const { data } = await supabase.from('categories').select('id, name');
       return data || [];
@@ -38,8 +37,7 @@ export default function VenueManager() {
   });
 
   const { data: venues = [], isLoading } = useQuery({
-    queryKey: ['', 'admin-venues', search, statusFilter, categoryFilter],
-    enabled: !!'',
+    queryKey: ['admin-venues', search, statusFilter, categoryFilter],
     queryFn: async () => {
       let q = supabase
         .from('venues')
@@ -62,7 +60,7 @@ export default function VenueManager() {
       if (error) throw error;
     },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['', 'admin-venues'] });
+      qc.invalidateQueries({ queryKey: ['admin-venues'] });
       toast.success('Venue updated');
     },
     onError: (e: any) => toast.error(e.message),
@@ -74,7 +72,7 @@ export default function VenueManager() {
       if (error) throw error;
     },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['', 'admin-venues'] });
+      qc.invalidateQueries({ queryKey: ['admin-venues'] });
       toast.success('Venue deleted');
     },
     onError: (e: any) => toast.error(e.message),

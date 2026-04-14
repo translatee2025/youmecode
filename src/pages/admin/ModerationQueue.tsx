@@ -18,8 +18,7 @@ export default function ModerationQueue() {
   const [selected, setSelected] = useState<any>(null);
 
   const { data: reports = [], isLoading } = useQuery({
-    queryKey: ['', 'admin-reports', tab],
-    enabled: !!'',
+    queryKey: ['admin-reports', tab],
     queryFn: async () => {
       let q = supabase
         .from('reports')
@@ -57,7 +56,7 @@ export default function ModerationQueue() {
       });
     },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['', 'admin-reports'] });
+      qc.invalidateQueries({ queryKey: ['admin-reports'] });
       setSelected(null);
       toast.success('Action taken');
     },

@@ -16,8 +16,7 @@ export default function ProductManager() {
   const [statusFilter, setStatusFilter] = useState('all');
 
   const { data: siteSettings } = useQuery({
-    queryKey: ['', 'site-settings'],
-    enabled: !!'',
+    queryKey: ['site-settings'],
     queryFn: async () => {
       const { data } = await supabase.from('site_settings').select('commerce_enabled').single();
       return data;
@@ -25,7 +24,7 @@ export default function ProductManager() {
   });
 
   const { data: products = [], isLoading } = useQuery({
-    queryKey: ['', 'admin-products', statusFilter],
+    queryKey: ['admin-products', statusFilter],
     enabled: !!'' && siteSettings?.commerce_enabled === true,
     queryFn: async () => {
       let q = supabase
@@ -46,7 +45,7 @@ export default function ProductManager() {
       if (error) throw error;
     },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['', 'admin-products'] });
+      qc.invalidateQueries({ queryKey: ['admin-products'] });
       toast.success('Product updated');
     },
     onError: (e: any) => toast.error(e.message),
@@ -58,7 +57,7 @@ export default function ProductManager() {
       if (error) throw error;
     },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['', 'admin-products'] });
+      qc.invalidateQueries({ queryKey: ['admin-products'] });
       toast.success('Product deleted');
     },
     onError: (e: any) => toast.error(e.message),

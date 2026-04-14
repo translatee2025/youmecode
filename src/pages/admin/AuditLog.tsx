@@ -19,8 +19,7 @@ export default function AuditLog() {
   const [actionFilter, setActionFilter] = useState('all');
 
   const { data: logs = [], isLoading } = useQuery({
-    queryKey: ['', 'audit-log', actionFilter],
-    enabled: !!'',
+    queryKey: ['audit-log', actionFilter],
     queryFn: async () => {
       let q = supabase
         .from('audit_log')

@@ -1,89 +1,51 @@
 
 
-# Bug Fix & Performance Plan
+# Fix: Replace Placeholder Homepage + Seed Sample Data
 
-## Critical Issues Found
+## Problem
+The app compiles and runs but shows the default "Your app will live here" placeholder because `src/pages/Index.tsx` was never replaced with a real landing page. The database tables also have no sample data, so even navigating to /directory or /feed shows empty pages.
 
-### 1. RLS Policies Block ALL Data Access (SHOWSTOPPER)
-Every table except `tenants` uses `tenant_isolation` RLS policy with `current_setting('app.tenant_id', true)::uuid`. This PostgreSQL session variable is **never set** by the Supabase JS client. Result: every query to every table returns 0 rows or silently fails on insert/update. The entire app is non-functional beyond the initial tenant fetch.
+## Plan
 
-**Fix:** Replace all `tenant_isolation` policies across all tables (~30 tables) with a simple `true` USING expression. Since this is a one-deployment-per-tenant architecture, there is only ever one tenant. The tenant_id column and `.eq('tenant_id', tenant.id)` filters in application code already provide the logical scoping. The RLS policies should allow authenticated users to read/write within their tenant, and anon users to read public data.
+### Step 1 — Build a real landing page (Index.tsx)
+Replace the placeholder with a proper community landing page that reads from `src/config.ts` for branding. It will show:
+- Hero section with platform name, tagline, and CTA buttons (Browse Directory, Sign Up)
+- Featured venues section (queries `venues` table, shows top 4 by `is_featured` or most recent)
+- Categories grid (queries `categories` table, shows active categories as cards)
+- Recent posts section (queries `posts` table, shows latest 3)
+- Upcoming events section (queries `events` table, shows next 3)
+- Stats bar (counts of venues, members, events)
+- Navigation bar at the top with links to Directory, Events, Blog, Feed, and Login/Admin
+- All styled with the existing CSS variable system (--color-bg, --color-card-bg, etc.)
+- If tables are empty, sections gracefully hide instead of showing empty grids
 
-New policies per table:
-- **SELECT**: `USING (true)` for public-readable tables (venues, categories, posts, events, etc.)
-- **INSERT**: `USING (auth.uid() IS NOT NULL)` for authenticated writes, plus `WITH CHECK (true)` 
-- **UPDATE/DELETE**: `USING (auth.uid() IS NOT NULL)` for authenticated users
-- Keep `platform_admin_bypass` policies as-is
+### Step 2 — Seed sample data via migration
+Create a database migration that inserts removable sample data. All rows will use `DEFAULT_TENANT_ID` from config. Data includes:
 
-### 2. SetupPage Broken on Fresh Deploy (SHOWSTOPPER)
-`SetupPage` line 22: `if (!tenant) return;` — on a fresh deploy there's no tenant row, so `tenant` is null, the useEffect never runs, `checking` stays `true`, and the page shows FullscreenLoader forever.
+- **1 site_settings row** with platform name "My Community"
+- **5 categories**: Restaurants, Cafés, Fitness, Nightlife, Shopping (with slugs, icons, colors)
+- **6 venues**: 2 restaurants, 1 café, 1 gym, 1 bar, 1 shop — each with name, slug, description, address, category_id, status='active', location coordinates (London area), cover_image_url using placeholder URLs
+- **4 blog_posts**: Welcome post, Getting Started guide, Community Guidelines, Platform Tips — with slugs, body content, published status
+- **3 events**: upcoming events in the next 30 days with titles, descriptions, dates
+- **2 module_settings seeds**: ensure landing and directory modules are enabled
 
-Also, SetupPage never creates a `tenants` row — it assumes one already exists.
+All sample data will have a `-- SAMPLE DATA` comment block making it easy to identify and remove. The migration will use `ON CONFLICT DO NOTHING` to be safe on re-runs.
 
-**Fix:** Rewrite SetupPage to:
-- Remove the tenant dependency for initial render
-- On submit: first INSERT into `tenants` table, capture returned ID, then create auth user, users row, and site_settings row
-- Store new tenant in Zustand and redirect to `/onboarding`
+### Step 3 — Add a shared navigation component
+Create a lightweight `PublicNav` component used on the landing page and public pages. Shows:
+- Platform name from config
+- Links: Directory, Events, Blog, Feed
+- Login button (links to /auth)
+- If logged in: link to /admin (if creator role) or /settings
 
-### 3. AuthPage Calls navigate() During Render
-Line 22-24: `if (session) { navigate('/', { replace: true }); return null; }` — calling navigate during render is invalid React.
+### Files to create/modify
+1. `src/pages/Index.tsx` — complete rewrite with real landing page
+2. `src/components/PublicNav.tsx` — new shared navigation bar
+3. New database migration — seed sample data (categories, venues, blog posts, events, site_settings)
 
-**Fix:** Move to a `useEffect` or use `<Navigate>` component.
-
-### 4. Console Warning: Function Components Given Refs
-`FullscreenLoader` and `SetupPage` are function components being passed refs by React Router. 
-
-**Fix:** This is a React Router internal ref-passing issue — not critical but noisy. Can be suppressed by ensuring components are proper function declarations (already are), so this is a React Router v6 known warning with lazy routes. Low priority.
-
-### 5. ThemeProvider/LanguageProvider Queries Fail Silently
-These query `theme_settings`, `site_settings`, and `translations` tables — all blocked by RLS. They fail silently and use defaults, which is why the app still renders but with no custom data.
-
-**Fix:** Resolved by fix #1 (RLS).
-
-### 6. Auth Provider Never Sets Loading to False on No-Tenant
-`AuthProvider` has `if (!tenant) return;` in useEffect — when there's no tenant, `isLoading` stays `true` in auth store. Any `RequireAuth` guard shows FullscreenLoader forever.
-
-**Fix:** Add early `setLoading(false)` when tenant is null.
-
-## Implementation Plan
-
-### Step 1: Database Migration — Fix RLS Policies
-Single migration that:
-- Drops all `tenant_isolation` policies on every table
-- Creates new permissive policies:
-  - `public_read` (SELECT, USING true) on public-facing tables
-  - `authenticated_insert` (INSERT, for authenticated role)
-  - `authenticated_modify` (UPDATE/DELETE, for authenticated role)
-- Keeps `platform_admin_bypass` untouched
-- Adds public read + authenticated write to `site_settings`
-
-Tables to update: `users`, `site_settings`, `theme_settings`, `module_settings`, `categories`, `subcategories`, `filter_fields`, `product_types`, `venues`, `products`, `claim_requests`, `posts`, `follows`, `likes`, `comments`, `ratings`, `saves`, `blocks`, `mutes`, `conversations`, `messages`, `polls`, `poll_votes`, `events`, `subscriptions`, `subscription_plans`, `ads`, `ad_slots`, `audit_log`, `webhooks`, `translations`, `badges`, `hashtags`, `deals`, `blog_posts`, `pages`, `faqs`, `groups`, `group_members`, `chat_rooms`, `discussions`, `discussion_boards`, `discussion_replies`, `reports`
-
-### Step 2: Fix SetupPage
-- Remove tenant null-guard on render
-- Create tenant row on submit (INSERT into `tenants`)
-- Then create auth user, users row, site_settings row
-- Store tenant in Zustand, redirect to `/onboarding`
-
-### Step 3: Fix AuthPage Navigate During Render
-- Replace imperative `navigate()` with `<Navigate>` component
-
-### Step 4: Fix AuthProvider Loading State
-- When tenant is null, set `isLoading: false` so guards don't hang
-
-### Step 5: Fix TenantGate for Setup Flow
-- Allow `/setup` and `/auth` paths when no tenant exists without infinite redirect loops
-
-## Performance Notes
-- No major performance issues detected — the app is lightweight
-- All Supabase queries use `.eq('tenant_id')` filters which are indexed
-- React Query is configured with defaults (fine for this scale)
-- The real "performance" problem is that nothing works due to RLS — fixing that resolves perceived slowness
-
-## Files to Modify
-1. New migration SQL (RLS policy replacement)
-2. `src/pages/SetupPage.tsx` (fix fresh deploy flow)
-3. `src/pages/AuthPage.tsx` (fix navigate during render)
-4. `src/providers/AuthProvider.tsx` (fix loading state)
-5. `src/App.tsx` (minor TenantGate adjustments)
+### Technical notes
+- All Supabase inserts use `tenant_id: 'e47461d3-56e2-45cd-90ec-64e15f155a51'` (the DEFAULT_TENANT_ID)
+- Cover images will use `https://images.unsplash.com/...` placeholder URLs (free, no API key needed)
+- The landing page uses `useEffect` + direct Supabase queries (no React Query needed for a simple landing page)
+- Navigation uses `react-router-dom` Link components
 

@@ -6,12 +6,12 @@ import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Upload, Camera, Link, X, Video, Square } from 'lucide-react';
 
-type UploadMode = 'gallery_cam' | 'gallery_camera' | 'cam_only' | 'camera_only' | 'links_only';
+export type UploadMode = 'gallery_cam' | 'gallery_camera' | 'cam_only' | 'camera_only' | 'links_only';
 
 interface MediaUploaderProps {
   onMediaReady: (result: { file?: File; url?: string; thumbnailUrl?: string; type: 'file' | 'recorded' | 'link' }) => void;
   accept?: string;
-  mode?: UploadMode;
+  mode?: UploadMode | string;
   photoOnly?: boolean; // For venue images — always allow file picker for photos
 }
 

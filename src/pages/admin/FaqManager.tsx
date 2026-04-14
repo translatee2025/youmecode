@@ -38,7 +38,7 @@ export default function FaqManager() {
         const { error } = await supabase.from('faqs').update(payload).eq('id', faq.id);
         if (error) throw error;
       } else {
-        const { error } = await supabase.from('faqs').insert(payload);
+        const { error } = await supabase.from('faqs').insert({ ...payload, tenant_id: DEFAULT_TENANT_ID });
         if (error) throw error;
       }
     },

@@ -66,7 +66,7 @@ function GroupDiscovery() {
         role: 'admin',
       });
       // Auto-create chat room
-      await supabase.from('chat_rooms').insert({
+      await supabase.from('chat_rooms').insert({ tenant_id: DEFAULT_TENANT_ID,
         group_id: data.id,
         name: `${name.trim()} Chat`,
         type: 'group',

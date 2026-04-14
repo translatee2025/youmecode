@@ -25,12 +25,12 @@ export async function checkBadges(
   for (const badge of badges) {
     if (earnedIds.has(badge.id)) continue;
 
-    await supabase.from('user_badges').insert({ tenant_id: DEFAULT_TENANT_ID,
+    await supabase.from('user_badges').insert({ tenant_id: DEFAULT_TENANT_ID, tenant_id: DEFAULT_TENANT_ID,
       user_id: userId,
       badge_id: badge.id,
     });
 
-    await supabase.from('notifications').insert({
+    await supabase.from('notifications').insert({ tenant_id: DEFAULT_TENANT_ID,
       user_id: userId,
       type: 'badge_earned',
       message: `You earned the "${badge.name}" badge!`,
@@ -47,7 +47,7 @@ export async function createNotification(
   entityType?: string,
   entityId?: string
 ) {
-  await supabase.from('notifications').insert({ tenant_id: DEFAULT_TENANT_ID,
+  await supabase.from('notifications').insert({ tenant_id: DEFAULT_TENANT_ID, tenant_id: DEFAULT_TENANT_ID,
     user_id: userId,
     type,
     message,

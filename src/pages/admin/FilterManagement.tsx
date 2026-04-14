@@ -135,7 +135,7 @@ export default function FilterManagement() {
     if (editing) {
       ({ error } = await supabase.from('filter_fields').update(payload).eq('id', editing.id));
     } else {
-      ({ error } = await supabase.from('filter_fields').insert(payload));
+      ({ error } = await supabase.from('filter_fields').insert({ ...payload, tenant_id: DEFAULT_TENANT_ID }));
     }
     setSaving(false);
     if (error) { toast.error(error.message); return; }

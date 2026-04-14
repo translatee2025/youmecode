@@ -48,7 +48,7 @@ export default function ClaimsManager() {
         await supabase.from('notifications').insert({ tenant_id: DEFAULT_TENANT_ID,
  user_id: userId, type: 'claim_rejected', message: message || 'Your venue claim has been rejected.' });
       }
-      await supabase.from('audit_log').insert({
+      await supabase.from('audit_log').insert({ tenant_id: DEFAULT_TENANT_ID,
  actor_id: profile?.id, action: `claim_${action}`, entity_type: 'claim_request', entity_id: claimId });
     },
     onSuccess: () => {

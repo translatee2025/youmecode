@@ -51,7 +51,7 @@ export default function ModerationQueue() {
         if (report.entity_type === 'comment') await supabase.from('comments').delete().eq('id', report.entity_id);
       }
 
-      await supabase.from('audit_log').insert({
+      await supabase.from('audit_log').insert({ tenant_id: DEFAULT_TENANT_ID,
  actor_id: profile?.id, action: `moderation_${action}`,
         entity_type: 'report', entity_id: reportId,
       });

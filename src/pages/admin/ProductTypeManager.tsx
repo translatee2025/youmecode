@@ -65,7 +65,7 @@ export default function ProductTypeManager() {
     };
     let error;
     if (editing) { ({ error } = await supabase.from('product_types').update(payload).eq('id', editing.id)); }
-    else { ({ error } = await supabase.from('product_types').insert(payload)); }
+    else { ({ error } = await supabase.from('product_types').insert({ ...payload, tenant_id: DEFAULT_TENANT_ID })); }
     setSaving(false);
     if (error) { toast.error(error.message); return; }
     setShowEditor(false);

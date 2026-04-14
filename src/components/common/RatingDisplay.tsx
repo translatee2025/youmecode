@@ -1,3 +1,4 @@
+import { DEFAULT_TENANT_ID } from '@/config';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuthStore } from '@/stores/authStore';
@@ -54,7 +55,7 @@ export default function RatingDisplay({ entityType, entityId, showForm = false, 
       return;
     }
     setSubmitting(true);
-    await supabase.from('ratings').insert({
+    await supabase.from('ratings').insert({ tenant_id: DEFAULT_TENANT_ID,
       entity_type: entityType,
       entity_id: entityId,
       user_id: profile.id,

@@ -1,3 +1,4 @@
+import { DEFAULT_TENANT_ID } from '@/config';
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -49,7 +50,7 @@ function GroupDiscovery() {
 
   const createGroup = async () => {
     if (!name.trim() || !profile) return;
-    const { data, error } = await supabase.from('groups').insert({
+    const { data, error } = await supabase.from('groups').insert({ tenant_id: DEFAULT_TENANT_ID,
       creator_id: profile.id,
       name: name.trim(),
       description: desc.trim() || null,
@@ -59,7 +60,7 @@ function GroupDiscovery() {
     if (error) { toast({ title: 'Error', description: error.message, variant: 'destructive' }); return; }
     if (data) {
       // Add creator as admin member
-      await supabase.from('group_members').insert({
+      await supabase.from('group_members').insert({ tenant_id: DEFAULT_TENANT_ID,
         group_id: data.id,
         user_id: profile.id,
         role: 'admin',
@@ -78,7 +79,7 @@ function GroupDiscovery() {
 
   const joinGroup = async (groupId: string) => {
     if (!profile) return;
-    await supabase.from('group_members').insert({
+    await supabase.from('group_members').insert({ tenant_id: DEFAULT_TENANT_ID,
       group_id: groupId,
       user_id: profile.id,
       role: 'member',
@@ -181,7 +182,7 @@ function GroupDetail({ groupId }: { groupId: string }) {
 
   const joinGroup = async () => {
     if (!profile) return;
-    await supabase.from('group_members').insert({
+    await supabase.from('group_members').insert({ tenant_id: DEFAULT_TENANT_ID,
  group_id: groupId, user_id: profile.id, role: 'member' });
     setIsMember(true);
     toast({ title: 'Joined!' });

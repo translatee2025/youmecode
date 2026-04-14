@@ -1,3 +1,4 @@
+import { DEFAULT_TENANT_ID } from '@/config';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuthStore } from '@/stores/authStore';
@@ -44,7 +45,7 @@ export default function FollowButton({ followeeType, followeeId, className }: Pr
         .eq('followee_id', followeeId)
         .eq('follower_id', profile.id);
     } else {
-      await supabase.from('follows').insert({
+      await supabase.from('follows').insert({ tenant_id: DEFAULT_TENANT_ID,
         followee_type: followeeType,
         followee_id: followeeId,
         follower_id: profile.id,

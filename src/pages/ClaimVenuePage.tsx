@@ -1,3 +1,4 @@
+import { DEFAULT_TENANT_ID } from '@/config';
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -41,7 +42,7 @@ export default function ClaimVenuePage() {
   const handleSubmitEmail = async () => {
     if (!profile) return;
     setSubmitting(true);
-    await supabase.from('claim_requests').insert({
+    await supabase.from('claim_requests').insert({ tenant_id: DEFAULT_TENANT_ID,
       venue_id: venue.id,
       user_id: profile.id,
       method: 'email_domain',
@@ -62,7 +63,7 @@ export default function ClaimVenuePage() {
     if (error) { toast({ title: 'Upload failed', variant: 'destructive' }); setSubmitting(false); return; }
     const { data: pub } = supabase.storage.from('media').getPublicUrl(path);
 
-    await supabase.from('claim_requests').insert({
+    await supabase.from('claim_requests').insert({ tenant_id: DEFAULT_TENANT_ID,
       venue_id: venue.id,
       user_id: profile.id,
       method: 'document',

@@ -1,3 +1,4 @@
+import { DEFAULT_TENANT_ID } from '@/config';
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuthStore } from '@/stores/authStore';
@@ -25,7 +26,7 @@ export default function ReportModal({ open, onClose, entityType, entityId }: Pro
   const handleSubmit = async () => {
     if (!profile || !reason) return;
     setSubmitting(true);
-    await supabase.from('reports').insert({
+    await supabase.from('reports').insert({ tenant_id: DEFAULT_TENANT_ID,
       reporter_id: profile.id,
       entity_type: entityType,
       entity_id: entityId,

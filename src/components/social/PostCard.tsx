@@ -1,3 +1,4 @@
+import { DEFAULT_TENANT_ID } from '@/config';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -42,7 +43,7 @@ export default function PostCard({ post, user, onReport, onRefresh }: Props) {
 
   const handleBlock = async () => {
     if (!profile || !post.user_id) return;
-    await supabase.from('blocks').insert({
+    await supabase.from('blocks').insert({ tenant_id: DEFAULT_TENANT_ID,
  blocker_id: profile.id, blocked_id: post.user_id });
     toast({ title: 'User blocked' });
     onRefresh?.();
@@ -50,7 +51,7 @@ export default function PostCard({ post, user, onReport, onRefresh }: Props) {
 
   const handleMute = async () => {
     if (!profile || !post.user_id) return;
-    await supabase.from('mutes').insert({
+    await supabase.from('mutes').insert({ tenant_id: DEFAULT_TENANT_ID,
  muter_id: profile.id, muted_id: post.user_id });
     toast({ title: 'User muted' });
     onRefresh?.();

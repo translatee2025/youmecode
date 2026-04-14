@@ -1,3 +1,4 @@
+import { DEFAULT_TENANT_ID } from '@/config';
 import { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -60,7 +61,7 @@ export default function ReelsPage() {
       const { data: pub } = supabase.storage.from('media').getPublicUrl(data.path);
 
       const hashtags = (caption.match(/#[\w]+/g) ?? []).map((h) => h.slice(1).toLowerCase());
-      await supabase.from('posts').insert({
+      await supabase.from('posts').insert({ tenant_id: DEFAULT_TENANT_ID,
  user_id: profile.id, post_type: 'reel',
         video_url: pub.publicUrl, content: caption, hashtags,
       });

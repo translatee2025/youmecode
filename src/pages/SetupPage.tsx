@@ -1,3 +1,4 @@
+import { DEFAULT_TENANT_ID } from '@/config';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -50,7 +51,7 @@ export default function SetupPage() {
       // 1. Create tenant row
       const { data: newTenant, error: tenantErr } = await supabase
         .from('tenants')
-        .insert({ name: platformName.trim() })
+        .insert({ tenant_id: DEFAULT_TENANT_ID, name: platformName.trim() })
         .select()
         .single();
       if (tenantErr) throw tenantErr;

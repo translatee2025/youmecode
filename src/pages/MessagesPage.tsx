@@ -1,3 +1,4 @@
+import { DEFAULT_TENANT_ID } from '@/config';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuthStore } from '@/stores/authStore';
@@ -154,7 +155,7 @@ export default function MessagesPage() {
     const content = input.trim();
     setInput('');
 
-    await supabase.from('messages').insert({
+    await supabase.from('messages').insert({ tenant_id: DEFAULT_TENANT_ID,
       conversation_id: activeConvo.id,
       sender_id: profile.id,
       content,
@@ -200,7 +201,7 @@ export default function MessagesPage() {
     }
     const { data, error } = await supabase
       .from('conversations')
-      .insert({
+      .insert({ tenant_id: DEFAULT_TENANT_ID,
  participants: [profile.id, userId] })
       .select()
       .single();

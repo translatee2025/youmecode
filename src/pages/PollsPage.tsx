@@ -1,3 +1,4 @@
+import { DEFAULT_TENANT_ID } from '@/config';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuthStore } from '@/stores/authStore';
@@ -29,7 +30,7 @@ export default function PollsPage() {
 
   const vote = async (pollId: string, optionIndex: number) => {
     if (!profile || votes[pollId] !== undefined) return;
-    await supabase.from('poll_votes').insert({
+    await supabase.from('poll_votes').insert({ tenant_id: DEFAULT_TENANT_ID,
  poll_id: pollId, user_id: profile.id, option_index: optionIndex });
     setVotes((prev) => ({ ...prev, [pollId]: optionIndex }));
     toast({ title: 'Vote recorded!' });

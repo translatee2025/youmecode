@@ -1,3 +1,4 @@
+import { DEFAULT_TENANT_ID } from '@/config';
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -127,7 +128,7 @@ export default function AddProductPage() {
         imageUrls.push(pub.publicUrl);
       }
 
-      const { error } = await supabase.from('products').insert({
+      const { error } = await supabase.from('products').insert({ tenant_id: DEFAULT_TENANT_ID,
         venue_id: venueId,
         name: name.trim(),
         description: description.trim() || null,

@@ -1,3 +1,4 @@
+import { DEFAULT_TENANT_ID } from '@/config';
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuthStore } from '@/stores/authStore';
@@ -63,7 +64,7 @@ export default function PostComposer({ onPost }: Props) {
 
       let pollId: string | null = null;
       if (showPoll && pollQuestion.trim()) {
-        const { data: poll } = await supabase.from('polls').insert({
+        const { data: poll } = await supabase.from('polls').insert({ tenant_id: DEFAULT_TENANT_ID,
           user_id: profile.id,
           question: pollQuestion,
           options: pollOptions.filter(Boolean).map((o) => ({ text: o, votes: 0 })),
@@ -73,7 +74,7 @@ export default function PostComposer({ onPost }: Props) {
 
       const hashtags = extractHashtags(content);
 
-      await supabase.from('posts').insert({
+      await supabase.from('posts').insert({ tenant_id: DEFAULT_TENANT_ID,
         user_id: profile.id,
         content: content.trim(),
         media_urls: mediaUrls,
@@ -89,7 +90,7 @@ export default function PostComposer({ onPost }: Props) {
         if (existing) {
           await supabase.from('hashtags').update({ posts_count: (existing.posts_count ?? 0) + 1 }).eq('id', existing.id);
         } else {
-          await supabase.from('hashtags').insert({
+          await supabase.from('hashtags').insert({ tenant_id: DEFAULT_TENANT_ID,
  tag, posts_count: 1 });
         }
       }

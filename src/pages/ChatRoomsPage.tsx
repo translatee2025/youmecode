@@ -1,3 +1,4 @@
+import { DEFAULT_TENANT_ID } from '@/config';
 import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuthStore } from '@/stores/authStore';
@@ -96,7 +97,7 @@ export default function ChatRoomsPage() {
     if (!input.trim() || !activeRoom || !profile) return;
     const content = input.trim();
     setInput('');
-    await supabase.from('chat_messages').insert({
+    await supabase.from('chat_messages').insert({ tenant_id: DEFAULT_TENANT_ID,
       room_id: activeRoom.id,
       sender_id: profile.id,
       content,

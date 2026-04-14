@@ -1,3 +1,4 @@
+import { DEFAULT_TENANT_ID } from '@/config';
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -74,7 +75,7 @@ export default function TranslationsManager() {
         if (existing) {
           await supabase.from('translations').update({ value }).eq('id', existing.id);
         } else {
-          await supabase.from('translations').insert({
+          await supabase.from('translations').insert({ tenant_id: DEFAULT_TENANT_ID,
  language_code: selectedLang, string_key: key, value });
         }
       }

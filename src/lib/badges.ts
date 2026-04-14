@@ -1,3 +1,4 @@
+import { DEFAULT_TENANT_ID } from '@/config';
 import { supabase } from '@/integrations/supabase/client';
 
 export async function checkBadges(
@@ -24,7 +25,7 @@ export async function checkBadges(
   for (const badge of badges) {
     if (earnedIds.has(badge.id)) continue;
 
-    await supabase.from('user_badges').insert({
+    await supabase.from('user_badges').insert({ tenant_id: DEFAULT_TENANT_ID,
       user_id: userId,
       badge_id: badge.id,
     });
@@ -46,7 +47,7 @@ export async function createNotification(
   entityType?: string,
   entityId?: string
 ) {
-  await supabase.from('notifications').insert({
+  await supabase.from('notifications').insert({ tenant_id: DEFAULT_TENANT_ID,
     user_id: userId,
     type,
     message,

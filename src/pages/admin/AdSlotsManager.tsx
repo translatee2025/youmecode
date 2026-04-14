@@ -1,3 +1,4 @@
+import { DEFAULT_TENANT_ID } from '@/config';
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -57,7 +58,7 @@ export default function AdSlotsManager() {
             currency: existing.currency || 'USD',
           }).eq('id', existing.id);
         } else {
-          await supabase.from('ad_slots').insert({
+          await supabase.from('ad_slots').insert({ tenant_id: DEFAULT_TENANT_ID,
             slot_type: st.key,
             is_enabled: existing?.is_enabled ?? true,
             price_weekly: existing?.price_weekly || 0,

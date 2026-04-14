@@ -1,3 +1,4 @@
+import { DEFAULT_TENANT_ID } from '@/config';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -22,7 +23,7 @@ export default function CreateEventPage() {
   const handleSubmit = async () => {
     if (!profile || !form.title.trim()) return;
     setSubmitting(true);
-    const { error } = await supabase.from('events').insert({
+    const { error } = await supabase.from('events').insert({ tenant_id: DEFAULT_TENANT_ID,
       created_by: profile.id,
       title: form.title.trim(),
       description: form.description.trim() || null,

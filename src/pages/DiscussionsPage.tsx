@@ -1,3 +1,4 @@
+import { DEFAULT_TENANT_ID } from '@/config';
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -91,7 +92,7 @@ function BoardView({ boardSlug }: { boardSlug: string }) {
 
   const createThread = async () => {
     if (!title.trim() || !profile) return;
-    const { data, error } = await supabase.from('discussions').insert({
+    const { data, error } = await supabase.from('discussions').insert({ tenant_id: DEFAULT_TENANT_ID,
       board_id: boardSlug,
       user_id: profile.id,
       title: title.trim(),
@@ -204,7 +205,7 @@ function ThreadView({ boardSlug, threadId }: { boardSlug: string; threadId: stri
 
   const submitReply = async () => {
     if (!replyContent.trim() || !profile) return;
-    const { data, error } = await supabase.from('discussion_replies').insert({
+    const { data, error } = await supabase.from('discussion_replies').insert({ tenant_id: DEFAULT_TENANT_ID,
       discussion_id: threadId,
       user_id: profile.id,
       content: replyContent.trim(),

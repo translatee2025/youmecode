@@ -1,3 +1,4 @@
+import { DEFAULT_TENANT_ID } from '@/config';
 import { useState, useEffect } from 'react';
 import { Heart } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
@@ -46,7 +47,7 @@ export default function LikeButton({ entityType, entityId, initialCount = 0, cla
         .eq('entity_id', entityId)
         .eq('user_id', profile.id);
     } else {
-      await supabase.from('likes').insert({
+      await supabase.from('likes').insert({ tenant_id: DEFAULT_TENANT_ID,
         entity_type: entityType,
         entity_id: entityId,
         user_id: profile.id,

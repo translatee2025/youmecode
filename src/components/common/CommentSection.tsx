@@ -1,3 +1,4 @@
+import { DEFAULT_TENANT_ID } from '@/config';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuthStore } from '@/stores/authStore';
@@ -60,7 +61,7 @@ export default function CommentSection({ entityType, entityId }: Props) {
     }
     if (!content.trim()) return;
     setLoading(true);
-    await supabase.from('comments').insert({
+    await supabase.from('comments').insert({ tenant_id: DEFAULT_TENANT_ID,
       entity_type: entityType,
       entity_id: entityId,
       user_id: profile.id,

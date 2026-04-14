@@ -1,3 +1,4 @@
+import { DEFAULT_TENANT_ID } from '@/config';
 import { useState, useEffect } from 'react';
 import { Bookmark } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
@@ -50,7 +51,7 @@ export default function SaveButton({ entityType, entityId, className }: Props) {
       setSaved(false);
       toast({ title: 'Removed from saved' });
     } else {
-      await supabase.from('saves').insert({
+      await supabase.from('saves').insert({ tenant_id: DEFAULT_TENANT_ID,
         entity_type: entityType,
         entity_id: entityId,
         user_id: profile.id,

@@ -28,7 +28,14 @@ export default function ReelsPage() {
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [videoPreview, setVideoPreview] = useState('');
   const [uploading, setUploading] = useState(false);
+  const [mediaUploadMode, setMediaUploadMode] = useState('gallery_cam');
+  const [videoLinkUrl, setVideoLinkUrl] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    supabase.from('site_settings').select('media_upload_mode').eq('tenant_id', DEFAULT_TENANT_ID).maybeSingle()
+      .then(({ data }) => { if (data?.media_upload_mode) setMediaUploadMode(data.media_upload_mode); });
+  }, []);
 
   useEffect(() => {
     supabase.from('posts').select('*').eq('post_type', 'reel').order('created_at', { ascending: false }).limit(50)
@@ -148,17 +155,24 @@ export default function ReelsPage() {
         <DialogContent>
           <DialogHeader><DialogTitle>Upload Reel</DialogTitle></DialogHeader>
           <div className="space-y-4">
-            {videoPreview ? (
+             {videoPreview ? (
               <video src={videoPreview} className="w-full aspect-[9/16] object-cover rounded-lg" controls />
             ) : (
-              <label className="flex flex-col items-center justify-center aspect-[9/16] border-2 border-dashed border-border rounded-lg cursor-pointer hover:border-primary/50">
-                <Upload className="h-8 w-8 text-muted-foreground mb-2" />
-                <span className="text-sm text-muted-foreground">Select video</span>
-                <input type="file" accept="video/*" onChange={handleVideoSelect} className="hidden" />
-              </label>
+              <MediaUploader
+                mode={mediaUploadMode}
+                accept="video/*"
+                onMediaReady={(result) => {
+                  if (result.type === 'link') {
+                    setVideoLinkUrl(result.url || null);
+                  } else if (result.file) {
+                    setVideoFile(result.file);
+                    setVideoPreview(URL.createObjectURL(result.file));
+                  }
+                }}
+              />
             )}
             <Textarea value={caption} onChange={(e) => setCaption(e.target.value)} placeholder="Caption, #hashtags..." />
-            <Button onClick={handleUploadReel} disabled={!videoFile || uploading} className="w-full">
+            <Button onClick={handleUploadReel} disabled={(!videoFile && !videoLinkUrl) || uploading} className="w-full">
               <Send className="h-4 w-4 mr-2" /> {uploading ? 'Uploading...' : 'Post Reel'}
             </Button>
           </div>

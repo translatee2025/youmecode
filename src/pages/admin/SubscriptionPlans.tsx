@@ -32,7 +32,7 @@ export default function SubscriptionPlans() {
 
   const { data: plans = [], isLoading } = useQuery({
     queryKey: ['subscription-plans'],
-    enabled: !!'' && siteSettings?.commerce_enabled === true,
+    enabled: siteSettings?.commerce_enabled === true,
     queryFn: async () => {
       const { data, error } = await supabase.from('subscription_plans').select('*').order('sort_order');
       if (error) throw error;

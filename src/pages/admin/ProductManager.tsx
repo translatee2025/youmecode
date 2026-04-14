@@ -25,7 +25,7 @@ export default function ProductManager() {
 
   const { data: products = [], isLoading } = useQuery({
     queryKey: ['admin-products', statusFilter],
-    enabled: !!'' && siteSettings?.commerce_enabled === true,
+    enabled: siteSettings?.commerce_enabled === true,
     queryFn: async () => {
       let q = supabase
         .from('products')

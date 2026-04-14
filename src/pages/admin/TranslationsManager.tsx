@@ -38,7 +38,7 @@ export default function TranslationsManager() {
 
   const { data: translations = [] } = useQuery({
     queryKey: ['translations', selectedLang],
-    enabled: !!'' && !!selectedLang,
+    enabled: !!selectedLang,
     queryFn: async () => {
       const { data } = await supabase.from('translations').select('*').eq('language_code', selectedLang);
       return data || [];

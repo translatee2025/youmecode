@@ -1,3 +1,7 @@
+// Default tenant ID — set once on first setup, used for all DB inserts
+// that require tenant_id (legacy schema constraint).
+export const DEFAULT_TENANT_ID = 'e47461d3-56e2-45cd-90ec-64e15f155a51';
+
 export const config = {
   platformName: 'My Community',
   platformTagline: 'Connect with your community',

@@ -1,23 +1,19 @@
 import { supabase } from '@/integrations/supabase/client';
 
 export async function checkBadges(
-  tenantId: string,
   userId: string,
   triggerType: string,
   value: number
 ) {
-  // Get badges matching trigger
   const { data: badges } = await supabase
     .from('badges')
     .select('id, name')
-    .eq('tenant_id', tenantId)
     .eq('trigger_type', triggerType)
     .eq('is_active', true)
     .lte('trigger_threshold', value);
 
   if (!badges?.length) return;
 
-  // Check which are already earned
   const { data: earned } = await supabase
     .from('user_badges')
     .select('badge_id')
@@ -29,13 +25,11 @@ export async function checkBadges(
     if (earnedIds.has(badge.id)) continue;
 
     await supabase.from('user_badges').insert({
-      tenant_id: tenantId,
       user_id: userId,
       badge_id: badge.id,
     });
 
     await supabase.from('notifications').insert({
-      tenant_id: tenantId,
       user_id: userId,
       type: 'badge_earned',
       message: `You earned the "${badge.name}" badge!`,
@@ -46,7 +40,6 @@ export async function checkBadges(
 }
 
 export async function createNotification(
-  tenantId: string,
   userId: string,
   type: string,
   message: string,
@@ -54,7 +47,6 @@ export async function createNotification(
   entityId?: string
 ) {
   await supabase.from('notifications').insert({
-    tenant_id: tenantId,
     user_id: userId,
     type,
     message,

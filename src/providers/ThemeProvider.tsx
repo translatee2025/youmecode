@@ -1,51 +1,38 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useTenantStore } from '@/stores/tenantStore';
-
-const THEME_DEFAULTS: Record<string, string> = {
-  'color-bg': '#0a0a0a',
-  'color-card-bg': 'rgba(255,255,255,0.06)',
-  'color-text': '#f0f0f0',
-  'color-text-muted': '#888888',
-  'color-primary': '#ffffff',
-  'color-nav': 'rgba(10,10,10,0.85)',
-  'color-button': '#ffffff',
-  'color-border': 'rgba(255,255,255,0.1)',
-  'font-family': 'Inter, system-ui, sans-serif',
-};
+import { config } from '@/config';
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const tenant = useTenantStore((s) => s.tenant);
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    // Apply defaults immediately
     const root = document.documentElement;
-    Object.entries(THEME_DEFAULTS).forEach(([key, value]) => {
-      root.style.setProperty(`--${key}`, value);
-    });
 
-    if (!tenant) {
-      setReady(true);
-      return;
-    }
+    // Apply config defaults
+    root.style.setProperty('--color-primary', config.primaryColor);
+    root.style.setProperty('--color-accent', config.accentColor);
+    root.style.setProperty('--color-bg', config.backgroundColor);
+    root.style.setProperty('--color-card-bg', config.cardBackground);
+    root.style.setProperty('--color-text', config.textColor);
+    root.style.setProperty('--color-text-muted', '#888888');
+    root.style.setProperty('--color-nav', config.navColor);
+    root.style.setProperty('--color-button', config.buttonColor);
+    root.style.setProperty('--color-border', config.borderColor);
+    root.style.setProperty('--font-family', 'Inter, system-ui, sans-serif');
 
-    const loadTheme = async () => {
-      const { data } = await supabase
-        .from('theme_settings')
-        .select('key, value')
-        .eq('tenant_id', tenant.id);
-
-      if (data) {
-        data.forEach((row) => {
-          root.style.setProperty(`--${row.key}`, row.value);
-        });
-      }
-      setReady(true);
-    };
-
-    loadTheme();
-  }, [tenant]);
+    // Override with DB theme_settings if any
+    supabase
+      .from('theme_settings')
+      .select('key, value')
+      .then(({ data }) => {
+        if (data) {
+          data.forEach((row) => {
+            root.style.setProperty(`--${row.key}`, row.value);
+          });
+        }
+        setReady(true);
+      });
+  }, []);
 
   if (!ready) return null;
 

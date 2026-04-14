@@ -30,7 +30,6 @@ export default function AdminModules() {
   const [saving, setSaving] = useState(false);
 
   const fetchModules = async () => {
-    if (!tenant) return;
     const { data, error } = await supabase
       .from('module_settings')
       .select('id, module_key, label, is_enabled, show_in_nav, is_homepage, sort_order')
@@ -63,7 +62,7 @@ export default function AdminModules() {
     setLoading(false);
   };
 
-  useEffect(() => { fetchModules(); }, [tenant]);
+  useEffect(() => { fetchModules(); }, []);
 
   const updateField = (id: string, field: keyof ModuleRow, value: any) => {
     setModules(prev => prev.map(m => {
@@ -84,7 +83,6 @@ export default function AdminModules() {
   };
 
   const handleSave = async () => {
-    if (!tenant) return;
     setSaving(true);
     for (const m of modules) {
       await supabase.from('module_settings').update({

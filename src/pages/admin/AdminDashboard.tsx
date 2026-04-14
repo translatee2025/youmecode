@@ -30,19 +30,17 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!tenant) return;
-    const tid = tenant.id;
 
     const load = async () => {
       const [usersRes, venuesRes, postsRes, claimedRes, auditRes, settingsRes, catsRes, modsRes] = await Promise.all([
-        supabase.from('users').select('id', { count: 'exact', head: true }).eq('tenant_id', tid),
-        supabase.from('venues').select('id', { count: 'exact', head: true }).eq('tenant_id', tid),
-        supabase.from('posts').select('id', { count: 'exact', head: true }).eq('tenant_id', tid),
-        supabase.from('venues').select('id', { count: 'exact', head: true }).eq('tenant_id', tid).neq('status', 'unclaimed'),
-        supabase.from('audit_log').select('id, action, entity_type, created_at').eq('tenant_id', tid).order('created_at', { ascending: false }).limit(10),
-        supabase.from('site_settings').select('site_name').eq('tenant_id', tid).maybeSingle(),
-        supabase.from('categories').select('id', { count: 'exact', head: true }).eq('tenant_id', tid),
-        supabase.from('module_settings').select('id', { count: 'exact', head: true }).eq('tenant_id', tid).eq('is_enabled', true),
+        supabase.from('users').select('id', { count: 'exact', head: true }),
+        supabase.from('venues').select('id', { count: 'exact', head: true }),
+        supabase.from('posts').select('id', { count: 'exact', head: true }),
+        supabase.from('venues').select('id', { count: 'exact', head: true }).neq('status', 'unclaimed'),
+        supabase.from('audit_log').select('id, action, entity_type, created_at').order('created_at', { ascending: false }).limit(10),
+        supabase.from('site_settings').select('site_name').maybeSingle(),
+        supabase.from('categories').select('id', { count: 'exact', head: true }),
+        supabase.from('module_settings').select('id', { count: 'exact', head: true }).eq('is_enabled', true),
       ]);
 
       setStats({
@@ -65,7 +63,7 @@ export default function AdminDashboard() {
     };
 
     load();
-  }, [tenant]);
+  }, []);
 
   if (loading) {
     return <div className="animate-pulse space-y-4"><div className="h-24 rounded-xl" style={{ background: 'var(--color-card-bg)' }} /><div className="h-24 rounded-xl" style={{ background: 'var(--color-card-bg)' }} /></div>;

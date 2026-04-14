@@ -34,7 +34,6 @@ export default function AdminAI() {
   const [translating, setTranslating] = useState(false);
 
   useEffect(() => {
-    if (!tenant) return;
     supabase.from('site_settings').select('id, translation_provider, translation_api_key, translation_model, local_llm_endpoint, user_api_keys_enabled').eq('tenant_id', tenant.id).maybeSingle().then(({ data }) => {
       if (data) {
         setSettingsId(data.id);
@@ -46,7 +45,7 @@ export default function AdminAI() {
       }
       setLoading(false);
     });
-  }, [tenant]);
+  }, []);
 
   const handleTest = async () => {
     setTestStatus('testing');
@@ -68,7 +67,6 @@ export default function AdminAI() {
   };
 
   const handleSave = async () => {
-    if (!tenant) return;
     setSaving(true);
     const payload = {
       translation_provider: provider === 'none' ? null : provider,

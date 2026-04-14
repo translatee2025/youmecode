@@ -72,23 +72,23 @@ function ContentBlock({ block }: { block: any }) {
     case 'HTML':
       return <div className="prose prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: block.content ?? '' }} />;
     case 'STATS':
-      return <StatsBlock tenantId={block.tenant_id} />;
+      return <StatsBlock />;
     default:
       return null;
   }
 }
 
-function StatsBlock({ tenantId }: { tenantId?: string }) {
+function StatsBlock() {
   const [stats, setStats] = useState({ venues: 0, users: 0, products: 0 });
   useEffect(() => {
-    const tid = tenantId || '';
-    if (!tid) return;
+    
+    
     Promise.all([
-      supabase.from('venues').select('id', { count: 'exact', head: true }).eq('tenant_id', tid),
-      supabase.from('users').select('id', { count: 'exact', head: true }).eq('tenant_id', tid),
-      supabase.from('products').select('id', { count: 'exact', head: true }).eq('tenant_id', tid),
+      supabase.from('venues').select('id', { count: 'exact', head: true }),
+      supabase.from('users').select('id', { count: 'exact', head: true }),
+      supabase.from('products').select('id', { count: 'exact', head: true }),
     ]).then(([v, u, p]) => setStats({ venues: v.count ?? 0, users: u.count ?? 0, products: p.count ?? 0 }));
-  }, [tenantId]);
+  }, []);
   return (
     <div className="grid grid-cols-3 gap-4 text-center">
       {[{ label: 'Venues', val: stats.venues }, { label: 'Users', val: stats.users }, { label: 'Products', val: stats.products }].map((s) => (

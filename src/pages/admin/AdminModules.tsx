@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { DEFAULT_TENANT_ID } from '@/config';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
@@ -33,7 +34,7 @@ export default function AdminModules() {
     const { data, error } = await supabase
       .from('module_settings')
       .select('id, module_key, label, is_enabled, show_in_nav, is_homepage, sort_order')
-      .eq('tenant_id', tenant.id)
+      .eq('tenant_id', DEFAULT_TENANT_ID)
       .order('sort_order');
 
     if (error) { setLoading(false); return; }
@@ -41,7 +42,7 @@ export default function AdminModules() {
     if (!data || data.length === 0) {
       // Insert defaults
       const rows = DEFAULT_MODULES.map((key, i) => ({
-        tenant_id: tenant.id,
+        tenant_id: DEFAULT_TENANT_ID,
         module_key: key,
         label: key.charAt(0).toUpperCase() + key.slice(1),
         is_enabled: true,

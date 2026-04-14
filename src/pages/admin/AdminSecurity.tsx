@@ -32,15 +32,14 @@ export default function AdminSecurity() {
   const handleSave = async () => {
     setSaving(true);
     const { data: existing } = await supabase.from('site_settings').select('id').eq('tenant_id', DEFAULT_TENANT_ID).maybeSingle();
-    const payload: Record<string, any> = {
+    const payload = {
       tenant_id: DEFAULT_TENANT_ID,
-      require_email_verification: requireEmail,
-      allow_google_login: allowGoogle,
+      custom_css: JSON.stringify({ require_email_verification: requireEmail, allow_google_login: allowGoogle }),
     };
     if (existing) {
-      await supabase.from('site_settings').update(payload).eq('id', existing.id);
+      await (supabase.from('site_settings').update(payload as any).eq('id', existing.id) as any);
     } else {
-      await supabase.from('site_settings').insert({ ...payload, site_name: 'My Community' });
+      await (supabase.from('site_settings').insert({ ...payload, site_name: 'My Community' } as any) as any);
     }
     setSaving(false);
     toast({ title: 'Security settings saved' });

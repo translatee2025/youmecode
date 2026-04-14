@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import PublicNav from '@/components/PublicNav';
 import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -42,6 +43,7 @@ export default function EventsPage() {
 
   return (
     <div className="min-h-screen bg-background">
+      <PublicNav />
       <Helmet>
         <title>Events — {siteName}</title>
         <meta name="description" content={`Upcoming events on ${siteName}`} />

@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
+import PublicNav from '@/components/PublicNav';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuthStore } from '@/stores/authStore';
 import { useLocationStore } from '@/stores/locationStore';
@@ -65,6 +66,7 @@ export default function FeedPage() {
 
   return (
     <div className="min-h-screen" style={{ background: 'var(--color-bg)' }}>
+      <PublicNav />
       <div className="max-w-xl mx-auto px-4 py-6 space-y-4">
         <h1 className="text-2xl font-bold text-foreground">Feed</h1>
         <PostComposer onPost={loadPosts} />

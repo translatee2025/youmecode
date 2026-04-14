@@ -22,7 +22,7 @@ function downloadPrintableCard(venue: any, qrDataUrl: string) {
   ctx.fillStyle = '#111111';
   ctx.font = 'bold 28px system-ui, sans-serif';
   ctx.textAlign = 'center';
-  ctx.fillText('My Community' ?? 'Platform', 300, 60);
+  ctx.fillText('My Community', 300, 60);
 
   // Venue name
   ctx.font = 'bold 22px system-ui, sans-serif';

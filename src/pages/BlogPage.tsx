@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import PublicNav from '@/components/PublicNav';
 import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Input } from '@/components/ui/input';

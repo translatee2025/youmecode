@@ -12,7 +12,7 @@ export default function CitiesPage() {
 
   useEffect(() => {
     supabase.from('site_settings').select('site_name').maybeSingle().then(({ data }) => {
-      setSiteName((data as any)?.site_name ?? tenant.name);
+      setSiteName((data as any)?.site_name ?? 'My Community');
     });
     supabase
       .from('venues')
@@ -28,7 +28,7 @@ export default function CitiesPage() {
         setCities(Object.entries(counts).map(([city, count]) => ({ city, count })).sort((a, b) => b.count - a.count));
         setLoading(false);
       });
-  }, [tenant]);
+  }, []);
 
   if (loading) return <FullscreenLoader />;
 

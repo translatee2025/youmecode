@@ -33,13 +33,13 @@ export default function WebhooksManager() {
   // In production this would be a webhooks table
   const [webhooks, setWebhooks] = useState<any[]>(() => {
     try {
-      return JSON.parse(localStorage.getItem(`webhooks_${tenant?.id}`) || '[]');
+      return JSON.parse(localStorage.getItem(`webhooks_${''}`) || '[]');
     } catch { return []; }
   });
 
   const saveWebhooks = (updated: any[]) => {
     setWebhooks(updated);
-    localStorage.setItem(`webhooks_${tenant?.id}`, JSON.stringify(updated));
+    localStorage.setItem(`webhooks_${''}`, JSON.stringify(updated));
     toast.success('Webhook saved');
   };
 

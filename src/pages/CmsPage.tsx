@@ -81,14 +81,14 @@ function ContentBlock({ block }: { block: any }) {
 function StatsBlock({ tenantId }: { tenantId?: string }) {
   const [stats, setStats] = useState({ venues: 0, users: 0, products: 0 });
   useEffect(() => {
-    const tid = tenantId || tenant?.id;
+    const tid = tenantId || '';
     if (!tid) return;
     Promise.all([
       supabase.from('venues').select('id', { count: 'exact', head: true }).eq('tenant_id', tid),
       supabase.from('users').select('id', { count: 'exact', head: true }).eq('tenant_id', tid),
       supabase.from('products').select('id', { count: 'exact', head: true }).eq('tenant_id', tid),
     ]).then(([v, u, p]) => setStats({ venues: v.count ?? 0, users: u.count ?? 0, products: p.count ?? 0 }));
-  }, [tenantId, tenant]);
+  }, [tenantId]);
   return (
     <div className="grid grid-cols-3 gap-4 text-center">
       {[{ label: 'Venues', val: stats.venues }, { label: 'Users', val: stats.users }, { label: 'Products', val: stats.products }].map((s) => (
@@ -108,15 +108,15 @@ export default function CmsPage() {
   const [siteName, setSiteName] = useState('');
 
   useEffect(() => {
-    if (!tenant || !slug) return;
+    if (!slug) return;
     supabase.from('site_settings').select('site_name').maybeSingle().then(({ data }) => {
-      setSiteName((data as any)?.site_name ?? tenant.name);
+      setSiteName((data as any)?.site_name ?? 'My Community');
     });
     supabase.from('pages').select('*').eq('slug', slug).eq('is_published', true).maybeSingle().then(({ data }) => {
       setPage(data);
       setLoading(false);
     });
-  }, [tenant, slug]);
+  }, [slug]);
 
   if (loading) return <FullscreenLoader />;
   if (!page) return <NotFound />;

@@ -24,7 +24,7 @@ export default function BlogPage() {
 
   useEffect(() => {
     supabase.from('site_settings').select('site_name').maybeSingle().then(({ data }) => {
-      setSiteName((data as any)?.site_name ?? tenant.name);
+      setSiteName((data as any)?.site_name ?? 'My Community');
     });
     supabase
       .from('blog_posts')
@@ -35,7 +35,7 @@ export default function BlogPage() {
         setPosts(data ?? []);
         setLoading(false);
       });
-  }, [tenant]);
+  }, []);
 
   if (loading) return <FullscreenLoader />;
 

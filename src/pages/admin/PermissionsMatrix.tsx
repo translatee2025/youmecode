@@ -41,8 +41,8 @@ export default function PermissionsMatrix() {
   const [matrix, setMatrix] = useState<Matrix>(defaultMatrix());
 
   const { data: settings } = useQuery({
-    queryKey: [tenant?.id, 'site-settings-perms'],
-    enabled: !!tenant?.id,
+    queryKey: ['', 'site-settings-perms'],
+    enabled: !!'',
     queryFn: async () => {
       const { data } = await supabase.from('site_settings').select('permissions_matrix').single();
       return data;
@@ -61,7 +61,7 @@ export default function PermissionsMatrix() {
       if (error) throw error;
     },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: [tenant?.id, 'site-settings-perms'] });
+      qc.invalidateQueries({ queryKey: ['', 'site-settings-perms'] });
       toast.success('Permissions saved');
     },
     onError: (e: any) => toast.error(e.message),

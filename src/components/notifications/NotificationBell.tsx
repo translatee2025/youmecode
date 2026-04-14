@@ -15,7 +15,7 @@ export default function NotificationBell() {
   const [unreadCount, setUnreadCount] = useState(0);
 
   const load = async () => {
-    if (!tenant || !profile) return;
+    if (!profile) return;
     const { data } = await supabase
       .from('notifications')
       .select('*')
@@ -29,7 +29,7 @@ export default function NotificationBell() {
 
   useEffect(() => {
     load();
-    if (!tenant || !profile) return;
+    if (!profile) return;
     const channel = supabase
       .channel('notifications-bell')
       .on('postgres_changes', {
@@ -40,7 +40,7 @@ export default function NotificationBell() {
       }, () => load())
       .subscribe();
     return () => { supabase.removeChannel(channel); };
-  }, [tenant, profile]);
+  }, [profile]);
 
   const markRead = async (id: string) => {
     await supabase.from('notifications').update({ read_at: new Date().toISOString() }).eq('id', id);

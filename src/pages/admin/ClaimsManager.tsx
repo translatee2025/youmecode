@@ -20,8 +20,8 @@ export default function ClaimsManager() {
   const [message, setMessage] = useState('');
 
   const { data: claims = [], isLoading } = useQuery({
-    queryKey: [tenant?.id, 'admin-claims', statusFilter],
-    enabled: !!tenant?.id,
+    queryKey: ['', 'admin-claims', statusFilter],
+    enabled: !!'',
     queryFn: async () => {
       let q = supabase
         .from('claim_requests')
@@ -52,7 +52,7 @@ export default function ClaimsManager() {
  actor_id: profile?.id, action: `claim_${action}`, entity_type: 'claim_request', entity_id: claimId });
     },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: [tenant?.id, 'admin-claims'] });
+      qc.invalidateQueries({ queryKey: ['', 'admin-claims'] });
       setSelected(null);
       setMessage('');
       toast.success('Claim processed');

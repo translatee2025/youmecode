@@ -19,7 +19,7 @@ export default function FeedPage() {
   const [reportTarget, setReportTarget] = useState<{ type: string; id: string } | null>(null);
 
   useEffect(() => {
-    if (!tenant || !profile) return;
+    if (!profile) return;
     Promise.all([
       supabase.from('blocks').select('blocked_id').eq('blocker_id', profile.id),
       supabase.from('mutes').select('muted_id').eq('muter_id', profile.id),
@@ -27,7 +27,7 @@ export default function FeedPage() {
       setBlockedIds((b.data ?? []).map((r: any) => r.blocked_id));
       setMutedIds((m.data ?? []).map((r: any) => r.muted_id));
     });
-  }, [tenant, profile]);
+  }, [profile]);
 
   const loadPosts = useCallback(async () => {
     setLoading(true);
@@ -59,7 +59,7 @@ export default function FeedPage() {
 
     setPosts(items);
     setLoading(false);
-  }, [tenant, profile, tab, blockedIds, mutedIds, isActive, lat, lng]);
+  }, [profile, tab, blockedIds, mutedIds, isActive, lat, lng]);
 
   useEffect(() => { loadPosts(); }, [loadPosts]);
 

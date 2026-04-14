@@ -28,7 +28,7 @@ export default function SettingsPage() {
   const [deleteLoading, setDeleteLoading] = useState(false);
 
   useEffect(() => {
-    if (!profile || !tenant) return;
+    if (!profile) return;
     setEmail(profile.email ?? '');
     (supabase.from('users' as any).select('notification_prefs').eq('id', profile.id).maybeSingle() as any)
       .then(({ data }: any) => { if (data?.notification_prefs) setNotifPrefs(data.notification_prefs); });
@@ -36,7 +36,7 @@ export default function SettingsPage() {
       supabase.from('blocks').select('id, blocked_id').eq('blocker_id', profile.id),
       supabase.from('mutes').select('id, muted_id').eq('muter_id', profile.id),
     ]).then(([b, m]) => { setBlocked(b.data ?? []); setMuted(m.data ?? []); });
-  }, [profile, tenant]);
+  }, [profile]);
 
   const changeEmail = async () => {
     const { error } = await supabase.auth.updateUser({ email });
@@ -67,7 +67,7 @@ export default function SettingsPage() {
 
   // GDPR: Data export
   const exportData = async () => {
-    if (!profile || !tenant) return;
+    if (!profile) return;
     setExportLoading(true);
     try {
       const [userRes, postsRes, commentsRes, ratingsRes, followsRes, savesRes, messagesRes] = await Promise.all([
@@ -105,7 +105,7 @@ export default function SettingsPage() {
 
   // GDPR: Account deletion
   const deleteAccount = async () => {
-    if (!profile || !tenant || deleteConfirm !== (profile.username || profile.email)) return;
+    if (!profile || deleteConfirm !== (profile.username || profile.email)) return;
     setDeleteLoading(true);
     try {
       // Anonymize user

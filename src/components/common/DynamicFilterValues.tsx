@@ -11,7 +11,7 @@ export default function DynamicFilterValues({ filterValues, categoryId }: Props)
   const [fields, setFields] = useState<any[]>([]);
 
   useEffect(() => {
-    if (!tenant || !categoryId) return;
+    if (!categoryId) return;
     supabase
       .from('filter_fields')
       .select('field_key, label, field_type')
@@ -19,7 +19,7 @@ export default function DynamicFilterValues({ filterValues, categoryId }: Props)
       .eq('is_active', true)
       .order('sort_order')
       .then(({ data }) => setFields(data ?? []));
-  }, [tenant, categoryId]);
+  }, [categoryId]);
 
   if (!filterValues || !fields.length) return null;
 

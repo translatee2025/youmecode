@@ -30,13 +30,13 @@ export default function ProductTypeManager() {
   const loadCats = useCallback(async () => {
     const { data } = await supabase.from('categories').select('id, name, icon').order('sort_order');
     if (data) { setCategories(data); if (data.length > 0 && !selectedCatId) setSelectedCatId(data[0].id); }
-  }, [tenant, selectedCatId]);
+  }, [selectedCatId]);
 
   const loadTypes = useCallback(async () => {
-    if (!tenant || !selectedCatId) return;
+    if (!selectedCatId) return;
     const { data } = await supabase.from('product_types').select('*').eq('category_id', selectedCatId).order('sort_order');
     if (data) setTypes(data);
-  }, [tenant, selectedCatId]);
+  }, [selectedCatId]);
 
   useEffect(() => { loadCats(); }, [loadCats]);
   useEffect(() => { loadTypes(); }, [loadTypes]);
@@ -54,7 +54,7 @@ export default function ProductTypeManager() {
   };
 
   const save = async () => {
-    if (!tenant || !selectedCatId) return;
+    if (!selectedCatId) return;
     setSaving(true);
     const payload = {
  category_id: selectedCatId,

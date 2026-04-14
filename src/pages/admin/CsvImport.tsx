@@ -54,8 +54,8 @@ export default function CsvImport() {
   const [result, setResult] = useState<{ imported: number; skipped: { row: Record<string, string>; reason: string }[] }>({ imported: 0, skipped: [] });
 
   const { data: categories = [] } = useQuery({
-    queryKey: [tenant?.id, 'categories-import'],
-    enabled: !!tenant?.id,
+    queryKey: ['', 'categories-import'],
+    enabled: !!'',
     queryFn: async () => {
       const { data } = await supabase.from('categories').select('id, name');
       return data || [];
@@ -63,8 +63,8 @@ export default function CsvImport() {
   });
 
   const { data: filterFields = [] } = useQuery({
-    queryKey: [tenant?.id, 'filter-fields-import', categoryId],
-    enabled: !!tenant?.id && !!categoryId,
+    queryKey: ['', 'filter-fields-import', categoryId],
+    enabled: !!'' && !!categoryId,
     queryFn: async () => {
       const { data } = await supabase.from('filter_fields').select('*').eq('category_id', categoryId);
       return data || [];

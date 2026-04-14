@@ -27,10 +27,10 @@ export default function ExplorePage() {
     // Suggested users
     (supabase.from('users' as any).select('*').order('follower_count', { ascending: false }).limit(6) as any)
       .then(({ data }: any) => setSuggestedUsers(data ?? []));
-  }, [tenant]);
+  }, []);
 
   useEffect(() => {
-    if (!tenant || !search.trim()) { setSearchResults({ venues: [], users: [], hashtags: [] }); return; }
+    if (!search.trim()) { setSearchResults({ venues: [], users: [], hashtags: [] }); return; }
     const q = search.trim();
     Promise.all([
       (supabase.from('venues' as any).select('id, name, slug, city').ilike('name', `%${q}%`).limit(5) as any),
@@ -39,7 +39,7 @@ export default function ExplorePage() {
     ]).then(([v, u, h]: any) => {
       setSearchResults({ venues: v.data ?? [], users: u.data ?? [], hashtags: h.data ?? [] });
     });
-  }, [tenant, search]);
+  }, [search]);
 
   const maxPosts = Math.max(...hashtags.map((h) => h.posts_count ?? 1), 1);
 

@@ -46,10 +46,10 @@ export default function RatingDisplay({ entityType, entityId, showForm = false, 
     }
   };
 
-  useEffect(() => { load(); }, [tenant, entityType, entityId]);
+  useEffect(() => { load(); }, [entityType, entityId]);
 
   const submitReview = async () => {
-    if (!profile || !tenant || score === 0) {
+    if (!profile || score === 0) {
       toast({ title: 'Please select a rating', variant: 'destructive' });
       return;
     }

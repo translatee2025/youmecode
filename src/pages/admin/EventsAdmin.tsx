@@ -30,7 +30,7 @@ export default function EventsAdmin() {
     setLoading(false);
   };
 
-  useEffect(() => { load(); }, [tenant]);
+  useEffect(() => { load(); }, []);
 
   const filtered = statusFilter === 'all' ? events : events.filter((e) => e.status === statusFilter);
   const upcoming = events.filter((e) => e.status === 'upcoming');
@@ -52,7 +52,7 @@ export default function EventsAdmin() {
   };
 
   const save = async () => {
-    if (!tenant || !form.title.trim()) return;
+    if (!form.title.trim()) return;
     setSaving(true);
     const payload: any = {
  title: form.title.trim(), description: form.description.trim() || null,

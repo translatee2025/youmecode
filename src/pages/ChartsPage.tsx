@@ -38,7 +38,7 @@ export default function ChartsPage() {
     ]).then(([modRes, ssRes, catRes, vRes, uRes, pRes, postRes]) => {
       setEnabled((modRes.data as any)?.is_enabled !== false);
       const ss = ssRes.data as any;
-      setSiteName(ss?.site_name ?? tenant.name);
+      setSiteName(ss?.site_name ?? 'My Community');
       setCommerceEnabled(ss?.commerce_enabled === true);
       setCategories(catRes.data ?? []);
       const allVenues = vRes.data ?? [];
@@ -54,7 +54,7 @@ export default function ChartsPage() {
       setProducts(pRes.data ?? []);
       setLoading(false);
     });
-  }, [tenant]);
+  }, []);
 
   if (loading) return <FullscreenLoader />;
   if (!enabled) return (

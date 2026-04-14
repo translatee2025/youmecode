@@ -23,7 +23,7 @@ export default function ReportModal({ open, onClose, entityType, entityId }: Pro
   const [submitting, setSubmitting] = useState(false);
 
   const handleSubmit = async () => {
-    if (!tenant || !profile || !reason) return;
+    if (!profile || !reason) return;
     setSubmitting(true);
     await supabase.from('reports').insert({
       reporter_id: profile.id,

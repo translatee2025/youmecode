@@ -17,7 +17,7 @@ export default function FollowButton({ followeeType, followeeId, className }: Pr
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!profile || !tenant) return;
+    if (!profile) return;
     supabase
       .from('follows')
       .select('id')
@@ -26,10 +26,10 @@ export default function FollowButton({ followeeType, followeeId, className }: Pr
       .eq('follower_id', profile.id)
       .maybeSingle()
       .then(({ data }) => setFollowing(!!data));
-  }, [profile, tenant, followeeType, followeeId]);
+  }, [profile, followeeType, followeeId]);
 
   const toggle = async () => {
-    if (!profile || !tenant) {
+    if (!profile) {
       toast({ title: 'Please sign in', variant: 'destructive' });
       return;
     }

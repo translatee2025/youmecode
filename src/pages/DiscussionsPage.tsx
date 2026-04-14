@@ -35,7 +35,7 @@ function BoardList() {
       .eq('is_active', true)
       .order('sort_order')
       .then(({ data }) => setBoards(data || []));
-  }, [tenant]);
+  }, []);
 
   return (
     <div className="min-h-screen" style={{ background: 'var(--color-bg)' }}>
@@ -87,10 +87,10 @@ function BoardView({ boardSlug }: { boardSlug: string }) {
       .order('is_pinned', { ascending: false })
       .order(orderCol, { ascending: false })
       .then(({ data }) => setThreads(data || []));
-  }, [tenant, boardSlug, sort]);
+  }, [boardSlug, sort]);
 
   const createThread = async () => {
-    if (!title.trim() || !tenant || !profile) return;
+    if (!title.trim() || !profile) return;
     const { data, error } = await supabase.from('discussions').insert({
       board_id: boardSlug,
       user_id: profile.id,
@@ -200,10 +200,10 @@ function ThreadView({ boardSlug, threadId }: { boardSlug: string; threadId: stri
 
     // Increment views (best-effort)
     (supabase.rpc as any)('increment_discussion_views', { discussion_id: threadId })?.then?.(() => {});
-  }, [tenant, threadId]);
+  }, [threadId]);
 
   const submitReply = async () => {
-    if (!replyContent.trim() || !tenant || !profile) return;
+    if (!replyContent.trim() || !profile) return;
     const { data, error } = await supabase.from('discussion_replies').insert({
       discussion_id: threadId,
       user_id: profile.id,

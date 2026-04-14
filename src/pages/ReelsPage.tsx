@@ -31,7 +31,7 @@ export default function ReelsPage() {
   useEffect(() => {
     supabase.from('posts').select('*').eq('post_type', 'reel').order('created_at', { ascending: false }).limit(50)
       .then(({ data }) => setReels(data ?? []));
-  }, [tenant, tab]);
+  }, [tab]);
 
   const handleScroll = () => {
     if (!containerRef.current) return;
@@ -51,7 +51,7 @@ export default function ReelsPage() {
   };
 
   const handleUploadReel = async () => {
-    if (!tenant || !profile || !videoFile) return;
+    if (!profile || !videoFile) return;
     setUploading(true);
     try {
       const path = `reels/${profile.id}/${Date.now()}`;

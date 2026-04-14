@@ -45,10 +45,10 @@ function GroupDiscovery() {
           }
         });
     }
-  }, [tenant, profile]);
+  }, [profile]);
 
   const createGroup = async () => {
-    if (!name.trim() || !tenant || !profile) return;
+    if (!name.trim() || !profile) return;
     const { data, error } = await supabase.from('groups').insert({
       creator_id: profile.id,
       name: name.trim(),
@@ -77,7 +77,7 @@ function GroupDiscovery() {
   };
 
   const joinGroup = async (groupId: string) => {
-    if (!tenant || !profile) return;
+    if (!profile) return;
     await supabase.from('group_members').insert({
       group_id: groupId,
       user_id: profile.id,
@@ -177,10 +177,10 @@ function GroupDetail({ groupId }: { groupId: string }) {
 
     supabase.from('events').select('*').eq('venue_id', groupId).order('start_at')
       .then(({ data }) => setEvents(data || []));
-  }, [tenant, groupId, profile]);
+  }, [groupId, profile]);
 
   const joinGroup = async () => {
-    if (!tenant || !profile) return;
+    if (!profile) return;
     await supabase.from('group_members').insert({
  group_id: groupId, user_id: profile.id, role: 'member' });
     setIsMember(true);
@@ -188,7 +188,7 @@ function GroupDetail({ groupId }: { groupId: string }) {
   };
 
   const leaveGroup = async () => {
-    if (!tenant || !profile) return;
+    if (!profile) return;
     await supabase.from('group_members').delete().eq('group_id', groupId).eq('user_id', profile.id);
     setIsMember(false);
     toast({ title: 'Left group' });

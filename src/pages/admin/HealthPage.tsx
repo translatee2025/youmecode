@@ -27,7 +27,7 @@ export default function HealthPage() {
         .limit(20)
         .then(({ data }) => setErrors(data ?? []));
     }
-  }, [tenant]);
+  }, []);
 
   const statusColor = dbStatus === 'connected' ? 'text-green-500' : dbStatus === 'error' ? 'text-destructive' : 'text-yellow-500';
 

@@ -14,13 +14,13 @@ export default function HashtagPage() {
   const [tab, setTab] = useState('top');
 
   useEffect(() => {
-    if (!tenant || !tag) return;
+    if (!tag) return;
     supabase.from('hashtags').select('*').eq('tag', tag).maybeSingle()
       .then(({ data }) => setHashtag(data));
-  }, [tenant, tag]);
+  }, [tag]);
 
   useEffect(() => {
-    if (!tenant || !tag) return;
+    if (!tag) return;
     let query = supabase.from('posts').select('*').contains('hashtags', [tag]);
     if (tab === 'top') {
       query = query.order('likes_count', { ascending: false });
@@ -28,7 +28,7 @@ export default function HashtagPage() {
       query = query.order('created_at', { ascending: false });
     }
     query.limit(50).then(({ data }) => setPosts(data ?? []));
-  }, [tenant, tag, tab]);
+  }, [tag, tab]);
 
   return (
     <div className="min-h-screen" style={{ background: 'var(--color-bg)' }}>

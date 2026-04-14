@@ -17,9 +17,9 @@ export default function CityDetailPage() {
   const cityName = decodeURIComponent(citySlug ?? '').replace(/-/g, ' ');
 
   useEffect(() => {
-    if (!tenant || !citySlug) return;
+    if (!citySlug) return;
     supabase.from('site_settings').select('site_name').maybeSingle().then(({ data }) => {
-      setSiteName((data as any)?.site_name ?? tenant.name);
+      setSiteName((data as any)?.site_name ?? 'My Community');
     });
     supabase.from('categories').select('id, name, slug').eq('is_active', true).then(({ data }) => {
       setCategories(data ?? []);
@@ -34,7 +34,7 @@ export default function CityDetailPage() {
         setVenues(data ?? []);
         setLoading(false);
       });
-  }, [tenant, citySlug]);
+  }, [citySlug]);
 
   if (loading) return <FullscreenLoader />;
 

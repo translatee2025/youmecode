@@ -64,7 +64,7 @@ export default function DynamicFilterDrawer({
   }, [filterValues, open]);
 
   useEffect(() => {
-    if (!tenant || !categoryId) {
+    if (!categoryId) {
       setFields([]);
       return;
     }
@@ -84,7 +84,7 @@ export default function DynamicFilterDrawer({
       setFields((data as FilterField[]) ?? []);
     };
     load();
-  }, [tenant, categoryId, subcategoryId]);
+  }, [categoryId, subcategoryId]);
 
   const set = (key: string, val: any) => setLocal((p) => ({ ...p, [key]: val }));
   const activeCount =

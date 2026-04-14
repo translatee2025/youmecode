@@ -25,10 +25,10 @@ export default function ClaimVenuePage() {
   const [submitted, setSubmitted] = useState(false);
 
   useEffect(() => {
-    if (!tenant || !venueId) return;
+    if (!venueId) return;
     (supabase.from('venues' as any).select('*').eq('id', venueId).maybeSingle() as any)
       .then(({ data }: any) => { setVenue(data); setLoading(false); });
-  }, [tenant, venueId]);
+  }, [venueId]);
 
   if (loading) return <FullscreenLoader />;
   if (!venue) return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Venue not found</div>;
@@ -39,7 +39,7 @@ export default function ClaimVenuePage() {
   const showEmailOption = !!(venue.email || venue.website);
 
   const handleSubmitEmail = async () => {
-    if (!profile || !tenant) return;
+    if (!profile) return;
     setSubmitting(true);
     await supabase.from('claim_requests').insert({
       venue_id: venue.id,
@@ -55,7 +55,7 @@ export default function ClaimVenuePage() {
   };
 
   const handleSubmitDoc = async () => {
-    if (!profile || !tenant || !docFile) return;
+    if (!profile || !docFile) return;
     setSubmitting(true);
     const path = `claims/${venue.id}/${Date.now()}-${docFile.name}`;
     const { error } = await supabase.storage.from('media').upload(path, docFile);

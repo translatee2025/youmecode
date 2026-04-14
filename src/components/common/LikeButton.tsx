@@ -18,7 +18,7 @@ export default function LikeButton({ entityType, entityId, initialCount = 0, cla
   const [count, setCount] = useState(initialCount);
 
   useEffect(() => {
-    if (!profile || !tenant) return;
+    if (!profile) return;
     supabase
       .from('likes')
       .select('id')
@@ -27,10 +27,10 @@ export default function LikeButton({ entityType, entityId, initialCount = 0, cla
       .eq('user_id', profile.id)
       .maybeSingle()
       .then(({ data }) => setLiked(!!data));
-  }, [profile, tenant, entityType, entityId]);
+  }, [profile, entityType, entityId]);
 
   const toggle = async () => {
-    if (!profile || !tenant) {
+    if (!profile) {
       toast({ title: 'Please sign in to like', variant: 'destructive' });
       return;
     }

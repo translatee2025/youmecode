@@ -22,7 +22,7 @@ function downloadPrintableCard(venue: any, qrDataUrl: string, tenant: any) {
   ctx.fillStyle = '#111111';
   ctx.font = 'bold 28px system-ui, sans-serif';
   ctx.textAlign = 'center';
-  ctx.fillText(tenant?.name ?? 'Platform', 300, 60);
+  ctx.fillText('My Community' ?? 'Platform', 300, 60);
 
   // Venue name
   ctx.font = 'bold 22px system-ui, sans-serif';
@@ -58,7 +58,7 @@ export default function VenueAdminPage() {
   const [subscription, setSubscription] = useState<any>(null);
 
   useEffect(() => {
-    if (!tenant || !venueId) return;
+    if (!venueId) return;
     Promise.all([
       (supabase.from('venues' as any).select('*').eq('id', venueId).maybeSingle() as any),
       supabase.from('follows').select('id', { count: 'exact', head: true }).eq('followee_id', venueId).eq('followee_type', 'venue'),
@@ -84,7 +84,7 @@ export default function VenueAdminPage() {
       const url = `${window.location.origin}/venues/${v?.slug}`;
       QRCode.toDataURL(url, { width: 256, margin: 2 }).then(setQrUrl).catch(() => {});
     });
-  }, [tenant, venueId]);
+  }, [venueId]);
 
   if (loading) return <FullscreenLoader />;
   if (!venue) return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Venue not found</div>;

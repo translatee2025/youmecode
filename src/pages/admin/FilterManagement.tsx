@@ -75,16 +75,16 @@ export default function FilterManagement() {
       setCategories(data);
       if (data.length > 0 && !selectedCatId) setSelectedCatId(data[0].id);
     }
-  }, [tenant, selectedCatId]);
+  }, [selectedCatId]);
 
   const loadFields = useCallback(async () => {
-    if (!tenant || !selectedCatId) return;
+    if (!selectedCatId) return;
     const { data } = await supabase.from('filter_fields')
       .select('*')
       .eq('category_id', selectedCatId)
       .order('sort_order');
     if (data) setFields(data);
-  }, [tenant, selectedCatId]);
+  }, [selectedCatId]);
 
   useEffect(() => { loadCategories(); }, [loadCategories]);
   useEffect(() => { loadFields(); }, [loadFields]);
@@ -110,7 +110,7 @@ export default function FilterManagement() {
   };
 
   const saveField = async () => {
-    if (!tenant || !selectedCatId) return;
+    if (!selectedCatId) return;
     setSaving(true);
     const options = ['select', 'multiselect'].includes(form.field_type)
       ? form.options.split(',').map((o) => o.trim()).filter(Boolean)

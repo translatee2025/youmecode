@@ -35,7 +35,7 @@ export default function VenueDetailPage() {
   const [activeTab, setActiveTab] = useState('about');
 
   useEffect(() => {
-    if (!tenant || !slug) return;
+    if (!slug) return;
     const load = async () => {
       const [venueRes, settingsRes] = await Promise.all([
         supabase.from('venues' as any).select('*').eq('slug', slug).maybeSingle() as any,
@@ -61,7 +61,7 @@ export default function VenueDetailPage() {
       setLoading(false);
     };
     load();
-  }, [tenant, slug]);
+  }, [slug]);
 
   if (loading) return <FullscreenLoader />;
   if (!venue) return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Venue not found</div>;
@@ -81,7 +81,7 @@ export default function VenueDetailPage() {
   return (
     <div className="min-h-screen" style={{ background: 'var(--color-bg)' }}>
       <Helmet>
-        <title>{venue.name} — {siteSettings?.site_name ?? tenant?.name ?? ''}</title>
+        <title>{venue.name} — {siteSettings?.site_name ?? 'My Community' ?? ''}</title>
         <meta name="description" content={venue.short_description || venue.description?.slice(0, 160) || ''} />
         <meta property="og:title" content={venue.name} />
         <meta property="og:description" content={venue.short_description || venue.description?.slice(0, 160) || ''} />

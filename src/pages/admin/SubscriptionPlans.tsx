@@ -23,8 +23,8 @@ export default function SubscriptionPlans() {
   const [featureInput, setFeatureInput] = useState('');
 
   const { data: siteSettings } = useQuery({
-    queryKey: [tenant?.id, 'site-settings-commerce'],
-    enabled: !!tenant?.id,
+    queryKey: ['', 'site-settings-commerce'],
+    enabled: !!'',
     queryFn: async () => {
       const { data } = await supabase.from('site_settings').select('commerce_enabled').single();
       return data;
@@ -32,8 +32,8 @@ export default function SubscriptionPlans() {
   });
 
   const { data: plans = [], isLoading } = useQuery({
-    queryKey: [tenant?.id, 'subscription-plans'],
-    enabled: !!tenant?.id && siteSettings?.commerce_enabled === true,
+    queryKey: ['', 'subscription-plans'],
+    enabled: !!'' && siteSettings?.commerce_enabled === true,
     queryFn: async () => {
       const { data, error } = await supabase.from('subscription_plans').select('*').order('sort_order');
       if (error) throw error;
@@ -55,7 +55,7 @@ export default function SubscriptionPlans() {
       }
     },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: [tenant?.id, 'subscription-plans'] });
+      qc.invalidateQueries({ queryKey: ['', 'subscription-plans'] });
       setEditing(null);
       toast.success('Plan saved');
     },
@@ -68,7 +68,7 @@ export default function SubscriptionPlans() {
       if (error) throw error;
     },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: [tenant?.id, 'subscription-plans'] });
+      qc.invalidateQueries({ queryKey: ['', 'subscription-plans'] });
       toast.success('Plan deleted');
     },
   });
@@ -78,7 +78,7 @@ export default function SubscriptionPlans() {
       const { error } = await supabase.from('subscription_plans').update({ is_active: active }).eq('id', id);
       if (error) throw error;
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: [tenant?.id, 'subscription-plans'] }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['', 'subscription-plans'] }),
   });
 
   if (!siteSettings?.commerce_enabled) {

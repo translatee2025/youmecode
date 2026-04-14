@@ -23,7 +23,7 @@ export default function SaveButton({ entityType, entityId, className }: Props) {
   const [collections, setCollections] = useState<string[]>(['Saved']);
 
   useEffect(() => {
-    if (!profile || !tenant) return;
+    if (!profile) return;
     supabase
       .from('saves')
       .select('id, collection_name')
@@ -35,10 +35,10 @@ export default function SaveButton({ entityType, entityId, className }: Props) {
         const uniqueColls = [...new Set((data ?? []).map((d: any) => d.collection_name ?? 'Saved'))];
         if (uniqueColls.length > 0) setCollections(uniqueColls);
       });
-  }, [profile, tenant, entityType, entityId]);
+  }, [profile, entityType, entityId]);
 
   const saveToCollection = async (name: string) => {
-    if (!profile || !tenant) {
+    if (!profile) {
       toast({ title: 'Please sign in', variant: 'destructive' });
       return;
     }

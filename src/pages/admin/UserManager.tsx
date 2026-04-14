@@ -35,8 +35,8 @@ export default function UserManager() {
   const [detailUser, setDetailUser] = useState<any>(null);
 
   const { data: users = [], isLoading } = useQuery({
-    queryKey: [tenant?.id, 'admin-users', search, roleFilter, statusFilter, sortBy],
-    enabled: !!tenant?.id,
+    queryKey: ['', 'admin-users', search, roleFilter, statusFilter, sortBy],
+    enabled: !!'',
     queryFn: async () => {
       let q = supabase
         .from('users')
@@ -60,7 +60,7 @@ export default function UserManager() {
       if (error) throw error;
     },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: [tenant?.id, 'admin-users'] });
+      qc.invalidateQueries({ queryKey: ['', 'admin-users'] });
       toast.success('User updated');
     },
     onError: (e: any) => toast.error(e.message),
@@ -83,7 +83,7 @@ export default function UserManager() {
     for (const id of selected) {
       await supabase.from('users').update({ is_banned: true }).eq('id', id);
     }
-    qc.invalidateQueries({ queryKey: [tenant?.id, 'admin-users'] });
+    qc.invalidateQueries({ queryKey: ['', 'admin-users'] });
     setSelected(new Set());
     toast.success(`${selected.size} users banned`);
   };

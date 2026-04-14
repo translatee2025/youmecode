@@ -68,7 +68,7 @@ export default function AnalyticsPage() {
       setRatings(rRes.data ?? []);
       setLoading(false);
     });
-  }, [tenant]);
+  }, []);
 
   // Computed stats
   const now = new Date();

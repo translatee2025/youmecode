@@ -26,8 +26,8 @@ export default function BlogEditor() {
   const [tagInput, setTagInput] = useState('');
 
   const { data: posts = [], isLoading } = useQuery({
-    queryKey: [tenant?.id, 'blog-posts', statusFilter],
-    enabled: !!tenant?.id,
+    queryKey: ['', 'blog-posts', statusFilter],
+    enabled: !!'',
     queryFn: async () => {
       let q = supabase.from('blog_posts').select('*').order('created_at', { ascending: false });
       if (statusFilter === 'published') q = q.eq('is_published', true);
@@ -69,7 +69,7 @@ export default function BlogEditor() {
       }
     },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: [tenant?.id, 'blog-posts'] });
+      qc.invalidateQueries({ queryKey: ['', 'blog-posts'] });
       setEditing(null);
       toast.success('Post saved');
     },
@@ -82,7 +82,7 @@ export default function BlogEditor() {
       if (error) throw error;
     },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: [tenant?.id, 'blog-posts'] });
+      qc.invalidateQueries({ queryKey: ['', 'blog-posts'] });
       toast.success('Post deleted');
     },
   });

@@ -41,7 +41,7 @@ export default function PostCard({ post, user, onReport, onRefresh }: Props) {
   };
 
   const handleBlock = async () => {
-    if (!tenant || !profile || !post.user_id) return;
+    if (!profile || !post.user_id) return;
     await supabase.from('blocks').insert({
  blocker_id: profile.id, blocked_id: post.user_id });
     toast({ title: 'User blocked' });
@@ -49,7 +49,7 @@ export default function PostCard({ post, user, onReport, onRefresh }: Props) {
   };
 
   const handleMute = async () => {
-    if (!tenant || !profile || !post.user_id) return;
+    if (!profile || !post.user_id) return;
     await supabase.from('mutes').insert({
  muter_id: profile.id, muted_id: post.user_id });
     toast({ title: 'User muted' });

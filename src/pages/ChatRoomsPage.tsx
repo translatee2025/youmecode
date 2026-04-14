@@ -45,10 +45,10 @@ export default function ChatRoomsPage() {
       .from('chat_rooms')
       .select('*')
       .then(({ data }) => setRooms(data || []));
-  }, [tenant]);
+  }, []);
 
   useEffect(() => {
-    if (!activeRoom || !tenant) return;
+    if (!activeRoom) return;
     const load = async () => {
       const { data } = await supabase
         .from('chat_messages')
@@ -86,14 +86,14 @@ export default function ChatRoomsPage() {
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };
-  }, [activeRoom, tenant]);
+  }, [activeRoom]);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
   }, [messages]);
 
   const sendMessage = async () => {
-    if (!input.trim() || !activeRoom || !tenant || !profile) return;
+    if (!input.trim() || !activeRoom || !profile) return;
     const content = input.trim();
     setInput('');
     await supabase.from('chat_messages').insert({

@@ -25,9 +25,9 @@ export default function BlogPostPage() {
   const [siteName, setSiteName] = useState('');
 
   useEffect(() => {
-    if (!tenant || !slug) return;
+    if (!slug) return;
     supabase.from('site_settings').select('site_name').maybeSingle().then(({ data }) => {
-      setSiteName((data as any)?.site_name ?? tenant.name);
+      setSiteName((data as any)?.site_name ?? 'My Community');
     });
     supabase
       .from('blog_posts')
@@ -53,7 +53,7 @@ export default function BlogPostPage() {
         }
         setLoading(false);
       });
-  }, [tenant, slug]);
+  }, [slug]);
 
   if (loading) return <FullscreenLoader />;
   if (!post) return <NotFound />;

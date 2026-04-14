@@ -47,7 +47,7 @@ export default function MessagesPage() {
 
   // Load conversations
   useEffect(() => {
-    if (!tenant || !profile) return;
+    if (!profile) return;
     const loadConvos = async () => {
       const { data } = await supabase
         .from('conversations')
@@ -84,7 +84,7 @@ export default function MessagesPage() {
           setBlockedIds(ids);
         }
       });
-  }, [tenant, profile]);
+  }, [profile]);
 
   // Load messages for active conversation
   useEffect(() => {
@@ -150,7 +150,7 @@ export default function MessagesPage() {
   }, [activeConvo, profile]);
 
   const sendMessage = async () => {
-    if (!input.trim() || !activeConvo || !tenant || !profile) return;
+    if (!input.trim() || !activeConvo || !profile) return;
     const content = input.trim();
     setInput('');
 
@@ -188,7 +188,7 @@ export default function MessagesPage() {
   };
 
   const startNewConversation = async (userId: string) => {
-    if (!tenant || !profile) return;
+    if (!profile) return;
     // Check if conversation exists
     const existing = conversations.find(
       (c) => c.participants.includes(userId) && c.participants.includes(profile.id)
@@ -214,7 +214,7 @@ export default function MessagesPage() {
   };
 
   const searchUsers = useCallback(async (q: string) => {
-    if (!tenant || !q.trim()) { setSearchResults([]); return; }
+    if (!q.trim()) { setSearchResults([]); return; }
     const { data } = await supabase
       .from('users')
       .select('id,username,display_name,avatar_url')
@@ -222,7 +222,7 @@ export default function MessagesPage() {
       .or(`username.ilike.%${q}%,display_name.ilike.%${q}%`)
       .limit(10);
     setSearchResults(data || []);
-  }, [tenant, profile]);
+  }, [profile]);
 
   const isBlocked = activeConvo?.otherUser ? blockedIds.includes(activeConvo.otherUser.id) : false;
 

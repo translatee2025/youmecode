@@ -23,7 +23,7 @@ export default function EventsPage() {
 
   useEffect(() => {
     supabase.from('site_settings').select('site_name').maybeSingle().then(({ data }) => {
-      setSiteName((data as any)?.site_name ?? tenant.name);
+      setSiteName((data as any)?.site_name ?? 'My Community');
     });
     supabase
       .from('events')
@@ -33,7 +33,7 @@ export default function EventsPage() {
         setEvents(data ?? []);
         setLoading(false);
       });
-  }, [tenant]);
+  }, []);
 
   if (loading) return <FullscreenLoader />;
 

@@ -35,7 +35,7 @@ export default function UserProfilePage() {
   const isOwnProfile = profile?.username === username;
 
   useEffect(() => {
-    if (!tenant || !username) return;
+    if (!username) return;
     const load = async () => {
       const { data: uRaw } = await (supabase.from('users' as any).select('*').eq('username', username).maybeSingle() as any);
       const u = uRaw as any;
@@ -60,7 +60,7 @@ export default function UserProfilePage() {
       setLoading(false);
     };
     load();
-  }, [tenant, username]);
+  }, [username]);
 
   const saveProfile = async () => {
     if (!user) return;

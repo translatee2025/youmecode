@@ -32,7 +32,7 @@ export default function CommerceActivationPage() {
   const [acceptTerms, setAcceptTerms] = useState(false);
 
   useEffect(() => {
-    if (!tenant || !venueId) return;
+    if (!venueId) return;
     Promise.all([
       (supabase.from('venues' as any).select('*').eq('id', venueId).maybeSingle() as any),
       supabase.from('site_settings').select('*').maybeSingle(),
@@ -43,7 +43,7 @@ export default function CommerceActivationPage() {
       setPlans(pRes.data ?? []);
       setLoading(false);
     });
-  }, [tenant, venueId]);
+  }, [venueId]);
 
   if (loading) return <FullscreenLoader />;
   if (!venue) return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Venue not found</div>;

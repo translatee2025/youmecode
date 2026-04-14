@@ -21,7 +21,7 @@ export default function ProductDetailPage() {
   const [galleryIndex, setGalleryIndex] = useState<number | null>(null);
 
   useEffect(() => {
-    if (!tenant || !id) return;
+    if (!id) return;
     const load = async () => {
       const [prodRes, settingsRes] = await Promise.all([
         supabase.from('products').select('*').eq('id', id).maybeSingle(),
@@ -43,7 +43,7 @@ export default function ProductDetailPage() {
       setLoading(false);
     };
     load();
-  }, [tenant, id]);
+  }, [id]);
 
   if (loading) return <FullscreenLoader />;
   if (!product) return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Product not found</div>;

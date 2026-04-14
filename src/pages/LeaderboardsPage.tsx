@@ -21,7 +21,7 @@ export default function LeaderboardsPage() {
       .then(({ data }: any) => setUsers(data ?? []));
     supabase.from('products').select('*').order('likes_count', { ascending: false }).limit(20)
       .then(({ data }) => setProducts(data ?? []));
-  }, [tenant, timeFilter]);
+  }, [timeFilter]);
 
   const rankColors = ['text-amber-400', 'text-muted-foreground', 'text-amber-700'];
 

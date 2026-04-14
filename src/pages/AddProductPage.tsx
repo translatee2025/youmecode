@@ -47,7 +47,7 @@ export default function AddProductPage() {
   const [previews, setPreviews] = useState<string[]>([]);
 
   useEffect(() => {
-    if (!tenant || !venueId) return;
+    if (!venueId) return;
     Promise.all([
       (supabase.from('venues' as any).select('*').eq('id', venueId).maybeSingle() as any),
       supabase.from('site_settings').select('*').maybeSingle(),
@@ -63,7 +63,7 @@ export default function AddProductPage() {
       }
       setLoading(false);
     });
-  }, [tenant, venueId]);
+  }, [venueId]);
 
   if (loading) return <FullscreenLoader />;
   if (!venue) return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Venue not found</div>;
@@ -115,7 +115,7 @@ export default function AddProductPage() {
   };
 
   const handleSubmit = async () => {
-    if (!tenant || !profile || !name.trim()) return;
+    if (!profile || !name.trim()) return;
     setSubmitting(true);
     try {
       const imageUrls: string[] = [];

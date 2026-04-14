@@ -25,10 +25,10 @@ export default function PollsPage() {
           setVotes(map);
         });
     }
-  }, [tenant, profile]);
+  }, [profile]);
 
   const vote = async (pollId: string, optionIndex: number) => {
-    if (!tenant || !profile || votes[pollId] !== undefined) return;
+    if (!profile || votes[pollId] !== undefined) return;
     await supabase.from('poll_votes').insert({
  poll_id: pollId, user_id: profile.id, option_index: optionIndex });
     setVotes((prev) => ({ ...prev, [pollId]: optionIndex }));

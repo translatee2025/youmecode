@@ -18,20 +18,20 @@ export default function CollectionsPage() {
   const [newName, setNewName] = useState('');
 
   const loadCollections = async () => {
-    if (!tenant || !profile) return;
+    if (!profile) return;
     const { data } = await supabase.from('saves').select('collection_name').eq('user_id', profile.id);
     const counts: Record<string, number> = {};
     (data ?? []).forEach((s) => { const n = s.collection_name ?? 'Saved'; counts[n] = (counts[n] ?? 0) + 1; });
     setCollections(Object.entries(counts).map(([name, count]) => ({ name, count })));
   };
 
-  useEffect(() => { loadCollections(); }, [tenant, profile]);
+  useEffect(() => { loadCollections(); }, [profile]);
 
   useEffect(() => {
-    if (!tenant || !profile || !selectedCollection) return;
+    if (!profile || !selectedCollection) return;
     supabase.from('saves').select('*').eq('user_id', profile.id).eq('collection_name', selectedCollection).order('created_at', { ascending: false })
       .then(({ data }) => setItems(data ?? []));
-  }, [tenant, profile, selectedCollection]);
+  }, [profile, selectedCollection]);
 
   const handleRemove = async (id: string) => {
     await supabase.from('saves').delete().eq('id', id);

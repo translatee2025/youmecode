@@ -18,7 +18,7 @@ export default function PlatformUsersPage() {
     setLoading(false);
   };
 
-  useEffect(() => { load(); }, [tenant]);
+  useEffect(() => { load(); }, []);
 
   const toggleBan = async (user: any) => {
     await supabase.from('users').update({ is_banned: !user.is_banned }).eq('id', user.id);

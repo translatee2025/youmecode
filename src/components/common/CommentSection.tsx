@@ -51,10 +51,10 @@ export default function CommentSection({ entityType, entityId }: Props) {
     setComments(topLevel);
   };
 
-  useEffect(() => { load(); }, [tenant, entityType, entityId]);
+  useEffect(() => { load(); }, [entityType, entityId]);
 
   const submit = async (parentId: string | null, content: string) => {
-    if (!profile || !tenant) {
+    if (!profile) {
       toast({ title: 'Please sign in to comment', variant: 'destructive' });
       return;
     }

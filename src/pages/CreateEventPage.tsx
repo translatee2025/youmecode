@@ -20,7 +20,7 @@ export default function CreateEventPage() {
   const [submitting, setSubmitting] = useState(false);
 
   const handleSubmit = async () => {
-    if (!tenant || !profile || !form.title.trim()) return;
+    if (!profile || !form.title.trim()) return;
     setSubmitting(true);
     const { error } = await supabase.from('events').insert({
       created_by: profile.id,

@@ -56,11 +56,11 @@ export default function DirectoryPage() {
       setAds(adsRes.data ?? []);
     };
     load();
-  }, [tenant]);
+  }, []);
 
   // Load subcategories when category changes
   useEffect(() => {
-    if (!tenant || !selectedCategory) {
+    if (!selectedCategory) {
       setSubcategories([]);
       setSelectedSubcategory(null);
       return;
@@ -72,11 +72,11 @@ export default function DirectoryPage() {
       .eq('is_active', true)
       .order('sort_order')
       .then(({ data }) => setSubcategories(data ?? []));
-  }, [tenant, selectedCategory]);
+  }, [selectedCategory]);
 
   // Load card badge fields
   useEffect(() => {
-    if (!tenant || !selectedCategory) {
+    if (!selectedCategory) {
       setCardBadgeFields([]);
       return;
     }
@@ -87,7 +87,7 @@ export default function DirectoryPage() {
       .eq('show_in_card', true)
       .eq('is_active', true)
       .then(({ data }) => setCardBadgeFields((data as any[]) ?? []));
-  }, [tenant, selectedCategory]);
+  }, [selectedCategory]);
 
   // Fetch data
   const fetchData = useCallback(
@@ -155,7 +155,7 @@ export default function DirectoryPage() {
 
       setLoading(false);
     },
-    [tenant, tab, search, selectedCategory, selectedSubcategory, filterValues, minRating, sortBy],
+    [tab, search, selectedCategory, selectedSubcategory, filterValues, minRating, sortBy],
   );
 
   // Reset and fetch when filters change

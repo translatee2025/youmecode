@@ -63,19 +63,19 @@ export default function CreateVenuePage() {
       setCategories(catRes.data ?? []);
       setSiteSettings(settRes.data);
     });
-  }, [tenant]);
+  }, []);
 
   useEffect(() => {
-    if (!tenant || !categoryId) { setSubcategories([]); return; }
+    if (!categoryId) { setSubcategories([]); return; }
     supabase.from('subcategories').select('*').eq('category_id', categoryId).eq('is_active', true).order('sort_order')
       .then(({ data }) => setSubcategories(data ?? []));
-  }, [tenant, categoryId]);
+  }, [categoryId]);
 
   useEffect(() => {
-    if (!tenant || !categoryId) { setFilterFields([]); return; }
+    if (!categoryId) { setFilterFields([]); return; }
     let q = supabase.from('filter_fields').select('*').eq('category_id', categoryId).eq('is_active', true).in('applies_to', ['venue', 'both']).order('sort_order');
     q.then(({ data }) => setFilterFields(data ?? []));
-  }, [tenant, categoryId]);
+  }, [categoryId]);
 
   const hasCustomFields = filterFields.length > 0;
   const activeSteps = hasCustomFields ? STEPS : STEPS.filter((_, i) => i !== 3);
@@ -106,7 +106,7 @@ export default function CreateVenuePage() {
   };
 
   const handleSubmit = async () => {
-    if (!tenant || !profile || !name.trim()) return;
+    if (!profile || !name.trim()) return;
     setSubmitting(true);
     try {
       let coverUrl: string | null = null;

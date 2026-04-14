@@ -22,7 +22,7 @@ export default function ClaimStatusPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!tenant || !profile || !venueId) return;
+    if (!profile || !venueId) return;
     Promise.all([
       supabase.from('claim_requests').select('*').eq('venue_id', venueId).eq('user_id', profile.id).order('created_at', { ascending: false }).limit(1).maybeSingle(),
       (supabase.from('venues' as any).select('name, slug').eq('id', venueId).maybeSingle() as any),
@@ -31,7 +31,7 @@ export default function ClaimStatusPage() {
       setVenue(venueRes.data);
       setLoading(false);
     });
-  }, [tenant, profile, venueId]);
+  }, [profile, venueId]);
 
   if (loading) return <FullscreenLoader />;
   if (!claim) return <div className="min-h-screen flex items-center justify-center text-muted-foreground">No claim found</div>;

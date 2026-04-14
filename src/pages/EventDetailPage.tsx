@@ -21,9 +21,9 @@ export default function EventDetailPage() {
   const [siteName, setSiteName] = useState('');
 
   useEffect(() => {
-    if (!tenant || !id) return;
+    if (!id) return;
     supabase.from('site_settings').select('site_name').maybeSingle().then(({ data }) => {
-      setSiteName((data as any)?.site_name ?? tenant.name);
+      setSiteName((data as any)?.site_name ?? 'My Community');
     });
     supabase.from('events').select('*').eq('id', id).maybeSingle().then(async ({ data }) => {
       setEvent(data);
@@ -33,7 +33,7 @@ export default function EventDetailPage() {
       }
       setLoading(false);
     });
-  }, [tenant, id]);
+  }, [id]);
 
   if (loading) return <FullscreenLoader />;
   if (!event) return <NotFound />;
@@ -48,7 +48,7 @@ export default function EventDetailPage() {
   };
 
   const handleRsvp = async () => {
-    if (!profile || !tenant) return;
+    if (!profile) return;
     await supabase.from('events').update({ attendees_count: (event.attendees_count ?? 0) + 1 } as any).eq('id', event.id);
     setEvent({ ...event, attendees_count: (event.attendees_count ?? 0) + 1 });
   };

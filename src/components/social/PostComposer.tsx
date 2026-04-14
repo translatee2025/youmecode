@@ -1,5 +1,5 @@
 import { DEFAULT_TENANT_ID } from '@/config';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuthStore } from '@/stores/authStore';
 import { Button } from '@/components/ui/button';
@@ -9,7 +9,8 @@ import { Switch } from '@/components/ui/switch';
 import { Input } from '@/components/ui/input';
 import { toast } from '@/hooks/use-toast';
 import { checkBadges } from '@/lib/badges';
-import { Image, MapPin, BarChart3, Calendar, Send, X } from 'lucide-react';
+import MediaUploader from '@/components/media/MediaUploader';
+import { MapPin, BarChart3, Send, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface Props {
@@ -28,6 +29,14 @@ export default function PostComposer({ onPost }: Props) {
   const [mediaFiles, setMediaFiles] = useState<File[]>([]);
   const [mediaPreviews, setMediaPreviews] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
+  const [mediaUploadMode, setMediaUploadMode] = useState('gallery_cam');
+  const [videoUrl, setVideoUrl] = useState<string | null>(null);
+  const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    supabase.from('site_settings').select('media_upload_mode').eq('tenant_id', DEFAULT_TENANT_ID).maybeSingle()
+      .then(({ data }) => { if (data?.media_upload_mode) setMediaUploadMode(data.media_upload_mode); });
+  }, []);
 
   const maxLen = longPost ? 2000 : 280;
 
@@ -163,12 +172,21 @@ export default function PostComposer({ onPost }: Props) {
               </div>
             )}
 
+            <MediaUploader
+              mode={mediaUploadMode}
+              onMediaReady={(result) => {
+                if (result.type === 'link') {
+                  setVideoUrl(result.url || null);
+                  setThumbnailUrl(result.thumbnailUrl || null);
+                } else if (result.file) {
+                  setMediaFiles(prev => [...prev, result.file!]);
+                  setMediaPreviews(prev => [...prev, URL.createObjectURL(result.file!)]);
+                }
+              }}
+            />
+
             <div className="flex items-center justify-between">
               <div className="flex gap-1">
-                <label className="p-2 hover:bg-muted rounded-lg cursor-pointer text-muted-foreground hover:text-foreground transition-colors">
-                  <Image className="h-4 w-4" />
-                  <input type="file" accept="image/*,video/*" multiple onChange={handleMedia} className="hidden" />
-                </label>
                 <button onClick={() => { const loc = prompt('Enter location'); if (loc) setLocation(loc); }} className="p-2 hover:bg-muted rounded-lg text-muted-foreground hover:text-foreground transition-colors">
                   <MapPin className="h-4 w-4" />
                 </button>

@@ -36,6 +36,10 @@ import AuditLog from "@/pages/admin/AuditLog";
 import BlogEditor from "@/pages/admin/BlogEditor";
 import FaqManager from "@/pages/admin/FaqManager";
 import AdminPlaceholder from "@/pages/admin/AdminPlaceholder";
+import AdminPages from "@/pages/admin/AdminPages";
+import AdminDiscussions from "@/pages/admin/AdminDiscussions";
+import AdminGroups from "@/pages/admin/AdminGroups";
+import AdminSecurity from "@/pages/admin/AdminSecurity";
 import DirectoryPage from "@/pages/DirectoryPage";
 import VenueDetailPage from "@/pages/VenueDetailPage";
 import ProductDetailPage from "@/pages/ProductDetailPage";
@@ -158,7 +162,7 @@ const App = () => (
                     <Route path="categories" element={<CategoryManager />} />
                     <Route path="filters" element={<FilterManagement />} />
                     <Route path="product-types" element={<ProductTypeManager />} />
-                    <Route path="pages" element={<AdminPlaceholder title="Pages" />} />
+                    <Route path="pages" element={<AdminPages />} />
                     <Route path="blog" element={<BlogEditor />} />
                     <Route path="faq" element={<FaqManager />} />
                     <Route path="events" element={<EventsAdmin />} />
@@ -167,8 +171,8 @@ const App = () => (
                     <Route path="products" element={<ProductManager />} />
                     <Route path="claims" element={<ClaimsManager />} />
                     <Route path="moderation" element={<ModerationQueue />} />
-                    <Route path="discussions" element={<AdminPlaceholder title="Discussion Boards" />} />
-                    <Route path="groups" element={<AdminPlaceholder title="Groups" />} />
+                    <Route path="discussions" element={<AdminDiscussions />} />
+                    <Route path="groups" element={<AdminGroups />} />
                     <Route path="subscriptions" element={<SubscriptionPlans />} />
                     <Route path="ads" element={<AdSlotsManager />} />
                     <Route path="import" element={<CsvImport />} />
@@ -179,7 +183,7 @@ const App = () => (
                     <Route path="webhooks" element={<WebhooksManager />} />
                     <Route path="audit" element={<AuditLog />} />
                     <Route path="health" element={<HealthPage />} />
-                    <Route path="security" element={<AdminPlaceholder title="Security" />} />
+                    <Route path="security" element={<AdminSecurity />} />
                     <Route path="platform-settings" element={<PlatformSettingsPage />} />
                   </Route>
 

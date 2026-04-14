@@ -182,9 +182,9 @@ export default function AdminSiteSettings() {
         <CardContent>
           <RadioGroup value={form.media_upload_mode} onValueChange={v => update('media_upload_mode', v)} className="space-y-2">
             {[
-              { value: 'gallery_camera', label: 'Gallery & Camera', desc: 'Users can upload from gallery or take photos' },
-              { value: 'camera_only', label: 'Camera Only', desc: 'Only camera capture allowed, no gallery uploads' },
-              { value: 'links_only', label: 'Links Only', desc: 'Users paste image URLs instead of uploading' },
+              { value: 'gallery_cam', label: 'Gallery & Camera', desc: 'Users can upload files from their device OR record with camera' },
+              { value: 'cam_only', label: 'Camera Only', desc: 'Users can only record with camera. No file picker. No gallery access. For platforms wanting only live authentic content.' },
+              { value: 'links_only', label: 'Links Only', desc: 'Users paste a YouTube or TikTok URL. No upload, no camera.' },
             ].map(opt => (
               <div key={opt.value} className="flex items-start gap-3 p-3 rounded-lg cursor-pointer" style={{ background: form.media_upload_mode === opt.value ? 'rgba(255,255,255,0.08)' : 'transparent', border: `1px solid ${form.media_upload_mode === opt.value ? 'var(--color-primary)' : 'var(--color-border)'}` }}>
                 <RadioGroupItem value={opt.value} id={opt.value} className="mt-0.5" />

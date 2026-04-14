@@ -7,12 +7,13 @@ import LikeButton from '@/components/common/LikeButton';
 import SaveButton from '@/components/common/SaveButton';
 import ShareButton from '@/components/common/ShareButton';
 import FollowButton from '@/components/common/FollowButton';
+import MediaUploader from '@/components/media/MediaUploader';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { MessageCircle, Volume2, VolumeX, Plus, Upload, Send } from 'lucide-react';
+import { MessageCircle, Volume2, VolumeX, Plus, Send } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 

@@ -1,6 +1,6 @@
+import { DEFAULT_TENANT_ID } from '@/config';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useTenantStore } from '@/stores/tenantStore';
 import { useAuthStore } from '@/stores/authStore';
 import { Button } from '@/components/ui/button';
 import { UserPlus, UserCheck } from 'lucide-react';
@@ -13,26 +13,24 @@ interface Props {
 }
 
 export default function FollowButton({ followeeType, followeeId, className }: Props) {
-  const tenant = useTenantStore((s) => s.tenant);
   const profile = useAuthStore((s) => s.profile);
   const [following, setFollowing] = useState(false);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!profile || !tenant) return;
+    if (!profile) return;
     supabase
       .from('follows')
       .select('id')
-      .eq('tenant_id', tenant.id)
       .eq('followee_type', followeeType)
       .eq('followee_id', followeeId)
       .eq('follower_id', profile.id)
       .maybeSingle()
       .then(({ data }) => setFollowing(!!data));
-  }, [profile, tenant, followeeType, followeeId]);
+  }, [profile, followeeType, followeeId]);
 
   const toggle = async () => {
-    if (!profile || !tenant) {
+    if (!profile) {
       toast({ title: 'Please sign in', variant: 'destructive' });
       return;
     }
@@ -43,13 +41,11 @@ export default function FollowButton({ followeeType, followeeId, className }: Pr
       await supabase
         .from('follows')
         .delete()
-        .eq('tenant_id', tenant.id)
         .eq('followee_type', followeeType)
         .eq('followee_id', followeeId)
         .eq('follower_id', profile.id);
     } else {
-      await supabase.from('follows').insert({
-        tenant_id: tenant.id,
+      await supabase.from('follows').insert({ tenant_id: DEFAULT_TENANT_ID,
         followee_type: followeeType,
         followee_id: followeeId,
         follower_id: profile.id,

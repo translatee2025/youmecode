@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useTenantStore } from '@/stores/tenantStore';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Users, Building2, FileText, ShieldCheck, CheckCircle2, Circle } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
@@ -25,26 +24,23 @@ interface ChecklistItem {
 }
 
 export default function AdminDashboard() {
-  const tenant = useTenantStore((s) => s.tenant);
   const [stats, setStats] = useState<Stats>({ users: 0, venues: 0, posts: 0, claimedVenues: 0 });
   const [audit, setAudit] = useState<AuditEntry[]>([]);
   const [checklist, setChecklist] = useState<ChecklistItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!tenant) return;
-    const tid = tenant.id;
 
     const load = async () => {
       const [usersRes, venuesRes, postsRes, claimedRes, auditRes, settingsRes, catsRes, modsRes] = await Promise.all([
-        supabase.from('users').select('id', { count: 'exact', head: true }).eq('tenant_id', tid),
-        supabase.from('venues').select('id', { count: 'exact', head: true }).eq('tenant_id', tid),
-        supabase.from('posts').select('id', { count: 'exact', head: true }).eq('tenant_id', tid),
-        supabase.from('venues').select('id', { count: 'exact', head: true }).eq('tenant_id', tid).neq('status', 'unclaimed'),
-        supabase.from('audit_log').select('id, action, entity_type, created_at').eq('tenant_id', tid).order('created_at', { ascending: false }).limit(10),
-        supabase.from('site_settings').select('site_name').eq('tenant_id', tid).maybeSingle(),
-        supabase.from('categories').select('id', { count: 'exact', head: true }).eq('tenant_id', tid),
-        supabase.from('module_settings').select('id', { count: 'exact', head: true }).eq('tenant_id', tid).eq('is_enabled', true),
+        supabase.from('users').select('id', { count: 'exact', head: true }),
+        supabase.from('venues').select('id', { count: 'exact', head: true }),
+        supabase.from('posts').select('id', { count: 'exact', head: true }),
+        supabase.from('venues').select('id', { count: 'exact', head: true }).neq('status', 'unclaimed'),
+        supabase.from('audit_log').select('id, action, entity_type, created_at').order('created_at', { ascending: false }).limit(10),
+        supabase.from('site_settings').select('site_name').maybeSingle(),
+        supabase.from('categories').select('id', { count: 'exact', head: true }),
+        supabase.from('module_settings').select('id', { count: 'exact', head: true }).eq('is_enabled', true),
       ]);
 
       setStats({
@@ -67,7 +63,7 @@ export default function AdminDashboard() {
     };
 
     load();
-  }, [tenant]);
+  }, []);
 
   if (loading) {
     return <div className="animate-pulse space-y-4"><div className="h-24 rounded-xl" style={{ background: 'var(--color-card-bg)' }} /><div className="h-24 rounded-xl" style={{ background: 'var(--color-card-bg)' }} /></div>;

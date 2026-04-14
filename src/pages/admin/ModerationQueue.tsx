@@ -1,7 +1,7 @@
+import { DEFAULT_TENANT_ID } from '@/config';
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useTenantStore } from '@/stores/tenantStore';
 import { useAuthStore } from '@/stores/authStore';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -13,20 +13,17 @@ import { Eye, EyeOff, Ban, Trash2, AlertTriangle } from 'lucide-react';
 import { format } from 'date-fns';
 
 export default function ModerationQueue() {
-  const tenant = useTenantStore((s) => s.tenant);
   const profile = useAuthStore((s) => s.profile);
   const qc = useQueryClient();
   const [tab, setTab] = useState('pending');
   const [selected, setSelected] = useState<any>(null);
 
   const { data: reports = [], isLoading } = useQuery({
-    queryKey: [tenant?.id, 'admin-reports', tab],
-    enabled: !!tenant?.id,
+    queryKey: ['admin-reports', tab],
     queryFn: async () => {
       let q = supabase
         .from('reports')
         .select('*, users:reporter_id(username, avatar_url)')
-        .eq('tenant_id', tenant!.id)
         .order('created_at', { ascending: false });
 
       if (tab === 'pending') q = q.eq('status', 'pending');
@@ -54,13 +51,13 @@ export default function ModerationQueue() {
         if (report.entity_type === 'comment') await supabase.from('comments').delete().eq('id', report.entity_id);
       }
 
-      await supabase.from('audit_log').insert({
-        tenant_id: tenant!.id, actor_id: profile?.id, action: `moderation_${action}`,
+      await supabase.from('audit_log').insert({ tenant_id: DEFAULT_TENANT_ID,
+ actor_id: profile?.id, action: `moderation_${action}`,
         entity_type: 'report', entity_id: reportId,
       });
     },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: [tenant?.id, 'admin-reports'] });
+      qc.invalidateQueries({ queryKey: ['admin-reports'] });
       setSelected(null);
       toast.success('Action taken');
     },

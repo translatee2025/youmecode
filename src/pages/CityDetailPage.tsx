@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { useTenantStore } from '@/stores/tenantStore';
 import VenueCard from '@/components/directory/VenueCard';
 import FullscreenLoader from '@/components/FullscreenLoader';
 import { Helmet } from 'react-helmet-async';
@@ -9,7 +8,6 @@ import { Badge } from '@/components/ui/badge';
 
 export default function CityDetailPage() {
   const { citySlug } = useParams<{ citySlug: string }>();
-  const tenant = useTenantStore((s) => s.tenant);
   const [venues, setVenues] = useState<any[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
   const [catFilter, setCatFilter] = useState<string | null>(null);
@@ -19,17 +17,16 @@ export default function CityDetailPage() {
   const cityName = decodeURIComponent(citySlug ?? '').replace(/-/g, ' ');
 
   useEffect(() => {
-    if (!tenant || !citySlug) return;
-    supabase.from('site_settings').select('site_name').eq('tenant_id', tenant.id).maybeSingle().then(({ data }) => {
-      setSiteName((data as any)?.site_name ?? tenant.name);
+    if (!citySlug) return;
+    supabase.from('site_settings').select('site_name').maybeSingle().then(({ data }) => {
+      setSiteName((data as any)?.site_name ?? 'My Community');
     });
-    supabase.from('categories').select('id, name, slug').eq('tenant_id', tenant.id).eq('is_active', true).then(({ data }) => {
+    supabase.from('categories').select('id, name, slug').eq('is_active', true).then(({ data }) => {
       setCategories(data ?? []);
     });
     supabase
       .from('venues')
       .select('*')
-      .eq('tenant_id', tenant.id)
       .neq('status', 'opted_out')
       .ilike('location_city', cityName)
       .order('is_featured', { ascending: false })
@@ -37,7 +34,7 @@ export default function CityDetailPage() {
         setVenues(data ?? []);
         setLoading(false);
       });
-  }, [tenant, citySlug]);
+  }, [citySlug]);
 
   if (loading) return <FullscreenLoader />;
 

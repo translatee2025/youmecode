@@ -1,7 +1,7 @@
+import { DEFAULT_TENANT_ID } from '@/config';
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { useTenantStore } from '@/stores/tenantStore';
 import { useAuthStore } from '@/stores/authStore';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -22,7 +22,6 @@ export default function GroupsPage() {
 }
 
 function GroupDiscovery() {
-  const tenant = useTenantStore((s) => s.tenant);
   const { profile } = useAuthStore();
   const [tab, setTab] = useState<'discover' | 'mine'>('discover');
   const [groups, setGroups] = useState<any[]>([]);
@@ -34,12 +33,11 @@ function GroupDiscovery() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!tenant) return;
-    supabase.from('groups').select('*').eq('tenant_id', tenant.id).order('member_count', { ascending: false })
+    supabase.from('groups').select('*').order('member_count', { ascending: false })
       .then(({ data }) => setGroups(data || []));
 
     if (profile) {
-      supabase.from('group_members').select('group_id').eq('tenant_id', tenant.id).eq('user_id', profile.id)
+      supabase.from('group_members').select('group_id').eq('user_id', profile.id)
         .then(async ({ data }) => {
           if (data && data.length > 0) {
             const ids = data.map((g) => g.group_id).filter(Boolean);
@@ -48,12 +46,11 @@ function GroupDiscovery() {
           }
         });
     }
-  }, [tenant, profile]);
+  }, [profile]);
 
   const createGroup = async () => {
-    if (!name.trim() || !tenant || !profile) return;
-    const { data, error } = await supabase.from('groups').insert({
-      tenant_id: tenant.id,
+    if (!name.trim() || !profile) return;
+    const { data, error } = await supabase.from('groups').insert({ tenant_id: DEFAULT_TENANT_ID,
       creator_id: profile.id,
       name: name.trim(),
       description: desc.trim() || null,
@@ -63,15 +60,13 @@ function GroupDiscovery() {
     if (error) { toast({ title: 'Error', description: error.message, variant: 'destructive' }); return; }
     if (data) {
       // Add creator as admin member
-      await supabase.from('group_members').insert({
-        tenant_id: tenant.id,
+      await supabase.from('group_members').insert({ tenant_id: DEFAULT_TENANT_ID,
         group_id: data.id,
         user_id: profile.id,
         role: 'admin',
       });
       // Auto-create chat room
-      await supabase.from('chat_rooms').insert({
-        tenant_id: tenant.id,
+      await supabase.from('chat_rooms').insert({ tenant_id: DEFAULT_TENANT_ID,
         group_id: data.id,
         name: `${name.trim()} Chat`,
         type: 'group',
@@ -83,9 +78,8 @@ function GroupDiscovery() {
   };
 
   const joinGroup = async (groupId: string) => {
-    if (!tenant || !profile) return;
-    await supabase.from('group_members').insert({
-      tenant_id: tenant.id,
+    if (!profile) return;
+    await supabase.from('group_members').insert({ tenant_id: DEFAULT_TENANT_ID,
       group_id: groupId,
       user_id: profile.id,
       role: 'member',
@@ -162,7 +156,6 @@ function GroupDiscovery() {
 }
 
 function GroupDetail({ groupId }: { groupId: string }) {
-  const tenant = useTenantStore((s) => s.tenant);
   const { profile } = useAuthStore();
   const navigate = useNavigate();
   const [group, setGroup] = useState<any>(null);
@@ -171,33 +164,32 @@ function GroupDetail({ groupId }: { groupId: string }) {
   const [events, setEvents] = useState<any[]>([]);
 
   useEffect(() => {
-    if (!tenant) return;
-    supabase.from('groups').select('*').eq('id', groupId).eq('tenant_id', tenant.id).maybeSingle()
+    supabase.from('groups').select('*').eq('id', groupId).maybeSingle()
       .then(({ data }) => setGroup(data));
 
     supabase
       .from('group_members')
       .select('*, user:users!group_members_user_id_fkey(id, username, display_name, avatar_url)')
       .eq('group_id', groupId)
-      .eq('tenant_id', tenant.id)
       .then(({ data }) => {
         setMembers(data || []);
         if (profile) setIsMember((data || []).some((m) => m.user_id === profile.id));
       });
 
-    supabase.from('events').select('*').eq('tenant_id', tenant.id).eq('venue_id', groupId).order('start_at')
+    supabase.from('events').select('*').eq('venue_id', groupId).order('start_at')
       .then(({ data }) => setEvents(data || []));
-  }, [tenant, groupId, profile]);
+  }, [groupId, profile]);
 
   const joinGroup = async () => {
-    if (!tenant || !profile) return;
-    await supabase.from('group_members').insert({ tenant_id: tenant.id, group_id: groupId, user_id: profile.id, role: 'member' });
+    if (!profile) return;
+    await supabase.from('group_members').insert({ tenant_id: DEFAULT_TENANT_ID,
+ group_id: groupId, user_id: profile.id, role: 'member' });
     setIsMember(true);
     toast({ title: 'Joined!' });
   };
 
   const leaveGroup = async () => {
-    if (!tenant || !profile) return;
+    if (!profile) return;
     await supabase.from('group_members').delete().eq('group_id', groupId).eq('user_id', profile.id);
     setIsMember(false);
     toast({ title: 'Left group' });

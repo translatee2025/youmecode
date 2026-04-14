@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { useTenantStore } from '@/stores/tenantStore';
 import { useAuthStore } from '@/stores/authStore';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -24,7 +23,6 @@ import { cn } from '@/lib/utils';
 
 export default function UserProfilePage() {
   const { username } = useParams<{ username: string }>();
-  const tenant = useTenantStore((s) => s.tenant);
   const profile = useAuthStore((s) => s.profile);
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -37,20 +35,20 @@ export default function UserProfilePage() {
   const isOwnProfile = profile?.username === username;
 
   useEffect(() => {
-    if (!tenant || !username) return;
+    if (!username) return;
     const load = async () => {
-      const { data: uRaw } = await (supabase.from('users' as any).select('*').eq('tenant_id', tenant.id).eq('username', username).maybeSingle() as any);
+      const { data: uRaw } = await (supabase.from('users' as any).select('*').eq('username', username).maybeSingle() as any);
       const u = uRaw as any;
       if (!u) { setLoading(false); return; }
       setUser(u);
       setEditForm({ display_name: u.display_name ?? '', bio: u.bio ?? '', location_city: u.location_city ?? '' });
 
       const [postsRes, followersRes, followingRes, venuesRes, badgesRes] = await Promise.all([
-        supabase.from('posts').select('id', { count: 'exact', head: true }).eq('tenant_id', tenant.id).eq('user_id', u.id),
-        supabase.from('follows').select('id', { count: 'exact', head: true }).eq('tenant_id', tenant.id).eq('followee_type', 'user').eq('followee_id', u.id),
-        supabase.from('follows').select('id', { count: 'exact', head: true }).eq('tenant_id', tenant.id).eq('follower_id', u.id),
-        (supabase.from('venues' as any).select('id', { count: 'exact', head: true }).eq('tenant_id', tenant.id).eq('owner_id', u.id) as any),
-        supabase.from('badges').select('*').eq('tenant_id', tenant.id).eq('is_active', true),
+        supabase.from('posts').select('id', { count: 'exact', head: true }).eq('user_id', u.id),
+        supabase.from('follows').select('id', { count: 'exact', head: true }).eq('followee_type', 'user').eq('followee_id', u.id),
+        supabase.from('follows').select('id', { count: 'exact', head: true }).eq('follower_id', u.id),
+        (supabase.from('venues' as any).select('id', { count: 'exact', head: true }).eq('owner_id', u.id) as any),
+        supabase.from('badges').select('*').eq('is_active', true),
       ]);
       setStats({
         posts: postsRes.count ?? 0,
@@ -62,7 +60,7 @@ export default function UserProfilePage() {
       setLoading(false);
     };
     load();
-  }, [tenant, username]);
+  }, [username]);
 
   const saveProfile = async () => {
     if (!user) return;

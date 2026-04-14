@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { useTenantStore } from '@/stores/tenantStore';
 import { useAuthStore } from '@/stores/authStore';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -22,7 +21,6 @@ const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'
 
 export default function CreateVenuePage() {
   const navigate = useNavigate();
-  const tenant = useTenantStore((s) => s.tenant);
   const profile = useAuthStore((s) => s.profile);
   const [step, setStep] = useState(0);
   const [categories, setCategories] = useState<any[]>([]);
@@ -58,27 +56,26 @@ export default function CreateVenuePage() {
   const [galleryPreviews, setGalleryPreviews] = useState<string[]>([]);
 
   useEffect(() => {
-    if (!tenant) return;
     Promise.all([
-      supabase.from('categories').select('*').eq('tenant_id', tenant.id).eq('is_active', true).in('applies_to', ['venue', 'both']).order('sort_order'),
-      supabase.from('site_settings').select('*').eq('tenant_id', tenant.id).maybeSingle(),
+      supabase.from('categories').select('*').eq('is_active', true).in('applies_to', ['venue', 'both']).order('sort_order'),
+      supabase.from('site_settings').select('*').maybeSingle(),
     ]).then(([catRes, settRes]) => {
       setCategories(catRes.data ?? []);
       setSiteSettings(settRes.data);
     });
-  }, [tenant]);
+  }, []);
 
   useEffect(() => {
-    if (!tenant || !categoryId) { setSubcategories([]); return; }
-    supabase.from('subcategories').select('*').eq('tenant_id', tenant.id).eq('category_id', categoryId).eq('is_active', true).order('sort_order')
+    if (!categoryId) { setSubcategories([]); return; }
+    supabase.from('subcategories').select('*').eq('category_id', categoryId).eq('is_active', true).order('sort_order')
       .then(({ data }) => setSubcategories(data ?? []));
-  }, [tenant, categoryId]);
+  }, [categoryId]);
 
   useEffect(() => {
-    if (!tenant || !categoryId) { setFilterFields([]); return; }
-    let q = supabase.from('filter_fields').select('*').eq('tenant_id', tenant.id).eq('category_id', categoryId).eq('is_active', true).in('applies_to', ['venue', 'both']).order('sort_order');
+    if (!categoryId) { setFilterFields([]); return; }
+    let q = supabase.from('filter_fields').select('*').eq('category_id', categoryId).eq('is_active', true).in('applies_to', ['venue', 'both']).order('sort_order');
     q.then(({ data }) => setFilterFields(data ?? []));
-  }, [tenant, categoryId]);
+  }, [categoryId]);
 
   const hasCustomFields = filterFields.length > 0;
   const activeSteps = hasCustomFields ? STEPS : STEPS.filter((_, i) => i !== 3);
@@ -109,7 +106,7 @@ export default function CreateVenuePage() {
   };
 
   const handleSubmit = async () => {
-    if (!tenant || !profile || !name.trim()) return;
+    if (!profile || !name.trim()) return;
     setSubmitting(true);
     try {
       let coverUrl: string | null = null;
@@ -125,7 +122,6 @@ export default function CreateVenuePage() {
       }
 
       const venueData = {
-        tenant_id: tenant.id,
         name: name.trim(),
         slug,
         category_id: categoryId || null,

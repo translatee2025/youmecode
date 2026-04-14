@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useTenantStore } from '@/stores/tenantStore';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -18,26 +17,24 @@ import { useNavigate } from 'react-router-dom';
 const CURRENCIES = ['USD', 'EUR', 'GBP', 'AED', 'SAR', 'INR'];
 
 export default function SubscriptionPlans() {
-  const tenant = useTenantStore((s) => s.tenant);
   const qc = useQueryClient();
   const navigate = useNavigate();
   const [editing, setEditing] = useState<any>(null);
   const [featureInput, setFeatureInput] = useState('');
 
   const { data: siteSettings } = useQuery({
-    queryKey: [tenant?.id, 'site-settings-commerce'],
-    enabled: !!tenant?.id,
+    queryKey: ['site-settings-commerce'],
     queryFn: async () => {
-      const { data } = await supabase.from('site_settings').select('commerce_enabled').eq('tenant_id', tenant!.id).single();
+      const { data } = await supabase.from('site_settings').select('commerce_enabled').single();
       return data;
     },
   });
 
   const { data: plans = [], isLoading } = useQuery({
-    queryKey: [tenant?.id, 'subscription-plans'],
-    enabled: !!tenant?.id && siteSettings?.commerce_enabled === true,
+    queryKey: ['subscription-plans'],
+    enabled: siteSettings?.commerce_enabled === true,
     queryFn: async () => {
-      const { data, error } = await supabase.from('subscription_plans').select('*').eq('tenant_id', tenant!.id).order('sort_order');
+      const { data, error } = await supabase.from('subscription_plans').select('*').order('sort_order');
       if (error) throw error;
       return data || [];
     },
@@ -45,7 +42,8 @@ export default function SubscriptionPlans() {
 
   const savePlan = useMutation({
     mutationFn: async (plan: any) => {
-      const payload = { ...plan, tenant_id: tenant!.id };
+      const payload = { ...plan,
+ };
       delete payload.id;
       if (editing?.id) {
         const { error } = await supabase.from('subscription_plans').update(payload).eq('id', editing.id);
@@ -56,7 +54,7 @@ export default function SubscriptionPlans() {
       }
     },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: [tenant?.id, 'subscription-plans'] });
+      qc.invalidateQueries({ queryKey: ['subscription-plans'] });
       setEditing(null);
       toast.success('Plan saved');
     },
@@ -69,7 +67,7 @@ export default function SubscriptionPlans() {
       if (error) throw error;
     },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: [tenant?.id, 'subscription-plans'] });
+      qc.invalidateQueries({ queryKey: ['subscription-plans'] });
       toast.success('Plan deleted');
     },
   });
@@ -79,7 +77,7 @@ export default function SubscriptionPlans() {
       const { error } = await supabase.from('subscription_plans').update({ is_active: active }).eq('id', id);
       if (error) throw error;
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: [tenant?.id, 'subscription-plans'] }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['subscription-plans'] }),
   });
 
   if (!siteSettings?.commerce_enabled) {

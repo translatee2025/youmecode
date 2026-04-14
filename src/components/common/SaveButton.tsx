@@ -1,7 +1,7 @@
+import { DEFAULT_TENANT_ID } from '@/config';
 import { useState, useEffect } from 'react';
 import { Bookmark } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { useTenantStore } from '@/stores/tenantStore';
 import { useAuthStore } from '@/stores/authStore';
 import { cn } from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';
@@ -19,17 +19,15 @@ interface Props {
 }
 
 export default function SaveButton({ entityType, entityId, className }: Props) {
-  const tenant = useTenantStore((s) => s.tenant);
   const profile = useAuthStore((s) => s.profile);
   const [saved, setSaved] = useState(false);
   const [collections, setCollections] = useState<string[]>(['Saved']);
 
   useEffect(() => {
-    if (!profile || !tenant) return;
+    if (!profile) return;
     supabase
       .from('saves')
       .select('id, collection_name')
-      .eq('tenant_id', tenant.id)
       .eq('entity_type', entityType)
       .eq('entity_id', entityId)
       .eq('user_id', profile.id)
@@ -38,24 +36,22 @@ export default function SaveButton({ entityType, entityId, className }: Props) {
         const uniqueColls = [...new Set((data ?? []).map((d: any) => d.collection_name ?? 'Saved'))];
         if (uniqueColls.length > 0) setCollections(uniqueColls);
       });
-  }, [profile, tenant, entityType, entityId]);
+  }, [profile, entityType, entityId]);
 
   const saveToCollection = async (name: string) => {
-    if (!profile || !tenant) {
+    if (!profile) {
       toast({ title: 'Please sign in', variant: 'destructive' });
       return;
     }
     if (saved) {
       await supabase.from('saves').delete()
-        .eq('tenant_id', tenant.id)
         .eq('entity_type', entityType)
         .eq('entity_id', entityId)
         .eq('user_id', profile.id);
       setSaved(false);
       toast({ title: 'Removed from saved' });
     } else {
-      await supabase.from('saves').insert({
-        tenant_id: tenant.id,
+      await supabase.from('saves').insert({ tenant_id: DEFAULT_TENANT_ID,
         entity_type: entityType,
         entity_id: entityId,
         user_id: profile.id,

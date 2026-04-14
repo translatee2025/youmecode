@@ -1,7 +1,6 @@
 import { useState, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useTenantStore } from '@/stores/tenantStore';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -45,7 +44,6 @@ function slugify(s: string) {
 }
 
 export default function CsvImport() {
-  const tenant = useTenantStore((s) => s.tenant);
   const [step, setStep] = useState<Step>('upload');
   const [csvData, setCsvData] = useState<{ headers: string[]; rows: Record<string, string>[] }>({ headers: [], rows: [] });
   const [fileName, setFileName] = useState('');
@@ -56,19 +54,18 @@ export default function CsvImport() {
   const [result, setResult] = useState<{ imported: number; skipped: { row: Record<string, string>; reason: string }[] }>({ imported: 0, skipped: [] });
 
   const { data: categories = [] } = useQuery({
-    queryKey: [tenant?.id, 'categories-import'],
-    enabled: !!tenant?.id,
+    queryKey: ['categories-import'],
     queryFn: async () => {
-      const { data } = await supabase.from('categories').select('id, name').eq('tenant_id', tenant!.id);
+      const { data } = await supabase.from('categories').select('id, name');
       return data || [];
     },
   });
 
   const { data: filterFields = [] } = useQuery({
-    queryKey: [tenant?.id, 'filter-fields-import', categoryId],
-    enabled: !!tenant?.id && !!categoryId,
+    queryKey: ['filter-fields-import', categoryId],
+    enabled: !!categoryId,
     queryFn: async () => {
-      const { data } = await supabase.from('filter_fields').select('*').eq('tenant_id', tenant!.id).eq('category_id', categoryId);
+      const { data } = await supabase.from('filter_fields').select('*').eq('category_id', categoryId);
       return data || [];
     },
   });
@@ -114,7 +111,6 @@ export default function CsvImport() {
       if (!name) { skipped.push({ row, reason: 'Missing name' }); continue; }
 
       const venue: Record<string, any> = {
-        tenant_id: tenant!.id,
         name,
         slug: slugify(name) + '-' + (i + 1),
         status: 'unclaimed',

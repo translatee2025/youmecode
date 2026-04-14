@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useTenantStore } from '@/stores/tenantStore';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -60,7 +59,6 @@ function slugify(text: string) {
 }
 
 export default function CategoryManager() {
-  const tenant = useTenantStore((s) => s.tenant);
   const [categories, setCategories] = useState<Category[]>([]);
   const [subcategories, setSubcategories] = useState<Subcategory[]>([]);
   const [selectedCat, setSelectedCat] = useState<Category | null>(null);
@@ -76,14 +74,13 @@ export default function CategoryManager() {
   const [importing, setImporting] = useState(false);
 
   const loadData = useCallback(async () => {
-    if (!tenant) return;
     const [catRes, subRes] = await Promise.all([
-      supabase.from('categories').select('*').eq('tenant_id', tenant.id).order('sort_order'),
-      supabase.from('subcategories').select('*').eq('tenant_id', tenant.id).order('sort_order'),
+      supabase.from('categories').select('*').eq('tenant_id', DEFAULT_TENANT_ID).order('sort_order'),
+      supabase.from('subcategories').select('*').eq('tenant_id', DEFAULT_TENANT_ID).order('sort_order'),
     ]);
     if (catRes.data) setCategories(catRes.data);
     if (subRes.data) setSubcategories(subRes.data);
-  }, [tenant]);
+  }, []);
 
   useEffect(() => { loadData(); }, [loadData]);
 
@@ -101,10 +98,9 @@ export default function CategoryManager() {
   };
 
   const createCategory = async () => {
-    if (!tenant) return;
     const name = 'New Category';
     const { data, error } = await supabase.from('categories').insert({
-      tenant_id: tenant.id,
+      tenant_id: DEFAULT_TENANT_ID,
       name,
       slug: slugify(name) + '-' + Date.now(),
       sort_order: categories.length,
@@ -118,7 +114,7 @@ export default function CategoryManager() {
   };
 
   const saveCategory = async () => {
-    if (!selectedCat || !tenant) return;
+    if (!selectedCat ) return;
     setSaving(true);
     const { error } = await supabase.from('categories')
       .update({
@@ -161,10 +157,10 @@ export default function CategoryManager() {
   };
 
   const addSubcategory = async () => {
-    if (!selectedCat || !tenant) return;
+    if (!selectedCat ) return;
     const slug = slugify(subForm.name) || 'sub-' + Date.now();
     const { data, error } = await supabase.from('subcategories').insert({
-      tenant_id: tenant.id,
+      tenant_id: DEFAULT_TENANT_ID,
       category_id: selectedCat.id,
       name: subForm.name,
       slug,
@@ -196,7 +192,6 @@ export default function CategoryManager() {
   };
 
   const importPackage = async (pkg: CatPackage) => {
-    if (!tenant) return;
     setImporting(true);
     const checked = importChecked[pkg.id] || new Set();
     const sugCats = Array.isArray(pkg.suggested_categories) ? pkg.suggested_categories : [];
@@ -212,7 +207,7 @@ export default function CategoryManager() {
       const slug = slugify(name);
 
       const { data: catData, error: catErr } = await supabase.from('categories').insert({
-        tenant_id: tenant.id,
+        tenant_id: DEFAULT_TENANT_ID,
         name,
         slug: slug + '-' + Date.now(),
         icon,
@@ -227,7 +222,7 @@ export default function CategoryManager() {
       const sugFilters = Array.isArray(pkg.suggested_filter_fields) ? pkg.suggested_filter_fields : [];
       for (const ff of sugFilters) {
         const { error: ffErr } = await supabase.from('filter_fields').insert({
-          tenant_id: tenant.id,
+          tenant_id: DEFAULT_TENANT_ID,
           category_id: catData.id,
           label: ff.label,
           field_key: ff.key || slugify(ff.label),

@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useTenantStore } from '@/stores/tenantStore';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -26,7 +25,6 @@ const EVENTS = [
 // we'll store in site_settings as a custom field. Let's use the existing jsonb.
 
 export default function WebhooksManager() {
-  const tenant = useTenantStore((s) => s.tenant);
   const qc = useQueryClient();
   const [editing, setEditing] = useState<any>(null);
 
@@ -35,13 +33,13 @@ export default function WebhooksManager() {
   // In production this would be a webhooks table
   const [webhooks, setWebhooks] = useState<any[]>(() => {
     try {
-      return JSON.parse(localStorage.getItem(`webhooks_${tenant?.id}`) || '[]');
+      return JSON.parse(localStorage.getItem(`webhooks_${''}`) || '[]');
     } catch { return []; }
   });
 
   const saveWebhooks = (updated: any[]) => {
     setWebhooks(updated);
-    localStorage.setItem(`webhooks_${tenant?.id}`, JSON.stringify(updated));
+    localStorage.setItem(`webhooks_${''}`, JSON.stringify(updated));
     toast.success('Webhook saved');
   };
 

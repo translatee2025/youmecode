@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useTenantStore } from '@/stores/tenantStore';
 import { Badge } from '@/components/ui/badge';
 
 interface Props {
@@ -9,20 +8,18 @@ interface Props {
 }
 
 export default function DynamicFilterValues({ filterValues, categoryId }: Props) {
-  const tenant = useTenantStore((s) => s.tenant);
   const [fields, setFields] = useState<any[]>([]);
 
   useEffect(() => {
-    if (!tenant || !categoryId) return;
+    if (!categoryId) return;
     supabase
       .from('filter_fields')
       .select('field_key, label, field_type')
-      .eq('tenant_id', tenant.id)
       .eq('category_id', categoryId)
       .eq('is_active', true)
       .order('sort_order')
       .then(({ data }) => setFields(data ?? []));
-  }, [tenant, categoryId]);
+  }, [categoryId]);
 
   if (!filterValues || !fields.length) return null;
 

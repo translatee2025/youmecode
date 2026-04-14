@@ -1,7 +1,7 @@
+import { DEFAULT_TENANT_ID } from '@/config';
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { useTenantStore } from '@/stores/tenantStore';
 import { useAuthStore } from '@/stores/authStore';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,7 +15,6 @@ import { cn } from '@/lib/utils';
 
 export default function ClaimVenuePage() {
   const { venueId } = useParams<{ venueId: string }>();
-  const tenant = useTenantStore((s) => s.tenant);
   const profile = useAuthStore((s) => s.profile);
   const [venue, setVenue] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -27,10 +26,10 @@ export default function ClaimVenuePage() {
   const [submitted, setSubmitted] = useState(false);
 
   useEffect(() => {
-    if (!tenant || !venueId) return;
-    (supabase.from('venues' as any).select('*').eq('id', venueId).eq('tenant_id', tenant.id).maybeSingle() as any)
+    if (!venueId) return;
+    (supabase.from('venues' as any).select('*').eq('id', venueId).maybeSingle() as any)
       .then(({ data }: any) => { setVenue(data); setLoading(false); });
-  }, [tenant, venueId]);
+  }, [venueId]);
 
   if (loading) return <FullscreenLoader />;
   if (!venue) return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Venue not found</div>;
@@ -41,10 +40,9 @@ export default function ClaimVenuePage() {
   const showEmailOption = !!(venue.email || venue.website);
 
   const handleSubmitEmail = async () => {
-    if (!profile || !tenant) return;
+    if (!profile) return;
     setSubmitting(true);
-    await supabase.from('claim_requests').insert({
-      tenant_id: tenant.id,
+    await supabase.from('claim_requests').insert({ tenant_id: DEFAULT_TENANT_ID,
       venue_id: venue.id,
       user_id: profile.id,
       method: 'email_domain',
@@ -58,15 +56,14 @@ export default function ClaimVenuePage() {
   };
 
   const handleSubmitDoc = async () => {
-    if (!profile || !tenant || !docFile) return;
+    if (!profile || !docFile) return;
     setSubmitting(true);
     const path = `claims/${venue.id}/${Date.now()}-${docFile.name}`;
     const { error } = await supabase.storage.from('media').upload(path, docFile);
     if (error) { toast({ title: 'Upload failed', variant: 'destructive' }); setSubmitting(false); return; }
     const { data: pub } = supabase.storage.from('media').getPublicUrl(path);
 
-    await supabase.from('claim_requests').insert({
-      tenant_id: tenant.id,
+    await supabase.from('claim_requests').insert({ tenant_id: DEFAULT_TENANT_ID,
       venue_id: venue.id,
       user_id: profile.id,
       method: 'document',

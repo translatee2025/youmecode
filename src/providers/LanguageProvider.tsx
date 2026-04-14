@@ -1,6 +1,5 @@
 import { createContext, useContext, useEffect, useState, useCallback, type ReactNode } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useTenantStore } from '@/stores/tenantStore';
 import { useAuthStore } from '@/stores/authStore';
 import { RTL_CODES } from '@/lib/languages';
 
@@ -25,7 +24,6 @@ const LanguageContext = createContext<LanguageContextValue>({
 export const useLanguage = () => useContext(LanguageContext);
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
-  const tenant = useTenantStore((s) => s.tenant);
   const profile = useAuthStore((s) => s.profile);
   const [lang, setLangState] = useState(
     () => localStorage.getItem('nexus_lang') || 'en'
@@ -36,15 +34,11 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   const [defaultLanguage, setDefaultLanguage] = useState('en');
   const [rtlLanguages, setRtlLanguages] = useState<string[]>([]);
 
-  // Load site language settings
   useEffect(() => {
-    if (!tenant) return;
-
     const loadSettings = async () => {
       const { data } = await supabase
         .from('site_settings')
         .select('active_languages, default_language, rtl_languages')
-        .eq('tenant_id', tenant.id)
         .maybeSingle();
 
       if (data) {
@@ -55,29 +49,23 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       }
     };
     loadSettings();
-  }, [tenant]);
+  }, []);
 
-  // Load translations for current language
   useEffect(() => {
-    if (!tenant) return;
-
     const loadTranslations = async () => {
       const { data } = await supabase
         .from('translations')
         .select('string_key, value')
-        .eq('tenant_id', tenant.id)
         .eq('language_code', lang);
 
       const map: Record<string, string> = {};
       data?.forEach((row) => { map[row.string_key] = row.value; });
       setTranslations(map);
 
-      // Load default language fallback if different
       if (lang !== defaultLanguage) {
         const { data: fallback } = await supabase
           .from('translations')
           .select('string_key, value')
-          .eq('tenant_id', tenant.id)
           .eq('language_code', defaultLanguage);
 
         const fmap: Record<string, string> = {};
@@ -88,9 +76,8 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       }
     };
     loadTranslations();
-  }, [tenant, lang, defaultLanguage]);
+  }, [lang, defaultLanguage]);
 
-  // Set document direction
   useEffect(() => {
     const isRtl = RTL_CODES.has(lang) || rtlLanguages.includes(lang);
     document.documentElement.dir = isRtl ? 'rtl' : 'ltr';
@@ -100,13 +87,8 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     (code: string) => {
       setLangState(code);
       localStorage.setItem('nexus_lang', code);
-      // Update user preference if logged in
       if (profile) {
-        supabase
-          .from('users')
-          .update({ preferred_language: code })
-          .eq('id', profile.id)
-          .then();
+        supabase.from('users').update({ preferred_language: code }).eq('id', profile.id).then();
       }
     },
     [profile]

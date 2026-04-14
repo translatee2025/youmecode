@@ -1,6 +1,6 @@
+import { DEFAULT_TENANT_ID } from '@/config';
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useTenantStore } from '@/stores/tenantStore';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -57,7 +57,6 @@ function slugify(text: string) {
 }
 
 export default function FilterManagement() {
-  const tenant = useTenantStore((s) => s.tenant);
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedCatId, setSelectedCatId] = useState<string>('');
   const [fields, setFields] = useState<FilterField[]>([]);
@@ -72,23 +71,21 @@ export default function FilterManagement() {
   const [translating, setTranslating] = useState(false);
 
   const loadCategories = useCallback(async () => {
-    if (!tenant) return;
-    const { data } = await supabase.from('categories').select('id, name, icon').eq('tenant_id', tenant.id).order('sort_order');
+    const { data } = await supabase.from('categories').select('id, name, icon').order('sort_order');
     if (data) {
       setCategories(data);
       if (data.length > 0 && !selectedCatId) setSelectedCatId(data[0].id);
     }
-  }, [tenant, selectedCatId]);
+  }, [selectedCatId]);
 
   const loadFields = useCallback(async () => {
-    if (!tenant || !selectedCatId) return;
+    if (!selectedCatId) return;
     const { data } = await supabase.from('filter_fields')
       .select('*')
-      .eq('tenant_id', tenant.id)
       .eq('category_id', selectedCatId)
       .order('sort_order');
     if (data) setFields(data);
-  }, [tenant, selectedCatId]);
+  }, [selectedCatId]);
 
   useEffect(() => { loadCategories(); }, [loadCategories]);
   useEffect(() => { loadFields(); }, [loadFields]);
@@ -114,13 +111,12 @@ export default function FilterManagement() {
   };
 
   const saveField = async () => {
-    if (!tenant || !selectedCatId) return;
+    if (!selectedCatId) return;
     setSaving(true);
     const options = ['select', 'multiselect'].includes(form.field_type)
       ? form.options.split(',').map((o) => o.trim()).filter(Boolean)
       : [];
     const payload = {
-      tenant_id: tenant.id,
       category_id: selectedCatId,
       label: form.label,
       field_key: form.field_key || slugify(form.label),
@@ -139,7 +135,7 @@ export default function FilterManagement() {
     if (editing) {
       ({ error } = await supabase.from('filter_fields').update(payload).eq('id', editing.id));
     } else {
-      ({ error } = await supabase.from('filter_fields').insert(payload));
+      ({ error } = await supabase.from('filter_fields').insert({ ...payload, tenant_id: DEFAULT_TENANT_ID }));
     }
     setSaving(false);
     if (error) { toast.error(error.message); return; }

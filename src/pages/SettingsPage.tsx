@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { useTenantStore } from '@/stores/tenantStore';
 import { useAuthStore } from '@/stores/authStore';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -13,7 +12,6 @@ import { AlertTriangle, Lock, Shield, Trash2, UserX, VolumeX, Download } from 'l
 import { toast } from '@/hooks/use-toast';
 
 export default function SettingsPage() {
-  const tenant = useTenantStore((s) => s.tenant);
   const { profile, session } = useAuthStore();
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
@@ -30,15 +28,15 @@ export default function SettingsPage() {
   const [deleteLoading, setDeleteLoading] = useState(false);
 
   useEffect(() => {
-    if (!profile || !tenant) return;
+    if (!profile) return;
     setEmail(profile.email ?? '');
     (supabase.from('users' as any).select('notification_prefs').eq('id', profile.id).maybeSingle() as any)
       .then(({ data }: any) => { if (data?.notification_prefs) setNotifPrefs(data.notification_prefs); });
     Promise.all([
-      supabase.from('blocks').select('id, blocked_id').eq('tenant_id', tenant.id).eq('blocker_id', profile.id),
-      supabase.from('mutes').select('id, muted_id').eq('tenant_id', tenant.id).eq('muter_id', profile.id),
+      supabase.from('blocks').select('id, blocked_id').eq('blocker_id', profile.id),
+      supabase.from('mutes').select('id, muted_id').eq('muter_id', profile.id),
     ]).then(([b, m]) => { setBlocked(b.data ?? []); setMuted(m.data ?? []); });
-  }, [profile, tenant]);
+  }, [profile]);
 
   const changeEmail = async () => {
     const { error } = await supabase.auth.updateUser({ email });
@@ -69,17 +67,17 @@ export default function SettingsPage() {
 
   // GDPR: Data export
   const exportData = async () => {
-    if (!profile || !tenant) return;
+    if (!profile) return;
     setExportLoading(true);
     try {
       const [userRes, postsRes, commentsRes, ratingsRes, followsRes, savesRes, messagesRes] = await Promise.all([
         supabase.from('users').select('*').eq('id', profile.id).maybeSingle(),
-        supabase.from('posts').select('*').eq('tenant_id', tenant.id).eq('user_id', profile.id),
-        supabase.from('comments').select('*').eq('tenant_id', tenant.id).eq('user_id', profile.id),
-        supabase.from('ratings').select('*').eq('tenant_id', tenant.id).eq('user_id', profile.id),
-        supabase.from('follows').select('*').eq('tenant_id', tenant.id).eq('follower_id', profile.id),
-        supabase.from('saves').select('*').eq('tenant_id', tenant.id).eq('user_id', profile.id),
-        supabase.from('messages').select('*').eq('tenant_id', tenant.id).eq('sender_id', profile.id),
+        supabase.from('posts').select('*').eq('user_id', profile.id),
+        supabase.from('comments').select('*').eq('user_id', profile.id),
+        supabase.from('ratings').select('*').eq('user_id', profile.id),
+        supabase.from('follows').select('*').eq('follower_id', profile.id),
+        supabase.from('saves').select('*').eq('user_id', profile.id),
+        supabase.from('messages').select('*').eq('sender_id', profile.id),
       ]);
       const data = {
         exported_at: new Date().toISOString(),
@@ -107,7 +105,7 @@ export default function SettingsPage() {
 
   // GDPR: Account deletion
   const deleteAccount = async () => {
-    if (!profile || !tenant || deleteConfirm !== (profile.username || profile.email)) return;
+    if (!profile || deleteConfirm !== (profile.username || profile.email)) return;
     setDeleteLoading(true);
     try {
       // Anonymize user
@@ -117,7 +115,7 @@ export default function SettingsPage() {
         display_name: 'Deleted User',
       }).eq('id', profile.id);
       // Redact posts
-      await supabase.from('posts').update({ content: '[This post has been deleted]' }).eq('user_id', profile.id).eq('tenant_id', tenant.id);
+      await supabase.from('posts').update({ content: '[This post has been deleted]' }).eq('user_id', profile.id);
       // Sign out
       await supabase.auth.signOut();
       toast({ title: 'Account deleted' });

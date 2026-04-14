@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { useTenantStore } from '@/stores/tenantStore';
 import { useAuthStore } from '@/stores/authStore';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -22,7 +21,6 @@ const CYCLES = [
 export default function CommerceActivationPage() {
   const { venueId } = useParams<{ venueId: string }>();
   const navigate = useNavigate();
-  const tenant = useTenantStore((s) => s.tenant);
   const profile = useAuthStore((s) => s.profile);
   const [venue, setVenue] = useState<any>(null);
   const [settings, setSettings] = useState<any>(null);
@@ -34,18 +32,18 @@ export default function CommerceActivationPage() {
   const [acceptTerms, setAcceptTerms] = useState(false);
 
   useEffect(() => {
-    if (!tenant || !venueId) return;
+    if (!venueId) return;
     Promise.all([
-      (supabase.from('venues' as any).select('*').eq('id', venueId).eq('tenant_id', tenant.id).maybeSingle() as any),
-      supabase.from('site_settings').select('*').eq('tenant_id', tenant.id).maybeSingle(),
-      supabase.from('subscription_plans').select('*').eq('tenant_id', tenant.id).eq('is_active', true).order('sort_order'),
+      (supabase.from('venues' as any).select('*').eq('id', venueId).maybeSingle() as any),
+      supabase.from('site_settings').select('*').maybeSingle(),
+      supabase.from('subscription_plans').select('*').eq('is_active', true).order('sort_order'),
     ]).then(([vRes, sRes, pRes]: any) => {
       setVenue(vRes.data);
       setSettings(sRes.data);
       setPlans(pRes.data ?? []);
       setLoading(false);
     });
-  }, [tenant, venueId]);
+  }, [venueId]);
 
   if (loading) return <FullscreenLoader />;
   if (!venue) return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Venue not found</div>;

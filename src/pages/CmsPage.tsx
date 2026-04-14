@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { useTenantStore } from '@/stores/tenantStore';
 import FullscreenLoader from '@/components/FullscreenLoader';
 import NotFound from '@/pages/NotFound';
 import { Helmet } from 'react-helmet-async';
@@ -73,24 +72,23 @@ function ContentBlock({ block }: { block: any }) {
     case 'HTML':
       return <div className="prose prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: block.content ?? '' }} />;
     case 'STATS':
-      return <StatsBlock tenantId={block.tenant_id} />;
+      return <StatsBlock />;
     default:
       return null;
   }
 }
 
-function StatsBlock({ tenantId }: { tenantId?: string }) {
-  const tenant = useTenantStore((s) => s.tenant);
+function StatsBlock() {
   const [stats, setStats] = useState({ venues: 0, users: 0, products: 0 });
   useEffect(() => {
-    const tid = tenantId || tenant?.id;
-    if (!tid) return;
+    
+    
     Promise.all([
-      supabase.from('venues').select('id', { count: 'exact', head: true }).eq('tenant_id', tid),
-      supabase.from('users').select('id', { count: 'exact', head: true }).eq('tenant_id', tid),
-      supabase.from('products').select('id', { count: 'exact', head: true }).eq('tenant_id', tid),
+      supabase.from('venues').select('id', { count: 'exact', head: true }),
+      supabase.from('users').select('id', { count: 'exact', head: true }),
+      supabase.from('products').select('id', { count: 'exact', head: true }),
     ]).then(([v, u, p]) => setStats({ venues: v.count ?? 0, users: u.count ?? 0, products: p.count ?? 0 }));
-  }, [tenantId, tenant]);
+  }, []);
   return (
     <div className="grid grid-cols-3 gap-4 text-center">
       {[{ label: 'Venues', val: stats.venues }, { label: 'Users', val: stats.users }, { label: 'Products', val: stats.products }].map((s) => (
@@ -105,21 +103,20 @@ function StatsBlock({ tenantId }: { tenantId?: string }) {
 
 export default function CmsPage() {
   const { slug } = useParams<{ slug: string }>();
-  const tenant = useTenantStore((s) => s.tenant);
   const [page, setPage] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [siteName, setSiteName] = useState('');
 
   useEffect(() => {
-    if (!tenant || !slug) return;
-    supabase.from('site_settings').select('site_name').eq('tenant_id', tenant.id).maybeSingle().then(({ data }) => {
-      setSiteName((data as any)?.site_name ?? tenant.name);
+    if (!slug) return;
+    supabase.from('site_settings').select('site_name').maybeSingle().then(({ data }) => {
+      setSiteName((data as any)?.site_name ?? 'My Community');
     });
-    supabase.from('pages').select('*').eq('tenant_id', tenant.id).eq('slug', slug).eq('is_published', true).maybeSingle().then(({ data }) => {
+    supabase.from('pages').select('*').eq('slug', slug).eq('is_published', true).maybeSingle().then(({ data }) => {
       setPage(data);
       setLoading(false);
     });
-  }, [tenant, slug]);
+  }, [slug]);
 
   if (loading) return <FullscreenLoader />;
   if (!page) return <NotFound />;
@@ -141,7 +138,8 @@ export default function CmsPage() {
       <div className="max-w-4xl mx-auto px-4 py-8 space-y-8">
         <h1 className="text-3xl font-bold text-foreground">{page.title}</h1>
         {(page.content_blocks ?? []).map((block: any, i: number) => (
-          <ContentBlock key={i} block={{ ...block, tenant_id: tenant?.id }} />
+          <ContentBlock key={i} block={{ ...block,
+}} />
         ))}
       </div>
     </div>

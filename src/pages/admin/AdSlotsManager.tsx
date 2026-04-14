@@ -1,7 +1,7 @@
+import { DEFAULT_TENANT_ID } from '@/config';
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useTenantStore } from '@/stores/tenantStore';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -20,16 +20,14 @@ const SLOT_TYPES = [
 ];
 
 export default function AdSlotsManager() {
-  const tenant = useTenantStore((s) => s.tenant);
   const qc = useQueryClient();
   const [tab, setTab] = useState('pricing');
   const [slotPricing, setSlotPricing] = useState<Record<string, any>>({});
 
   const { data: adSlots = [] } = useQuery({
-    queryKey: [tenant?.id, 'ad-slots'],
-    enabled: !!tenant?.id,
+    queryKey: ['ad-slots'],
     queryFn: async () => {
-      const { data } = await supabase.from('ad_slots').select('*').eq('tenant_id', tenant!.id);
+      const { data } = await supabase.from('ad_slots').select('*');
       // Init local state
       const map: Record<string, any> = {};
       (data || []).forEach((s: any) => { map[s.slot_type] = s; });
@@ -39,10 +37,9 @@ export default function AdSlotsManager() {
   });
 
   const { data: ads = [] } = useQuery({
-    queryKey: [tenant?.id, 'admin-ads', tab],
-    enabled: !!tenant?.id,
+    queryKey: ['admin-ads', tab],
     queryFn: async () => {
-      const { data } = await supabase.from('ads').select('*, venues(name)').eq('tenant_id', tenant!.id).order('created_at', { ascending: false });
+      const { data } = await supabase.from('ads').select('*, venues(name)').order('created_at', { ascending: false });
       return data || [];
     },
   });
@@ -59,8 +56,7 @@ export default function AdSlotsManager() {
             currency: existing.currency || 'USD',
           }).eq('id', existing.id);
         } else {
-          await supabase.from('ad_slots').insert({
-            tenant_id: tenant!.id,
+          await supabase.from('ad_slots').insert({ tenant_id: DEFAULT_TENANT_ID,
             slot_type: st.key,
             is_enabled: existing?.is_enabled ?? true,
             price_weekly: existing?.price_weekly || 0,
@@ -71,7 +67,7 @@ export default function AdSlotsManager() {
       }
     },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: [tenant?.id, 'ad-slots'] });
+      qc.invalidateQueries({ queryKey: ['ad-slots'] });
       toast.success('Pricing saved');
     },
     onError: (e: any) => toast.error(e.message),
@@ -83,7 +79,7 @@ export default function AdSlotsManager() {
       if (error) throw error;
     },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: [tenant?.id, 'admin-ads'] });
+      qc.invalidateQueries({ queryKey: ['admin-ads'] });
       toast.success('Ad updated');
     },
     onError: (e: any) => toast.error(e.message),

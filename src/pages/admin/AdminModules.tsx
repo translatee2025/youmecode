@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useTenantStore } from '@/stores/tenantStore';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
@@ -26,13 +25,11 @@ interface ModuleRow {
 }
 
 export default function AdminModules() {
-  const tenant = useTenantStore((s) => s.tenant);
   const [modules, setModules] = useState<ModuleRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
   const fetchModules = async () => {
-    if (!tenant) return;
     const { data, error } = await supabase
       .from('module_settings')
       .select('id, module_key, label, is_enabled, show_in_nav, is_homepage, sort_order')
@@ -65,7 +62,7 @@ export default function AdminModules() {
     setLoading(false);
   };
 
-  useEffect(() => { fetchModules(); }, [tenant]);
+  useEffect(() => { fetchModules(); }, []);
 
   const updateField = (id: string, field: keyof ModuleRow, value: any) => {
     setModules(prev => prev.map(m => {
@@ -86,7 +83,6 @@ export default function AdminModules() {
   };
 
   const handleSave = async () => {
-    if (!tenant) return;
     setSaving(true);
     for (const m of modules) {
       await supabase.from('module_settings').update({

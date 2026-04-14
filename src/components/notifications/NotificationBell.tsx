@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { useTenantStore } from '@/stores/tenantStore';
 import { useAuthStore } from '@/stores/authStore';
 import { Bell } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -11,17 +10,15 @@ import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 
 export default function NotificationBell() {
-  const tenant = useTenantStore((s) => s.tenant);
   const profile = useAuthStore((s) => s.profile);
   const [notifications, setNotifications] = useState<any[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
 
   const load = async () => {
-    if (!tenant || !profile) return;
+    if (!profile) return;
     const { data } = await supabase
       .from('notifications')
       .select('*')
-      .eq('tenant_id', tenant.id)
       .eq('user_id', profile.id)
       .order('created_at', { ascending: false })
       .limit(10);
@@ -32,7 +29,7 @@ export default function NotificationBell() {
 
   useEffect(() => {
     load();
-    if (!tenant || !profile) return;
+    if (!profile) return;
     const channel = supabase
       .channel('notifications-bell')
       .on('postgres_changes', {
@@ -43,7 +40,7 @@ export default function NotificationBell() {
       }, () => load())
       .subscribe();
     return () => { supabase.removeChannel(channel); };
-  }, [tenant, profile]);
+  }, [profile]);
 
   const markRead = async (id: string) => {
     await supabase.from('notifications').update({ read_at: new Date().toISOString() }).eq('id', id);

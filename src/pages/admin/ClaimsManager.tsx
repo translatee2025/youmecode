@@ -1,7 +1,7 @@
+import { DEFAULT_TENANT_ID } from '@/config';
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useTenantStore } from '@/stores/tenantStore';
 import { useAuthStore } from '@/stores/authStore';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -14,7 +14,6 @@ import { CheckCircle, XCircle, FileText, Mail } from 'lucide-react';
 import { format } from 'date-fns';
 
 export default function ClaimsManager() {
-  const tenant = useTenantStore((s) => s.tenant);
   const profile = useAuthStore((s) => s.profile);
   const qc = useQueryClient();
   const [statusFilter, setStatusFilter] = useState('all');
@@ -22,13 +21,11 @@ export default function ClaimsManager() {
   const [message, setMessage] = useState('');
 
   const { data: claims = [], isLoading } = useQuery({
-    queryKey: [tenant?.id, 'admin-claims', statusFilter],
-    enabled: !!tenant?.id,
+    queryKey: ['admin-claims', statusFilter],
     queryFn: async () => {
       let q = supabase
         .from('claim_requests')
         .select('*, venues(name, city, category_id, website, email, status), users(username, display_name, avatar_url, created_at)')
-        .eq('tenant_id', tenant!.id)
         .order('created_at', { ascending: false });
 
       if (statusFilter !== 'all') q = q.eq('status', statusFilter);
@@ -43,16 +40,19 @@ export default function ClaimsManager() {
       if (action === 'approve') {
         await supabase.from('venues').update({ status: 'claimed_directory', owner_id: userId }).eq('id', venueId);
         await supabase.from('claim_requests').update({ status: 'approved', reviewed_by: profile?.id, reviewed_at: new Date().toISOString() }).eq('id', claimId);
-        await supabase.from('notifications').insert({ tenant_id: tenant!.id, user_id: userId, type: 'claim_approved', message: 'Your venue claim has been approved!' });
+        await supabase.from('notifications').insert({ tenant_id: DEFAULT_TENANT_ID,
+ user_id: userId, type: 'claim_approved', message: 'Your venue claim has been approved!' });
       } else {
         await supabase.from('venues').update({ status: 'unclaimed' }).eq('id', venueId);
         await supabase.from('claim_requests').update({ status: 'rejected', reviewed_by: profile?.id, reviewed_at: new Date().toISOString() }).eq('id', claimId);
-        await supabase.from('notifications').insert({ tenant_id: tenant!.id, user_id: userId, type: 'claim_rejected', message: message || 'Your venue claim has been rejected.' });
+        await supabase.from('notifications').insert({ tenant_id: DEFAULT_TENANT_ID,
+ user_id: userId, type: 'claim_rejected', message: message || 'Your venue claim has been rejected.' });
       }
-      await supabase.from('audit_log').insert({ tenant_id: tenant!.id, actor_id: profile?.id, action: `claim_${action}`, entity_type: 'claim_request', entity_id: claimId });
+      await supabase.from('audit_log').insert({ tenant_id: DEFAULT_TENANT_ID,
+ actor_id: profile?.id, action: `claim_${action}`, entity_type: 'claim_request', entity_id: claimId });
     },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: [tenant?.id, 'admin-claims'] });
+      qc.invalidateQueries({ queryKey: ['admin-claims'] });
       setSelected(null);
       setMessage('');
       toast.success('Claim processed');

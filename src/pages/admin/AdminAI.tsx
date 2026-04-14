@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useTenantStore } from '@/stores/tenantStore';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -22,7 +21,6 @@ const PROVIDERS: { value: Provider; label: string; desc: string }[] = [
 ];
 
 export default function AdminAI() {
-  const tenant = useTenantStore((s) => s.tenant);
   const [settingsId, setSettingsId] = useState<string | null>(null);
   const [provider, setProvider] = useState<Provider>('none');
   const [apiKey, setApiKey] = useState('');
@@ -36,7 +34,6 @@ export default function AdminAI() {
   const [translating, setTranslating] = useState(false);
 
   useEffect(() => {
-    if (!tenant) return;
     supabase.from('site_settings').select('id, translation_provider, translation_api_key, translation_model, local_llm_endpoint, user_api_keys_enabled').eq('tenant_id', tenant.id).maybeSingle().then(({ data }) => {
       if (data) {
         setSettingsId(data.id);
@@ -48,7 +45,7 @@ export default function AdminAI() {
       }
       setLoading(false);
     });
-  }, [tenant]);
+  }, []);
 
   const handleTest = async () => {
     setTestStatus('testing');
@@ -70,7 +67,6 @@ export default function AdminAI() {
   };
 
   const handleSave = async () => {
-    if (!tenant) return;
     setSaving(true);
     const payload = {
       translation_provider: provider === 'none' ? null : provider,

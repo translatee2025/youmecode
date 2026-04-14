@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { useTenantStore } from '@/stores/tenantStore';
 import { useAuthStore } from '@/stores/authStore';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -15,7 +14,6 @@ import { format } from 'date-fns';
 
 export default function EventDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const tenant = useTenantStore((s) => s.tenant);
   const profile = useAuthStore((s) => s.profile);
   const [event, setEvent] = useState<any>(null);
   const [venue, setVenue] = useState<any>(null);
@@ -23,11 +21,11 @@ export default function EventDetailPage() {
   const [siteName, setSiteName] = useState('');
 
   useEffect(() => {
-    if (!tenant || !id) return;
-    supabase.from('site_settings').select('site_name').eq('tenant_id', tenant.id).maybeSingle().then(({ data }) => {
-      setSiteName((data as any)?.site_name ?? tenant.name);
+    if (!id) return;
+    supabase.from('site_settings').select('site_name').maybeSingle().then(({ data }) => {
+      setSiteName((data as any)?.site_name ?? 'My Community');
     });
-    supabase.from('events').select('*').eq('tenant_id', tenant.id).eq('id', id).maybeSingle().then(async ({ data }) => {
+    supabase.from('events').select('*').eq('id', id).maybeSingle().then(async ({ data }) => {
       setEvent(data);
       if (data?.venue_id) {
         const { data: v } = await supabase.from('venues').select('name, slug').eq('id', data.venue_id).maybeSingle();
@@ -35,7 +33,7 @@ export default function EventDetailPage() {
       }
       setLoading(false);
     });
-  }, [tenant, id]);
+  }, [id]);
 
   if (loading) return <FullscreenLoader />;
   if (!event) return <NotFound />;
@@ -50,7 +48,7 @@ export default function EventDetailPage() {
   };
 
   const handleRsvp = async () => {
-    if (!profile || !tenant) return;
+    if (!profile) return;
     await supabase.from('events').update({ attendees_count: (event.attendees_count ?? 0) + 1 } as any).eq('id', event.id);
     setEvent({ ...event, attendees_count: (event.attendees_count ?? 0) + 1 });
   };

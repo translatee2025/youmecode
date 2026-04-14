@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useTenantStore } from '@/stores/tenantStore';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -35,7 +34,6 @@ const defaultSettings: SiteSettings = {
 };
 
 export default function AdminSiteSettings() {
-  const tenant = useTenantStore((s) => s.tenant);
   const [form, setForm] = useState<SiteSettings>(defaultSettings);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -43,8 +41,7 @@ export default function AdminSiteSettings() {
   const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
-    if (!tenant) return;
-    supabase.from('site_settings').select('*').eq('tenant_id', tenant.id).maybeSingle().then(({ data }) => {
+    supabase.from('site_settings').select('*').eq('tenant_id', DEFAULT_TENANT_ID).maybeSingle().then(({ data }) => {
       if (data) {
         setForm({
           id: data.id,
@@ -62,7 +59,7 @@ export default function AdminSiteSettings() {
       }
       setLoading(false);
     });
-  }, [tenant]);
+  }, []);
 
   const update = <K extends keyof SiteSettings>(key: K, value: SiteSettings[K]) =>
     setForm(prev => ({ ...prev, [key]: value }));
@@ -72,9 +69,9 @@ export default function AdminSiteSettings() {
 
   const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file || !tenant) return;
+    if (!file ) return;
     setUploading(true);
-    const path = `${tenant.id}/logo-${Date.now()}.${file.name.split('.').pop()}`;
+    const path = `${DEFAULT_TENANT_ID}/logo-${Date.now()}.${file.name.split('.').pop()}`;
     const { error } = await supabase.storage.from('media').upload(path, file, { upsert: true });
     if (error) { toast({ title: 'Upload failed', variant: 'destructive' }); setUploading(false); return; }
     const { data: { publicUrl } } = supabase.storage.from('media').getPublicUrl(path);
@@ -88,10 +85,9 @@ export default function AdminSiteSettings() {
   };
 
   const handleSave = async () => {
-    if (!tenant) return;
     setSaving(true);
     const payload = {
-      tenant_id: tenant.id,
+      tenant_id: DEFAULT_TENANT_ID,
       site_name: form.site_name,
       site_tagline: form.site_tagline,
       site_logo_url: form.site_logo_url,

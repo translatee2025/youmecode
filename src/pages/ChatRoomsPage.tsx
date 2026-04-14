@@ -1,6 +1,6 @@
+import { DEFAULT_TENANT_ID } from '@/config';
 import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useTenantStore } from '@/stores/tenantStore';
 import { useAuthStore } from '@/stores/authStore';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Input } from '@/components/ui/input';
@@ -31,7 +31,6 @@ interface ChatMessage {
 }
 
 export default function ChatRoomsPage() {
-  const tenant = useTenantStore((s) => s.tenant);
   const { profile } = useAuthStore();
   const isMobile = useIsMobile();
   const [rooms, setRooms] = useState<ChatRoom[]>([]);
@@ -43,22 +42,19 @@ export default function ChatRoomsPage() {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!tenant) return;
     supabase
       .from('chat_rooms')
       .select('*')
-      .eq('tenant_id', tenant.id)
       .then(({ data }) => setRooms(data || []));
-  }, [tenant]);
+  }, []);
 
   useEffect(() => {
-    if (!activeRoom || !tenant) return;
+    if (!activeRoom) return;
     const load = async () => {
       const { data } = await supabase
         .from('chat_messages')
         .select('*')
         .eq('room_id', activeRoom.id)
-        .eq('tenant_id', tenant.id)
         .order('created_at', { ascending: true })
         .limit(200);
 
@@ -91,18 +87,17 @@ export default function ChatRoomsPage() {
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };
-  }, [activeRoom, tenant]);
+  }, [activeRoom]);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
   }, [messages]);
 
   const sendMessage = async () => {
-    if (!input.trim() || !activeRoom || !tenant || !profile) return;
+    if (!input.trim() || !activeRoom || !profile) return;
     const content = input.trim();
     setInput('');
-    await supabase.from('chat_messages').insert({
-      tenant_id: tenant.id,
+    await supabase.from('chat_messages').insert({ tenant_id: DEFAULT_TENANT_ID,
       room_id: activeRoom.id,
       sender_id: profile.id,
       content,

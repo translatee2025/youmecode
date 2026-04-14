@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useTenantStore } from '@/stores/tenantStore';
 import { useAuthStore } from '@/stores/authStore';
 import { Button } from '@/components/ui/button';
 import { formatDistanceToNow } from 'date-fns';
@@ -8,26 +7,23 @@ import { Bell, CheckCheck } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export default function NotificationsPage() {
-  const tenant = useTenantStore((s) => s.tenant);
   const profile = useAuthStore((s) => s.profile);
   const [notifications, setNotifications] = useState<any[]>([]);
   const [page, setPage] = useState(0);
 
   const load = async () => {
-    if (!tenant || !profile) return;
-    const { data } = await supabase.from('notifications').select('*')
-      .eq('tenant_id', tenant.id).eq('user_id', profile.id)
+    if (!profile) return;
+    const { data } = await supabase.from('notifications').select('*').eq('user_id', profile.id)
       .order('created_at', { ascending: false })
       .range(0, (page + 1) * 20 - 1);
     setNotifications(data ?? []);
   };
 
-  useEffect(() => { load(); }, [tenant, profile, page]);
+  useEffect(() => { load(); }, [profile, page]);
 
   const markAllRead = async () => {
-    if (!tenant || !profile) return;
-    await supabase.from('notifications').update({ read_at: new Date().toISOString() })
-      .eq('tenant_id', tenant.id).eq('user_id', profile.id).is('read_at', null);
+    if (!profile) return;
+    await supabase.from('notifications').update({ read_at: new Date().toISOString() }).eq('user_id', profile.id).is('read_at', null);
     load();
   };
 

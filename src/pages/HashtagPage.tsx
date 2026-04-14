@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { useTenantStore } from '@/stores/tenantStore';
 import { useAuthStore } from '@/stores/authStore';
 import PostCard from '@/components/social/PostCard';
 import FollowButton from '@/components/common/FollowButton';
@@ -10,27 +9,26 @@ import { Hash } from 'lucide-react';
 
 export default function HashtagPage() {
   const { tag } = useParams<{ tag: string }>();
-  const tenant = useTenantStore((s) => s.tenant);
   const [hashtag, setHashtag] = useState<any>(null);
   const [posts, setPosts] = useState<any[]>([]);
   const [tab, setTab] = useState('top');
 
   useEffect(() => {
-    if (!tenant || !tag) return;
-    supabase.from('hashtags').select('*').eq('tenant_id', tenant.id).eq('tag', tag).maybeSingle()
+    if (!tag) return;
+    supabase.from('hashtags').select('*').eq('tag', tag).maybeSingle()
       .then(({ data }) => setHashtag(data));
-  }, [tenant, tag]);
+  }, [tag]);
 
   useEffect(() => {
-    if (!tenant || !tag) return;
-    let query = supabase.from('posts').select('*').eq('tenant_id', tenant.id).contains('hashtags', [tag]);
+    if (!tag) return;
+    let query = supabase.from('posts').select('*').contains('hashtags', [tag]);
     if (tab === 'top') {
       query = query.order('likes_count', { ascending: false });
     } else {
       query = query.order('created_at', { ascending: false });
     }
     query.limit(50).then(({ data }) => setPosts(data ?? []));
-  }, [tenant, tag, tab]);
+  }, [tag, tab]);
 
   return (
     <div className="min-h-screen" style={{ background: 'var(--color-bg)' }}>

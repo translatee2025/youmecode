@@ -1,7 +1,7 @@
+import { DEFAULT_TENANT_ID } from '@/config';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { useTenantStore } from '@/stores/tenantStore';
 import { useAuthStore } from '@/stores/authStore';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -23,7 +23,6 @@ interface Props {
 }
 
 export default function PostCard({ post, user, onReport, onRefresh }: Props) {
-  const tenant = useTenantStore((s) => s.tenant);
   const profile = useAuthStore((s) => s.profile);
   const [showComments, setShowComments] = useState(false);
   const [expanded, setExpanded] = useState(false);
@@ -43,15 +42,17 @@ export default function PostCard({ post, user, onReport, onRefresh }: Props) {
   };
 
   const handleBlock = async () => {
-    if (!tenant || !profile || !post.user_id) return;
-    await supabase.from('blocks').insert({ tenant_id: tenant.id, blocker_id: profile.id, blocked_id: post.user_id });
+    if (!profile || !post.user_id) return;
+    await supabase.from('blocks').insert({ tenant_id: DEFAULT_TENANT_ID,
+ blocker_id: profile.id, blocked_id: post.user_id });
     toast({ title: 'User blocked' });
     onRefresh?.();
   };
 
   const handleMute = async () => {
-    if (!tenant || !profile || !post.user_id) return;
-    await supabase.from('mutes').insert({ tenant_id: tenant.id, muter_id: profile.id, muted_id: post.user_id });
+    if (!profile || !post.user_id) return;
+    await supabase.from('mutes').insert({ tenant_id: DEFAULT_TENANT_ID,
+ muter_id: profile.id, muted_id: post.user_id });
     toast({ title: 'User muted' });
     onRefresh?.();
   };

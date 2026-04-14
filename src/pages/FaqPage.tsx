@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useTenantStore } from '@/stores/tenantStore';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
@@ -9,7 +8,6 @@ import { Helmet } from 'react-helmet-async';
 import { Search } from 'lucide-react';
 
 export default function FaqPage() {
-  const tenant = useTenantStore((s) => s.tenant);
   const [faqs, setFaqs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -17,15 +15,14 @@ export default function FaqPage() {
   const [siteName, setSiteName] = useState('');
 
   useEffect(() => {
-    if (!tenant) return;
-    supabase.from('site_settings').select('site_name').eq('tenant_id', tenant.id).maybeSingle().then(({ data }) => {
-      setSiteName((data as any)?.site_name ?? tenant.name);
+    supabase.from('site_settings').select('site_name').maybeSingle().then(({ data }) => {
+      setSiteName((data as any)?.site_name ?? 'My Community');
     });
-    supabase.from('faqs').select('*').eq('tenant_id', tenant.id).eq('is_active', true).order('sort_order').then(({ data }) => {
+    supabase.from('faqs').select('*').eq('is_active', true).order('sort_order').then(({ data }) => {
       setFaqs(data ?? []);
       setLoading(false);
     });
-  }, [tenant]);
+  }, []);
 
   if (loading) return <FullscreenLoader />;
 

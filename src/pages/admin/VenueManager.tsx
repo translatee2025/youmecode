@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useTenantStore } from '@/stores/tenantStore';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -23,7 +22,6 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 export default function VenueManager() {
-  const tenant = useTenantStore((s) => s.tenant);
   const qc = useQueryClient();
   const navigate = useNavigate();
   const [search, setSearch] = useState('');
@@ -31,22 +29,19 @@ export default function VenueManager() {
   const [categoryFilter, setCategoryFilter] = useState('all');
 
   const { data: categories = [] } = useQuery({
-    queryKey: [tenant?.id, 'categories-list'],
-    enabled: !!tenant?.id,
+    queryKey: ['categories-list'],
     queryFn: async () => {
-      const { data } = await supabase.from('categories').select('id, name').eq('tenant_id', tenant!.id);
+      const { data } = await supabase.from('categories').select('id, name');
       return data || [];
     },
   });
 
   const { data: venues = [], isLoading } = useQuery({
-    queryKey: [tenant?.id, 'admin-venues', search, statusFilter, categoryFilter],
-    enabled: !!tenant?.id,
+    queryKey: ['admin-venues', search, statusFilter, categoryFilter],
     queryFn: async () => {
       let q = supabase
         .from('venues')
         .select('*, categories(name)')
-        .eq('tenant_id', tenant!.id)
         .order('created_at', { ascending: false });
 
       if (search) q = q.ilike('name', `%${search}%`);
@@ -61,11 +56,11 @@ export default function VenueManager() {
 
   const updateVenue = useMutation({
     mutationFn: async ({ id, updates }: { id: string; updates: Record<string, any> }) => {
-      const { error } = await supabase.from('venues').update(updates).eq('id', id).eq('tenant_id', tenant!.id);
+      const { error } = await supabase.from('venues').update(updates).eq('id', id);
       if (error) throw error;
     },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: [tenant?.id, 'admin-venues'] });
+      qc.invalidateQueries({ queryKey: ['admin-venues'] });
       toast.success('Venue updated');
     },
     onError: (e: any) => toast.error(e.message),
@@ -73,11 +68,11 @@ export default function VenueManager() {
 
   const deleteVenue = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from('venues').delete().eq('id', id).eq('tenant_id', tenant!.id);
+      const { error } = await supabase.from('venues').delete().eq('id', id);
       if (error) throw error;
     },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: [tenant?.id, 'admin-venues'] });
+      qc.invalidateQueries({ queryKey: ['admin-venues'] });
       toast.success('Venue deleted');
     },
     onError: (e: any) => toast.error(e.message),

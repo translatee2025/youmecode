@@ -3,7 +3,6 @@ import type { Session } from '@supabase/supabase-js';
 
 export interface UserProfile {
   id: string;
-  tenant_id: string;
   email: string | null;
   username: string | null;
   display_name: string | null;

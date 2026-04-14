@@ -1,7 +1,7 @@
+import { DEFAULT_TENANT_ID } from '@/config';
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { useTenantStore } from '@/stores/tenantStore';
 import { useAuthStore } from '@/stores/authStore';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -25,7 +25,6 @@ export default function AddProductPage() {
   const [searchParams] = useSearchParams();
   const venueId = searchParams.get('venueId');
   const navigate = useNavigate();
-  const tenant = useTenantStore((s) => s.tenant);
   const profile = useAuthStore((s) => s.profile);
   const [venue, setVenue] = useState<any>(null);
   const [settings, setSettings] = useState<any>(null);
@@ -49,23 +48,23 @@ export default function AddProductPage() {
   const [previews, setPreviews] = useState<string[]>([]);
 
   useEffect(() => {
-    if (!tenant || !venueId) return;
+    if (!venueId) return;
     Promise.all([
-      (supabase.from('venues' as any).select('*').eq('id', venueId).eq('tenant_id', tenant.id).maybeSingle() as any),
-      supabase.from('site_settings').select('*').eq('tenant_id', tenant.id).maybeSingle(),
+      (supabase.from('venues' as any).select('*').eq('id', venueId).maybeSingle() as any),
+      supabase.from('site_settings').select('*').maybeSingle(),
     ]).then(([vRes, sRes]: any) => {
       const v = vRes.data;
       setVenue(v);
       setSettings(sRes.data);
       if (v?.category_id) {
-        supabase.from('product_types').select('*').eq('tenant_id', tenant.id).eq('category_id', v.category_id).eq('is_active', true).order('sort_order')
+        supabase.from('product_types').select('*').eq('category_id', v.category_id).eq('is_active', true).order('sort_order')
           .then(({ data }) => setProductTypes(data ?? []));
-        supabase.from('filter_fields').select('*').eq('tenant_id', tenant.id).eq('category_id', v.category_id).eq('is_active', true).in('applies_to', ['product', 'both']).order('sort_order')
+        supabase.from('filter_fields').select('*').eq('category_id', v.category_id).eq('is_active', true).in('applies_to', ['product', 'both']).order('sort_order')
           .then(({ data }) => setFilterFields(data ?? []));
       }
       setLoading(false);
     });
-  }, [tenant, venueId]);
+  }, [venueId]);
 
   if (loading) return <FullscreenLoader />;
   if (!venue) return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Venue not found</div>;
@@ -117,7 +116,7 @@ export default function AddProductPage() {
   };
 
   const handleSubmit = async () => {
-    if (!tenant || !profile || !name.trim()) return;
+    if (!profile || !name.trim()) return;
     setSubmitting(true);
     try {
       const imageUrls: string[] = [];
@@ -129,8 +128,7 @@ export default function AddProductPage() {
         imageUrls.push(pub.publicUrl);
       }
 
-      const { error } = await supabase.from('products').insert({
-        tenant_id: tenant.id,
+      const { error } = await supabase.from('products').insert({ tenant_id: DEFAULT_TENANT_ID,
         venue_id: venueId,
         name: name.trim(),
         description: description.trim() || null,

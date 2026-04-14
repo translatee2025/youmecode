@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useTenantStore } from '@/stores/tenantStore';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -12,28 +11,25 @@ import { MoreVertical, ShoppingBag, Settings, Lock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export default function ProductManager() {
-  const tenant = useTenantStore((s) => s.tenant);
   const qc = useQueryClient();
   const navigate = useNavigate();
   const [statusFilter, setStatusFilter] = useState('all');
 
   const { data: siteSettings } = useQuery({
-    queryKey: [tenant?.id, 'site-settings'],
-    enabled: !!tenant?.id,
+    queryKey: ['site-settings'],
     queryFn: async () => {
-      const { data } = await supabase.from('site_settings').select('commerce_enabled').eq('tenant_id', tenant!.id).single();
+      const { data } = await supabase.from('site_settings').select('commerce_enabled').single();
       return data;
     },
   });
 
   const { data: products = [], isLoading } = useQuery({
-    queryKey: [tenant?.id, 'admin-products', statusFilter],
-    enabled: !!tenant?.id && siteSettings?.commerce_enabled === true,
+    queryKey: ['admin-products', statusFilter],
+    enabled: siteSettings?.commerce_enabled === true,
     queryFn: async () => {
       let q = supabase
         .from('products')
         .select('*, venues(name), categories(name)')
-        .eq('tenant_id', tenant!.id)
         .order('created_at', { ascending: false });
 
       if (statusFilter !== 'all') q = q.eq('status', statusFilter);
@@ -45,11 +41,11 @@ export default function ProductManager() {
 
   const updateProduct = useMutation({
     mutationFn: async ({ id, updates }: { id: string; updates: Record<string, any> }) => {
-      const { error } = await supabase.from('products').update(updates).eq('id', id).eq('tenant_id', tenant!.id);
+      const { error } = await supabase.from('products').update(updates).eq('id', id);
       if (error) throw error;
     },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: [tenant?.id, 'admin-products'] });
+      qc.invalidateQueries({ queryKey: ['admin-products'] });
       toast.success('Product updated');
     },
     onError: (e: any) => toast.error(e.message),
@@ -57,11 +53,11 @@ export default function ProductManager() {
 
   const deleteProduct = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from('products').delete().eq('id', id).eq('tenant_id', tenant!.id);
+      const { error } = await supabase.from('products').delete().eq('id', id);
       if (error) throw error;
     },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: [tenant?.id, 'admin-products'] });
+      qc.invalidateQueries({ queryKey: ['admin-products'] });
       toast.success('Product deleted');
     },
     onError: (e: any) => toast.error(e.message),

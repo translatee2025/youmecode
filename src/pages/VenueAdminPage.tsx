@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { useTenantStore } from '@/stores/tenantStore';
 import { useAuthStore } from '@/stores/authStore';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -11,7 +10,7 @@ import { BarChart3, Eye, Users, Star, MessageCircle, QrCode, ArrowLeft, Megaphon
 import QRCode from 'qrcode';
 import { toast } from '@/hooks/use-toast';
 
-function downloadPrintableCard(venue: any, qrDataUrl: string, tenant: any) {
+function downloadPrintableCard(venue: any, qrDataUrl: string) {
   const canvas = document.createElement('canvas');
   canvas.width = 600;
   canvas.height = 800;
@@ -23,7 +22,7 @@ function downloadPrintableCard(venue: any, qrDataUrl: string, tenant: any) {
   ctx.fillStyle = '#111111';
   ctx.font = 'bold 28px system-ui, sans-serif';
   ctx.textAlign = 'center';
-  ctx.fillText(tenant?.name ?? 'Platform', 300, 60);
+  ctx.fillText('My Community', 300, 60);
 
   // Venue name
   ctx.font = 'bold 22px system-ui, sans-serif';
@@ -51,7 +50,6 @@ function downloadPrintableCard(venue: any, qrDataUrl: string, tenant: any) {
 
 export default function VenueAdminPage() {
   const { venueId } = useParams<{ venueId: string }>();
-  const tenant = useTenantStore((s) => s.tenant);
   const profile = useAuthStore((s) => s.profile);
   const [venue, setVenue] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -60,13 +58,13 @@ export default function VenueAdminPage() {
   const [subscription, setSubscription] = useState<any>(null);
 
   useEffect(() => {
-    if (!tenant || !venueId) return;
+    if (!venueId) return;
     Promise.all([
-      (supabase.from('venues' as any).select('*').eq('id', venueId).eq('tenant_id', tenant.id).maybeSingle() as any),
-      supabase.from('follows').select('id', { count: 'exact', head: true }).eq('tenant_id', tenant.id).eq('followee_id', venueId).eq('followee_type', 'venue'),
-      supabase.from('ratings').select('score').eq('tenant_id', tenant.id).eq('entity_id', venueId).eq('entity_type', 'venue'),
-      supabase.from('comments').select('id', { count: 'exact', head: true }).eq('tenant_id', tenant.id).eq('entity_id', venueId).eq('entity_type', 'venue'),
-      (supabase.from('subscriptions' as any).select('*').eq('tenant_id', tenant.id).eq('venue_id', venueId).order('created_at', { ascending: false }).limit(1).maybeSingle() as any),
+      (supabase.from('venues' as any).select('*').eq('id', venueId).maybeSingle() as any),
+      supabase.from('follows').select('id', { count: 'exact', head: true }).eq('followee_id', venueId).eq('followee_type', 'venue'),
+      supabase.from('ratings').select('score').eq('entity_id', venueId).eq('entity_type', 'venue'),
+      supabase.from('comments').select('id', { count: 'exact', head: true }).eq('entity_id', venueId).eq('entity_type', 'venue'),
+      (supabase.from('subscriptions' as any).select('*').eq('venue_id', venueId).order('created_at', { ascending: false }).limit(1).maybeSingle() as any),
     ]).then(([vRes, fRes, rRes, cRes, sRes]: any) => {
       const v = vRes.data;
       setVenue(v);
@@ -86,7 +84,7 @@ export default function VenueAdminPage() {
       const url = `${window.location.origin}/venues/${v?.slug}`;
       QRCode.toDataURL(url, { width: 256, margin: 2 }).then(setQrUrl).catch(() => {});
     });
-  }, [tenant, venueId]);
+  }, [venueId]);
 
   if (loading) return <FullscreenLoader />;
   if (!venue) return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Venue not found</div>;
@@ -154,7 +152,7 @@ export default function VenueAdminPage() {
             </a>
           )}
           {qrUrl && (
-            <Button variant="outline" onClick={() => downloadPrintableCard(venue, qrUrl, tenant)}>
+            <Button variant="outline" onClick={() => downloadPrintableCard(venue, qrUrl)}>
               <QrCode className="h-4 w-4 mr-2" /> Printable Card
             </Button>
           )}

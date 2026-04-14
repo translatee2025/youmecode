@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { useTenantStore } from '@/stores/tenantStore';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import FullscreenLoader from '@/components/FullscreenLoader';
 import { Helmet } from 'react-helmet-async';
@@ -14,7 +13,6 @@ const PRIMARY_COLOR = 'hsl(var(--primary))';
 const MUTED_COLOR = 'hsl(var(--muted-foreground))';
 
 export default function ChartsPage() {
-  const tenant = useTenantStore((s) => s.tenant);
   const [loading, setLoading] = useState(true);
   const [enabled, setEnabled] = useState(false);
   const [commerceEnabled, setCommerceEnabled] = useState(false);
@@ -29,19 +27,18 @@ export default function ChartsPage() {
   const [siteName, setSiteName] = useState('');
 
   useEffect(() => {
-    if (!tenant) return;
     Promise.all([
-      supabase.from('module_settings').select('is_enabled').eq('tenant_id', tenant.id).eq('module_key', 'charts').maybeSingle(),
-      supabase.from('site_settings').select('site_name, commerce_enabled').eq('tenant_id', tenant.id).maybeSingle(),
-      supabase.from('categories').select('id, name').eq('tenant_id', tenant.id).eq('is_active', true),
-      supabase.from('venues').select('id, name, slug, rating_avg, likes_count, views_count, category_id, location_city, created_at').eq('tenant_id', tenant.id).neq('status', 'opted_out'),
-      supabase.from('users').select('id, username, display_name, followers_count, created_at').eq('tenant_id', tenant.id),
-      supabase.from('products').select('id, name, likes_count, rating_avg').eq('tenant_id', tenant.id).eq('status', 'active'),
-      supabase.from('posts').select('id, user_id').eq('tenant_id', tenant.id),
+      supabase.from('module_settings').select('is_enabled').eq('module_key', 'charts').maybeSingle(),
+      supabase.from('site_settings').select('site_name, commerce_enabled').maybeSingle(),
+      supabase.from('categories').select('id, name').eq('is_active', true),
+      supabase.from('venues').select('id, name, slug, rating_avg, likes_count, views_count, category_id, location_city, created_at').neq('status', 'opted_out'),
+      supabase.from('users').select('id, username, display_name, followers_count, created_at'),
+      supabase.from('products').select('id, name, likes_count, rating_avg').eq('status', 'active'),
+      supabase.from('posts').select('id, user_id'),
     ]).then(([modRes, ssRes, catRes, vRes, uRes, pRes, postRes]) => {
       setEnabled((modRes.data as any)?.is_enabled !== false);
       const ss = ssRes.data as any;
-      setSiteName(ss?.site_name ?? tenant.name);
+      setSiteName(ss?.site_name ?? 'My Community');
       setCommerceEnabled(ss?.commerce_enabled === true);
       setCategories(catRes.data ?? []);
       const allVenues = vRes.data ?? [];
@@ -57,7 +54,7 @@ export default function ChartsPage() {
       setProducts(pRes.data ?? []);
       setLoading(false);
     });
-  }, [tenant]);
+  }, []);
 
   if (loading) return <FullscreenLoader />;
   if (!enabled) return (

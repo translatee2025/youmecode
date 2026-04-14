@@ -1,7 +1,7 @@
+import { DEFAULT_TENANT_ID } from '@/config';
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useTenantStore } from '@/stores/tenantStore';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
@@ -13,15 +13,13 @@ import { toast } from 'sonner';
 import { Plus, Save, Trash2, ExternalLink, GripVertical } from 'lucide-react';
 
 export default function FaqManager() {
-  const tenant = useTenantStore((s) => s.tenant);
   const qc = useQueryClient();
   const [editing, setEditing] = useState<any>(null);
 
   const { data: faqs = [], isLoading } = useQuery({
-    queryKey: [tenant?.id, 'admin-faqs'],
-    enabled: !!tenant?.id,
+    queryKey: ['admin-faqs'],
     queryFn: async () => {
-      const { data, error } = await supabase.from('faqs').select('*').eq('tenant_id', tenant!.id).order('sort_order');
+      const { data, error } = await supabase.from('faqs').select('*').order('sort_order');
       if (error) throw error;
       return data || [];
     },
@@ -30,7 +28,6 @@ export default function FaqManager() {
   const saveFaq = useMutation({
     mutationFn: async (faq: any) => {
       const payload = {
-        tenant_id: tenant!.id,
         question: faq.question,
         answer: faq.answer,
         category: faq.category || null,
@@ -41,12 +38,12 @@ export default function FaqManager() {
         const { error } = await supabase.from('faqs').update(payload).eq('id', faq.id);
         if (error) throw error;
       } else {
-        const { error } = await supabase.from('faqs').insert(payload);
+        const { error } = await supabase.from('faqs').insert({ ...payload, tenant_id: DEFAULT_TENANT_ID });
         if (error) throw error;
       }
     },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: [tenant?.id, 'admin-faqs'] });
+      qc.invalidateQueries({ queryKey: ['admin-faqs'] });
       setEditing(null);
       toast.success('FAQ saved');
     },
@@ -59,7 +56,7 @@ export default function FaqManager() {
       if (error) throw error;
     },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: [tenant?.id, 'admin-faqs'] });
+      qc.invalidateQueries({ queryKey: ['admin-faqs'] });
       toast.success('FAQ deleted');
     },
   });
@@ -69,7 +66,7 @@ export default function FaqManager() {
       const { error } = await supabase.from('faqs').update({ is_active: active }).eq('id', id);
       if (error) throw error;
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: [tenant?.id, 'admin-faqs'] }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['admin-faqs'] }),
   });
 
   const newFaq = () => setEditing({ question: '', answer: '', category: '', is_active: true, sort_order: faqs.length });

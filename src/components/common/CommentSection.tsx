@@ -1,6 +1,6 @@
+import { DEFAULT_TENANT_ID } from '@/config';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useTenantStore } from '@/stores/tenantStore';
 import { useAuthStore } from '@/stores/authStore';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -27,7 +27,6 @@ interface Props {
 }
 
 export default function CommentSection({ entityType, entityId }: Props) {
-  const tenant = useTenantStore((s) => s.tenant);
   const profile = useAuthStore((s) => s.profile);
   const [comments, setComments] = useState<Comment[]>([]);
   const [text, setText] = useState('');
@@ -36,11 +35,9 @@ export default function CommentSection({ entityType, entityId }: Props) {
   const [loading, setLoading] = useState(false);
 
   const load = async () => {
-    if (!tenant) return;
     const { data } = await supabase
       .from('comments')
       .select('*')
-      .eq('tenant_id', tenant.id)
       .eq('entity_type', entityType)
       .eq('entity_id', entityId)
       .eq('is_hidden', false)
@@ -55,17 +52,16 @@ export default function CommentSection({ entityType, entityId }: Props) {
     setComments(topLevel);
   };
 
-  useEffect(() => { load(); }, [tenant, entityType, entityId]);
+  useEffect(() => { load(); }, [entityType, entityId]);
 
   const submit = async (parentId: string | null, content: string) => {
-    if (!profile || !tenant) {
+    if (!profile) {
       toast({ title: 'Please sign in to comment', variant: 'destructive' });
       return;
     }
     if (!content.trim()) return;
     setLoading(true);
-    await supabase.from('comments').insert({
-      tenant_id: tenant.id,
+    await supabase.from('comments').insert({ tenant_id: DEFAULT_TENANT_ID,
       entity_type: entityType,
       entity_id: entityId,
       user_id: profile.id,

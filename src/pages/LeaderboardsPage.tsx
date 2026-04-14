@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { useTenantStore } from '@/stores/tenantStore';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -9,7 +8,6 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Trophy, TrendingUp } from 'lucide-react';
 
 export default function LeaderboardsPage() {
-  const tenant = useTenantStore((s) => s.tenant);
   const [tab, setTab] = useState('venues');
   const [timeFilter, setTimeFilter] = useState('all');
   const [venues, setVenues] = useState<any[]>([]);
@@ -17,14 +15,13 @@ export default function LeaderboardsPage() {
   const [products, setProducts] = useState<any[]>([]);
 
   useEffect(() => {
-    if (!tenant) return;
-    (supabase.from('venues' as any).select('*').eq('tenant_id', tenant.id).order('likes_count', { ascending: false }).limit(20) as any)
+    (supabase.from('venues' as any).select('*').order('likes_count', { ascending: false }).limit(20) as any)
       .then(({ data }: any) => setVenues(data ?? []));
-    (supabase.from('users' as any).select('*').eq('tenant_id', tenant.id).order('follower_count', { ascending: false }).limit(20) as any)
+    (supabase.from('users' as any).select('*').order('follower_count', { ascending: false }).limit(20) as any)
       .then(({ data }: any) => setUsers(data ?? []));
-    supabase.from('products').select('*').eq('tenant_id', tenant.id).order('likes_count', { ascending: false }).limit(20)
+    supabase.from('products').select('*').order('likes_count', { ascending: false }).limit(20)
       .then(({ data }) => setProducts(data ?? []));
-  }, [tenant, timeFilter]);
+  }, [timeFilter]);
 
   const rankColors = ['text-amber-400', 'text-muted-foreground', 'text-amber-700'];
 

@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useTenantStore } from '@/stores/tenantStore';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -9,19 +8,17 @@ import { toast } from '@/hooks/use-toast';
 import { Search, Ban, CheckCircle2 } from 'lucide-react';
 
 export default function PlatformUsersPage() {
-  const tenant = useTenantStore((s) => s.tenant);
   const [users, setUsers] = useState<any[]>([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
 
   const load = async () => {
-    if (!tenant) return;
-    const { data } = await supabase.from('users').select('*').eq('tenant_id', tenant.id).order('created_at', { ascending: false }).limit(200);
+    const { data } = await supabase.from('users').select('*').order('created_at', { ascending: false }).limit(200);
     setUsers(data ?? []);
     setLoading(false);
   };
 
-  useEffect(() => { load(); }, [tenant]);
+  useEffect(() => { load(); }, []);
 
   const toggleBan = async (user: any) => {
     await supabase.from('users').update({ is_banned: !user.is_banned }).eq('id', user.id);

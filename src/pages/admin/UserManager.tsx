@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useTenantStore } from '@/stores/tenantStore';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -27,7 +26,6 @@ const roleBadgeVariant = (role: string) => {
 };
 
 export default function UserManager() {
-  const tenant = useTenantStore((s) => s.tenant);
   const qc = useQueryClient();
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
@@ -37,13 +35,11 @@ export default function UserManager() {
   const [detailUser, setDetailUser] = useState<any>(null);
 
   const { data: users = [], isLoading } = useQuery({
-    queryKey: [tenant?.id, 'admin-users', search, roleFilter, statusFilter, sortBy],
-    enabled: !!tenant?.id,
+    queryKey: ['admin-users', search, roleFilter, statusFilter, sortBy],
     queryFn: async () => {
       let q = supabase
         .from('users')
         .select('*')
-        .eq('tenant_id', tenant!.id)
         .order(sortBy, { ascending: sortBy === 'username' });
 
       if (search) q = q.or(`username.ilike.%${search}%,email.ilike.%${search}%,display_name.ilike.%${search}%`);
@@ -59,11 +55,11 @@ export default function UserManager() {
 
   const updateUser = useMutation({
     mutationFn: async ({ id, updates }: { id: string; updates: Record<string, any> }) => {
-      const { error } = await supabase.from('users').update(updates).eq('id', id).eq('tenant_id', tenant!.id);
+      const { error } = await supabase.from('users').update(updates).eq('id', id);
       if (error) throw error;
     },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: [tenant?.id, 'admin-users'] });
+      qc.invalidateQueries({ queryKey: ['admin-users'] });
       toast.success('User updated');
     },
     onError: (e: any) => toast.error(e.message),
@@ -84,9 +80,9 @@ export default function UserManager() {
 
   const bulkBan = async () => {
     for (const id of selected) {
-      await supabase.from('users').update({ is_banned: true }).eq('id', id).eq('tenant_id', tenant!.id);
+      await supabase.from('users').update({ is_banned: true }).eq('id', id);
     }
-    qc.invalidateQueries({ queryKey: [tenant?.id, 'admin-users'] });
+    qc.invalidateQueries({ queryKey: ['admin-users'] });
     setSelected(new Set());
     toast.success(`${selected.size} users banned`);
   };

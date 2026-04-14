@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { useTenantStore } from '@/stores/tenantStore';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -15,7 +14,6 @@ import { Plus, Pencil, Trash2, X } from 'lucide-react';
 import { format } from 'date-fns';
 
 export default function EventsAdmin() {
-  const tenant = useTenantStore((s) => s.tenant);
   const [events, setEvents] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState('all');
@@ -27,13 +25,12 @@ export default function EventsAdmin() {
   const [saving, setSaving] = useState(false);
 
   const load = async () => {
-    if (!tenant) return;
-    const { data } = await supabase.from('events').select('*').eq('tenant_id', tenant.id).order('start_at', { ascending: false });
+    const { data } = await supabase.from('events').select('*').order('start_at', { ascending: false });
     setEvents(data ?? []);
     setLoading(false);
   };
 
-  useEffect(() => { load(); }, [tenant]);
+  useEffect(() => { load(); }, []);
 
   const filtered = statusFilter === 'all' ? events : events.filter((e) => e.status === statusFilter);
   const upcoming = events.filter((e) => e.status === 'upcoming');
@@ -55,10 +52,10 @@ export default function EventsAdmin() {
   };
 
   const save = async () => {
-    if (!tenant || !form.title.trim()) return;
+    if (!form.title.trim()) return;
     setSaving(true);
     const payload: any = {
-      tenant_id: tenant.id, title: form.title.trim(), description: form.description.trim() || null,
+ title: form.title.trim(), description: form.description.trim() || null,
       cover_image_url: form.cover_image_url.trim() || null, start_at: form.start_at || null, end_at: form.end_at || null,
       address: form.address.trim() || null, capacity: form.capacity ? parseInt(form.capacity) : null,
       ticket_link: form.ticket_link.trim() || null, is_free: form.is_free,
